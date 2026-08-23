@@ -1,0 +1,136 @@
+---
+import RootLayout from '../layouts/RootLayout.astro';
+---
+
+<RootLayout title="Iniciar Sesión — Altario CMS">
+  <div class="h-screen w-screen flex items-center justify-center p-4 bg-muted/40">
+    <div class="w-full max-w-sm">
+      <!-- Logo -->
+      <div class="flex flex-col items-center gap-3 mb-8">
+        <div class="size-12 rounded-xl bg-foreground text-background font-bold text-2xl flex items-center justify-center">
+          A
+        </div>
+        <div class="text-center">
+          <h1 class="text-xl font-semibold text-foreground">Altario CMS</h1>
+          <p class="text-xs text-muted-foreground mt-0.5">Panel de administración parroquial</p>
+        </div>
+      </div>
+
+      <!-- Card -->
+      <div class="bg-background rounded-xl border border-border shadow-sm p-6 space-y-5">
+        <!-- Error banner -->
+        <div id="errorBanner" class="hidden flex items-center gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/30 text-xs text-destructive">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="errorText">Error al iniciar sesión</span>
+        </div>
+
+        <form id="formLogin" class="space-y-4">
+          <div class="space-y-1.5">
+            <label for="email" class="block text-sm font-medium text-foreground">Correo Electrónico</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autocomplete="email"
+              placeholder="correo@parroquia.org"
+              class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            />
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label for="password" class="block text-sm font-medium text-foreground">Contraseña</label>
+            </div>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              autocomplete="current-password"
+              placeholder="••••••••"
+              class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            />
+          </div>
+          <button
+            id="submitBtn"
+            type="submit"
+            class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            Iniciar Sesión
+          </button>
+        </form>
+
+        <!-- Hint -->
+        <div class="border-t pt-4 text-center">
+          <p class="text-xs text-muted-foreground">
+            Usuario por defecto: <strong>secretaria@santamariadelaayuda.org</strong>
+          </p>
+          <p class="text-xs text-muted-foreground mt-0.5">
+            Contraseña: <strong>altario2024</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</RootLayout>
+
+<script>
+  import { login, isAuthenticated } from '@/lib/auth'
+
+  // If already logged in, redirect to dashboard
+  if (isAuthenticated()) {
+    window.location.replace('/')
+  }
+
+  const form = document.getElementById('formLogin') as HTMLFormElement | null
+  const errorBanner = document.getElementById('errorBanner') as HTMLElement | null
+  const errorText = document.getElementById('errorText') as HTMLElement | null
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement | null
+
+  function showError(msg: string) {
+    if (!errorBanner || !errorText) return
+    errorText.textContent = msg
+    errorBanner.classList.remove('hidden')
+    errorBanner.classList.add('flex')
+  }
+
+  function hideError() {
+    errorBanner?.classList.add('hidden')
+    errorBanner?.classList.remove('flex')
+  }
+
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault()
+    hideError()
+
+    const emailInput = document.getElementById('email') as HTMLInputElement
+    const passwordInput = document.getElementById('password') as HTMLInputElement
+
+    const email = emailInput?.value?.trim()
+    const password = passwordInput?.value
+
+    if (!email || !password) {
+      showError('Completá todos los campos')
+      return
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true
+      submitBtn.textContent = 'Verificando...'
+    }
+
+    // Small delay for UX
+    setTimeout(() => {
+      const result = login(email, password)
+      if (result.ok) {
+        window.location.replace('/')
+      } else {
+        showError(result.error ?? 'Error al iniciar sesión')
+        if (submitBtn) {
+          submitBtn.disabled = false
+          submitBtn.textContent = 'Iniciar Sesión'
+        }
+      }
+    }, 300)
+  })
+</script>

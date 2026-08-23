@@ -1,0 +1,18 @@
+[
+  {
+    "id": "admin-1",
+    "nombre": "Secretaría Parroquial",
+    "email": "secretaria@santamariadelaayuda.org",
+    "rol": "admin",
+    "status": "activo",
+    "passwordHash": "hash:1n2e14q:11"
+  },
+  {
+    "id": "admin-2",
+    "nombre": "Padre Martín",
+    "email": "martin@santamariadelaayuda.org",
+    "rol": "editor",
+    "status": "activo",
+    "passwordHash": "hash:1n2e14q:11"
+  }
+]

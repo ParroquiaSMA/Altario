@@ -1,0 +1,11 @@
+---
+import RootLayout from '../layouts/RootLayout.astro';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { MensajesView } from '@/components/views/mensajes-view';
+---
+
+<RootLayout title="Mensajes — Altario CMS">
+  <DashboardShell client:load title="Mensajes" currentPath="/mensajes">
+    <MensajesView client:load />
+  </DashboardShell>
+</RootLayout>

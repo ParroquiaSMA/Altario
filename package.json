@@ -1,0 +1,24 @@
+{
+  "name": "altario",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "npm --prefix web run dev",
+    "dev:web": "npm --prefix web run dev",
+    "dev:cms": "npm --prefix cms run dev",
+    "build": "npm --prefix web run build && npm --prefix cms run build",
+    "build:web": "npm --prefix web run build",
+    "build:cms": "npm --prefix cms run build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.4",
+    "tailwindcss": "^4.3.3"
+  }
+}

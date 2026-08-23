@@ -1,0 +1,11 @@
+---
+import RootLayout from '../layouts/RootLayout.astro';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { HorariosView } from '@/components/views/horarios-view';
+---
+
+<RootLayout title="Horarios — Altario CMS">
+  <DashboardShell client:load title="Horarios" currentPath="/horarios">
+    <HorariosView client:load />
+  </DashboardShell>
+</RootLayout>

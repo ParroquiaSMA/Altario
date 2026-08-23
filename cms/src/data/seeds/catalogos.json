@@ -1,0 +1,30 @@
+{
+  "tipos_horario": [
+    { "id": "th-1", "nombre": "Misa", "codigo": "misa", "descripcion": "Celebración eucarística", "activo": true },
+    { "id": "th-2", "nombre": "Confesión", "codigo": "confesion", "descripcion": "Sacramento de la reconciliación", "activo": true },
+    { "id": "th-3", "nombre": "Adoración", "codigo": "adoracion", "descripcion": "Adoración al Santísimo Sacramento", "activo": true },
+    { "id": "th-4", "nombre": "Secretaría", "codigo": "secretaria", "descripcion": "Atención administrativa y trámites", "activo": true },
+    { "id": "th-5", "nombre": "Bautismos", "codigo": "bautismo", "descripcion": "Celebración comunitaria de bautismo", "activo": true },
+    { "id": "th-6", "nombre": "Santo Rosario", "codigo": "rosario", "descripcion": "Rezo del santo rosario", "activo": true }
+  ],
+  "categorias_galeria": [
+    { "id": "cg-1", "nombre": "El Templo", "codigo": "templo", "descripcion": "Vistas del edificio, altar y campanario", "activo": true },
+    { "id": "cg-2", "nombre": "Celebraciones", "codigo": "celebraciones", "descripcion": "Fiestas patronales, pascua y navidad", "activo": true },
+    { "id": "cg-3", "nombre": "Comunidad", "codigo": "comunidad", "descripcion": "Grupos pastorales, coro y encuentros", "activo": true },
+    { "id": "cg-4", "nombre": "Historia", "codigo": "historia", "descripcion": "Patrimonio histórico y archivos", "activo": true }
+  ],
+  "lugares": [
+    { "id": "lg-1", "nombre": "Iglesia Principal", "codigo": "principal", "descripcion": "Nave central del templo", "activo": true },
+    { "id": "lg-2", "nombre": "Capilla del Santísimo", "codigo": "capilla", "descripcion": "Capilla lateral para oración y adoración", "activo": true },
+    { "id": "lg-3", "nombre": "Confesionarios", "codigo": "confesionarios", "descripcion": "Espacio de penitencia", "activo": true },
+    { "id": "lg-4", "nombre": "Atrio Parroquial", "codigo": "atrio", "descripcion": "Explanada frontal del templo", "activo": true },
+    { "id": "lg-5", "nombre": "Salón Parroquial", "codigo": "salon", "descripcion": "Salón de reuniones comunitarias", "activo": true }
+  ],
+  "motivos_contacto": [
+    { "id": "mc-1", "nombre": "Bautismo", "codigo": "bautismo", "descripcion": "Fechas y requisitos para bautismos", "activo": true },
+    { "id": "mc-2", "nombre": "Matrimonio", "codigo": "matrimonio", "descripcion": "Expediente y reservas de casamientos", "activo": true },
+    { "id": "mc-3", "nombre": "Catequesis", "codigo": "catequesis", "descripcion": "Comunión y confirmación de jóvenes/adultos", "activo": true },
+    { "id": "mc-4", "nombre": "Intenciones de Misa", "codigo": "intenciones", "descripcion": "Misas de difuntos y acción de gracias", "activo": true },
+    { "id": "mc-5", "nombre": "Consulta General", "codigo": "general", "descripcion": "Otras dudas e información", "activo": true }
+  ]
+}

@@ -1,0 +1,272 @@
+---
+import type { Horario } from '../types/database';
+import { DIAS_SEMANA, CATEGORIAS_CONFIG, formatHora } from '../lib/supabase';
+
+interface Props {
+  horarios: Horario[];
+  source: 'supabase' | 'local_fallback';
+}
+
+const { horarios, source } = Astro.props;
+
+// Categorías presentes en los datos
+const categoriasPresentes = Array.from(new Set(horarios.map((h) => h.categoria)));
+---
+
+<section id="horarios" class="py-16 sm:py-20 border-t border-white/10 relative">
+  <div class="max-w-6xl mx-auto px-6">
+    <!-- Header -->
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-gold-500/15 text-gold-400 border border-gold-500/35 mb-4 shadow-sm shadow-gold-500/10">
+        Cronograma Litúrgico & Actividades
+      </div>
+      <h2 class="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-slate-50 mb-3 tracking-tight">
+        Horarios de la Comunidad
+      </h2>
+      <p class="text-slate-300 text-base sm:text-lg leading-relaxed">
+        Selecciona un día o categoría para consultar los horarios de misas, confesiones y secretaría parroquial.
+      </p>
+
+      {source === 'local_fallback' && (
+        <div class="inline-flex items-center gap-2.5 bg-blue-500/10 border border-blue-500/30 text-blue-300 px-4 py-2.5 rounded-xl text-xs sm:text-sm mt-5 text-left shadow-sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 shrink-0 text-blue-400">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span>
+            Mostrando datos de demostración locales. Conecta tu proyecto en <code class="bg-black/40 px-1.5 py-0.5 rounded font-mono text-gold-300">.env</code> para sincronizar con <strong>Supabase</strong>.
+          </span>
+        </div>
+      )}
+    </div>
+
+    <!-- Filters container -->
+    <div class="flex flex-col gap-4 mb-10">
+      <!-- Days Nav -->
+      <div class="flex flex-wrap justify-center gap-1.5 sm:gap-2 bg-white/[0.02] p-2 rounded-2xl border border-white/10 backdrop-blur-md" role="tablist" aria-label="Filtro por día">
+        <button
+          class="day-tab px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer transition-all duration-200 border border-transparent text-slate-300 hover:text-white hover:bg-white/5 active-day-btn"
+          data-day="all"
+        >
+          Todos los días
+        </button>
+        {DIAS_SEMANA.map((dia, idx) => (
+          <button
+            class="day-tab px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer transition-all duration-200 border border-transparent text-slate-400 hover:text-white hover:bg-white/5"
+            data-day={idx}
+          >
+            {dia}
+          </button>
+        ))}
+      </div>
+
+      <!-- Categories Nav -->
+      <div class="flex flex-wrap justify-center gap-2">
+        <button
+          class="category-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all duration-200 border border-white/10 bg-white/10 text-white shadow-sm active-cat-pill"
+          data-category="all"
+        >
+          Todas las actividades
+        </button>
+        {categoriasPresentes.map((cat) => {
+          const config = CATEGORIAS_CONFIG[cat] || CATEGORIAS_CONFIG.otro;
+          return (
+            <button
+              class="category-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all duration-200 border border-white/10 bg-white/[0.03] text-slate-400 hover:text-white hover:border-white/20"
+              data-category={cat}
+            >
+              <span>{config.icon}</span>
+              <span>{config.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="horariosGrid">
+      {horarios.map((h) => {
+        const catConfig = CATEGORIAS_CONFIG[h.categoria] || CATEGORIAS_CONFIG.otro;
+        const diaNombre = DIAS_SEMANA[h.dia_semana];
+        const horaStr = h.hora_fin
+          ? `${formatHora(h.hora_inicio)} a ${formatHora(h.hora_fin)}`
+          : formatHora(h.hora_inicio);
+
+        return (
+          <div
+            class={`horario-card bg-brand-card/85 backdrop-blur-xl border ${
+              h.es_destacado ? 'border-gold-500/40 shadow-lg shadow-gold-500/10' : 'border-white/10'
+            } hover:border-gold-500/40 rounded-2xl p-6 flex flex-col justify-between shadow-lg transition-all duration-300 relative group min-h-[220px]`}
+            data-day={h.dia_semana}
+            data-category={h.categoria}
+          >
+            {h.es_destacado && (
+              <span class="absolute -top-2.5 right-5 bg-gradient-to-r from-gold-500 to-gold-600 text-slate-950 font-extrabold text-[0.65rem] tracking-wider uppercase px-2.5 py-0.5 rounded-full shadow-md">
+                Destacado
+              </span>
+            )}
+
+            <!-- Top bar -->
+            <div class="flex items-center justify-between gap-2 mb-4">
+              <span
+                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold"
+                style={`color: ${catConfig.color}; background-color: ${catConfig.bg}; border: 1px solid ${catConfig.color}40;`}
+              >
+                <span>{catConfig.icon}</span>
+                <span>{catConfig.label}</span>
+              </span>
+
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                {diaNombre}
+              </span>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-grow mb-5">
+              <div class="flex items-center gap-2 text-gold-400 mb-2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                <span class="font-bold text-base sm:text-lg tracking-tight">{horaStr}</span>
+              </div>
+
+              <h3 class="font-semibold text-lg text-slate-100 mb-1.5 leading-snug">
+                {h.titulo}
+              </h3>
+
+              {h.descripcion && (
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                  {h.descripcion}
+                </p>
+              )}
+            </div>
+
+            <!-- Footer Metadata -->
+            <div class="pt-3.5 border-t border-white/10 flex flex-wrap items-center gap-3.5 text-xs text-slate-400">
+              <div class="inline-flex items-center gap-1.5">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5 text-slate-300">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span>{h.lugar}</span>
+              </div>
+
+              {h.sacerdote_encargado && (
+                <div class="inline-flex items-center gap-1.5">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5 text-slate-300">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  <span>{h.sacerdote_encargado}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Empty State -->
+    <div id="noResults" class="hidden text-center py-16 px-6 bg-white/[0.02] border border-dashed border-white/10 rounded-2xl max-w-md mx-auto mt-8">
+      <div class="text-4xl mb-3">🔍</div>
+      <h3 class="text-lg font-semibold text-slate-100 mb-1">No hay actividades registradas</h3>
+      <p class="text-xs sm:text-sm text-slate-400">No se encontraron horarios para los filtros seleccionados.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Pure Vanilla JS Filter Logic with Tailwind Utility Class Toggling
+  document.addEventListener('DOMContentLoaded', () => {
+    const dayTabs = document.querySelectorAll<HTMLButtonElement>('.day-tab');
+    const categoryPills = document.querySelectorAll<HTMLButtonElement>('.category-pill');
+    const cards = document.querySelectorAll<HTMLElement>('.horario-card');
+    const noResults = document.getElementById('noResults');
+
+    let activeDay: string = 'all';
+    let activeCategory: string = 'all';
+
+    const activeDayClasses = ['bg-gold-500/15', 'text-gold-400', 'border-gold-500/40', 'shadow-md', 'shadow-gold-500/10'];
+    const inactiveDayClasses = ['text-slate-400', 'border-transparent'];
+
+    const activeCatClasses = ['bg-white/15', 'text-white', 'border-white/30'];
+    const inactiveCatClasses = ['bg-white/[0.03]', 'text-slate-400', 'border-white/10'];
+
+    function applyDayActive(selectedTab: HTMLButtonElement) {
+      dayTabs.forEach((tab) => {
+        tab.classList.remove(...activeDayClasses);
+        tab.classList.add(...inactiveDayClasses);
+      });
+      selectedTab.classList.remove(...inactiveDayClasses);
+      selectedTab.classList.add(...activeDayClasses);
+    }
+
+    function applyCatActive(selectedPill: HTMLButtonElement) {
+      categoryPills.forEach((pill) => {
+        pill.classList.remove(...activeCatClasses);
+        pill.classList.add(...inactiveCatClasses);
+      });
+      selectedPill.classList.remove(...inactiveCatClasses);
+      selectedPill.classList.add(...activeCatClasses);
+    }
+
+    // Auto-select today
+    const todayIndex = new Date().getDay().toString();
+    const todayTab = Array.from(dayTabs).find((tab) => tab.dataset.day === todayIndex);
+    if (todayTab) {
+      applyDayActive(todayTab);
+      activeDay = todayIndex;
+      filterCards();
+    } else {
+      const allTab = Array.from(dayTabs).find((tab) => tab.dataset.day === 'all');
+      if (allTab) applyDayActive(allTab);
+    }
+
+    dayTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        applyDayActive(tab);
+        activeDay = tab.dataset.day || 'all';
+        filterCards();
+      });
+    });
+
+    categoryPills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        applyCatActive(pill);
+        activeCategory = pill.dataset.category || 'all';
+        filterCards();
+      });
+    });
+
+    function filterCards() {
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const cardDay = card.dataset.day;
+        const cardCat = card.dataset.category;
+
+        const matchDay = activeDay === 'all' || cardDay === activeDay;
+        const matchCat = activeCategory === 'all' || cardCat === activeCategory;
+
+        if (matchDay && matchCat) {
+          card.classList.remove('hidden');
+          card.classList.add('flex');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+          card.classList.remove('flex');
+        }
+      });
+
+      if (noResults) {
+        if (visibleCount === 0) {
+          noResults.classList.remove('hidden');
+        } else {
+          noResults.classList.add('hidden');
+        }
+      }
+    }
+  });
+</script>

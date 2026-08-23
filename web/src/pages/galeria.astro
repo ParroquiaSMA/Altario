@@ -1,0 +1,136 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Galería — Parroquia Santa María de la Ayuda" currentPage="galeria">
+  <section class="portada">
+    <svg class="portada__fondo" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <g fill="none" stroke="#C9A96A">
+        <circle cx="980" cy="150" r="60"></circle><circle cx="980" cy="150" r="110"></circle>
+        <circle cx="980" cy="150" r="160"></circle><circle cx="980" cy="150" r="215"></circle>
+        <path d="M980 -70 V370 M760 150 H1200"></path>
+        <path d="M825 -5 L1135 305 M1135 -5 L825 305"></path>
+        <path d="M200 300 V170 a60 60 0 0 1 120 0 V300"></path>
+      </g>
+    </svg>
+    <div class="contenedor">
+      <p class="miga"><a href="/">Inicio</a><span aria-hidden="true">›</span>Galería</p>
+      <p class="antetitulo">Galería</p>
+      <h1>La parroquia por dentro</h1>
+      <p class="portada__bajada">
+        Tocá cualquier foto para verla en grande. Con el teclado, movete con las flechas y salí con Escape.
+      </p>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="filtros" role="group" aria-label="Filtrar fotos por tema">
+        <button class="filtro" type="button" data-filtro="todas" aria-pressed="true">Todas</button>
+        <button class="filtro" type="button" data-filtro="templo" aria-pressed="false">El templo</button>
+        <button class="filtro" type="button" data-filtro="celebraciones" aria-pressed="false">Celebraciones</button>
+        <button class="filtro" type="button" data-filtro="comunidad" aria-pressed="false">Comunidad</button>
+      </div>
+
+      <p id="galeria-conteo" aria-live="polite" style="color:var(--gris);font-size:1rem">9 fotos</p>
+
+      <ul class="galeria" id="galeria">
+        <li data-categoria="templo">
+          <figure class="foto">
+            <button class="foto__btn" type="button" aria-label="Ver en grande: Campanario">
+              <img src="/assets/img/fachada.jpg" data-grande="/assets/img/fachada.jpg" alt="El campanario visto desde la vereda de enfrente, a media tarde." loading="lazy" />
+            </button>
+            <figcaption>Campanario</figcaption>
+          </figure>
+        </li>
+        <li data-categoria="templo">
+          <figure class="foto">
+            <button class="foto__btn" type="button" aria-label="Ver en grande: Nave central">
+              <img src="/assets/img/nave.jpg" data-grande="/assets/img/nave.jpg" alt="La nave central con los bancos alineados hacia el altar." loading="lazy" />
+            </button>
+            <figcaption>Nave central</figcaption>
+          </figure>
+        </li>
+        <li data-categoria="templo">
+          <figure class="foto">
+            <button class="foto__btn" type="button" aria-label="Ver en grande: Rosetón, 1998">
+              <img src="/assets/img/roseton.jpg" data-grande="/assets/img/roseton.jpg" alt="El rosetón sobre la puerta principal, visto desde adentro." loading="lazy" />
+            </button>
+            <figcaption>Rosetón, 1998</figcaption>
+          </figure>
+        </li>
+        <li data-categoria="templo">
+          <figure class="foto">
+            <button class="foto__btn" type="button" aria-label="Ver en grande: Vitrales del ábside, 1974">
+              <img src="/assets/img/vitral.jpg" data-grande="/assets/img/vitral.jpg" alt="Detalle de uno de los cinco paños de vitral del ábside." loading="lazy" />
+            </button>
+            <figcaption>Vitrales del ábside, 1974</figcaption>
+          </figure>
+        </li>
+        <li data-categoria="templo">
+          <figure class="foto">
+            <button class="foto__btn" type="button" aria-label="Ver en grande: Portal de acceso">
+              <img src="/assets/img/portal.jpg" data-grande="/assets/img/portal.jpg" alt="El portal de acceso con sus tres arcos concéntricos." loading="lazy" />
+            </button>
+            <figcaption>Portal de acceso</figcaption>
+          </figure>
+        </li>
+        <li data-categoria="celebraciones">
+          <figure class="foto">
+            <button class="foto__btn" type="button" aria-label="Ver en grande: La patrona">
+              <img src="/assets/img/patrona.jpg" data-grande="/assets/img/patrona.jpg" alt="La imagen de Santa María de la Ayuda en su altar lateral, con velas encendidas." loading="lazy" />
+            </button>
+            <figcaption>La patrona</figcaption>
+          </figure>
+        </li>
+        <li data-categoria="celebraciones">
+          <figure class="foto">
+            <button class="foto__btn" type="button" aria-label="Ver en grande: Velas del altar lateral">
+              <img src="/assets/img/velas.jpg" data-grande="/assets/img/velas.jpg" alt="Velas encendidas por los fieles en el altar lateral." loading="lazy" />
+            </button>
+            <figcaption>Velas del altar lateral</figcaption>
+          </figure>
+        </li>
+        <li data-categoria="comunidad">
+          <figure class="foto">
+            <button class="foto__btn" type="button" aria-label="Ver en grande: Café después de misa">
+              <img src="/assets/img/comunidad.jpg" data-grande="/assets/img/comunidad.jpg" alt="Encuentro en el salón parroquial después de la misa del domingo." loading="lazy" />
+            </button>
+            <figcaption>Café después de misa</figcaption>
+          </figure>
+        </li>
+        <li data-categoria="celebraciones">
+          <figure class="foto">
+            <button class="foto__btn" type="button" aria-label="Ver en grande: Leccionario y candelabros">
+              <img src="/assets/img/detalle.jpg" data-grande="/assets/img/detalle.jpg" alt="El leccionario abierto sobre el ambón, entre dos candelabros de bronce." loading="lazy" />
+            </button>
+            <figcaption>Leccionario y candelabros</figcaption>
+          </figure>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Visor a pantalla completa -->
+  <dialog class="visor" id="visor" aria-label="Foto ampliada">
+    <img id="visor-img" src="" alt="" />
+    <div class="visor__pie">
+      <p class="visor__texto"><span id="visor-texto"></span> · <span id="visor-posicion"></span></p>
+      <div class="visor__controles">
+        <button type="button" id="visor-anterior">← Anterior</button>
+        <button type="button" id="visor-siguiente">Siguiente →</button>
+        <button type="button" id="visor-cerrar">Cerrar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <section class="franja">
+    <div class="contenedor franja__fila">
+      <div>
+        <h2>¿Sacaste fotos en una celebración?</h2>
+        <p>Mandanos las que te gusten y las sumamos a la galería, siempre con permiso de quienes aparecen.</p>
+      </div>
+      <a class="boton boton--azul" href="/contacto">Mandar fotos</a>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,33 @@
+---
+interface Props {
+  currentPage?: string;
+}
+
+const { currentPage = '' } = Astro.props;
+---
+
+<header class="cabecera">
+  <div class="contenedor cabecera__fila">
+    <a class="marca" href="/">
+      <svg width="44" height="44" viewBox="0 0 44 44" role="img" aria-label="Escudo de la parroquia">
+        <circle cx="22" cy="22" r="20.5" fill="none" stroke="#7A5C24"></circle>
+        <circle cx="22" cy="22" r="17" fill="#22366B"></circle>
+        <text x="22" y="28.5" text-anchor="middle" fill="#C9A96A" font-family="Marcellus, Georgia, serif" font-size="16">AM</text>
+      </svg>
+      <span>
+        <strong class="marca__nombre">Santa María de la Ayuda</strong>
+        <span class="marca__bajada">Parroquia</span>
+      </span>
+    </a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav-principal">Menú</button>
+    <nav class="nav" id="nav-principal" aria-label="Navegación principal">
+      <a href="/" aria-current={currentPage === 'inicio' ? 'page' : undefined}>Inicio</a>
+      <a href="/#horarios">Horarios</a>
+      <a href="/sacramentos" aria-current={currentPage === 'sacramentos' ? 'page' : undefined}>Sacramentos</a>
+      <a href="/comunidad" aria-current={currentPage === 'comunidad' ? 'page' : undefined}>Comunidad</a>
+      <a href="/historia" aria-current={currentPage === 'historia' ? 'page' : undefined}>Historia</a>
+      <a href="/galeria" aria-current={currentPage === 'galeria' ? 'page' : undefined}>Galería</a>
+      <a class="boton boton--oro" href="/contacto">Contacto</a>
+    </nav>
+  </div>
+</header>

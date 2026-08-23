@@ -1,0 +1,11 @@
+---
+import RootLayout from '../layouts/RootLayout.astro';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { SettingsView } from '@/components/views/settings-view';
+---
+
+<RootLayout title="Configuración — Altario CMS">
+  <DashboardShell client:load title="Configuración" currentPath="/settings">
+    <SettingsView client:load />
+  </DashboardShell>
+</RootLayout>

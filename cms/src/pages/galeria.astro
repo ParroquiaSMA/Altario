@@ -1,0 +1,11 @@
+---
+import RootLayout from '../layouts/RootLayout.astro';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { GaleriaView } from '@/components/views/galeria-view';
+---
+
+<RootLayout title="Galería — Altario CMS">
+  <DashboardShell client:load title="Galería" currentPath="/galeria">
+    <GaleriaView client:load />
+  </DashboardShell>
+</RootLayout>

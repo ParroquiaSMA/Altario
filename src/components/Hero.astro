@@ -1,0 +1,123 @@
+---
+import { DIAS_SEMANA } from '../lib/supabase';
+
+const today = new Date();
+const currentDayIndex = today.getDay(); // 0 = Domingo, 1 = Lunes, etc.
+const currentDayName = DIAS_SEMANA[currentDayIndex];
+---
+
+<section class="py-14 sm:py-20 lg:py-24 relative overflow-hidden">
+  <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+    <!-- Left Column: Presentation -->
+    <div class="lg:col-span-7 flex flex-col items-start">
+      <!-- Badge -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-gold-500/15 text-gold-400 border border-gold-500/35 mb-5 shadow-sm shadow-gold-500/10 animate-fade-in">
+        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+        </svg>
+        <span>Bienvenidos a nuestra comunidad</span>
+      </div>
+
+      <!-- Main Title -->
+      <h1 class="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-slate-50 leading-[1.15] mb-5">
+        Un espacio de <span class="bg-gradient-to-r from-white via-slate-100 to-gold-400 bg-clip-text text-transparent">oración</span>, fe y <span class="bg-gradient-to-r from-gold-300 to-gold-500 bg-clip-text text-transparent">encuentro</span>
+      </h1>
+
+      <p class="text-base sm:text-lg text-slate-300 leading-relaxed mb-8 max-w-xl font-normal">
+        Te invitamos a participar de las celebraciones litúrgicas, la adoración eucarística y la vida comunitaria. Todos los horarios actualizados y servicios parroquiales a tu alcance.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="flex flex-wrap items-center gap-4 mb-10 w-full sm:w-auto">
+        <a
+          href="#horarios"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-sm sm:text-base bg-gradient-to-r from-gold-500 to-gold-600 text-slate-950 shadow-lg shadow-gold-500/25 hover:shadow-gold-500/40 hover:brightness-110 hover:-translate-y-0.5 transition-all duration-200"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          Ver Horarios de Hoy ({currentDayName})
+        </a>
+
+        <a
+          href="#contacto"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-sm sm:text-base bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10 hover:border-white/20 hover:-translate-y-0.5 transition-all duration-200 backdrop-blur-md"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          Dónde Estamos
+        </a>
+      </div>
+
+      <!-- Highlights Footer -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-6 border-t border-white/10 w-full">
+        <div class="flex items-start gap-3">
+          <span class="text-xl p-2 rounded-lg bg-white/5 border border-white/10 shrink-0">⛪</span>
+          <div>
+            <strong class="block text-sm font-semibold text-slate-100 mb-0.5">Misas Diarias y Dominicales</strong>
+            <p class="text-xs text-slate-400">Eucaristía matutina y vespertina</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-xl p-2 rounded-lg bg-white/5 border border-white/10 shrink-0">🕊️</span>
+          <div>
+            <strong class="block text-sm font-semibold text-slate-100 mb-0.5">Confesiones y Guía</strong>
+            <p class="text-xs text-slate-400">Atención sacerdotal previa a las Misas</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Interactive Schedule Highlight Card -->
+    <div class="lg:col-span-5 relative">
+      <div class="relative bg-brand-card/90 backdrop-blur-xl border border-gold-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-black/60 overflow-hidden group hover:border-gold-500/50 transition-all duration-300">
+        <!-- Glow accent -->
+        <div class="absolute -top-10 -right-10 w-44 h-44 bg-gold-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Card top badge -->
+        <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-full text-xs text-slate-300 mb-4">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span>Día actual: <strong class="text-white font-semibold">{currentDayName}</strong></span>
+        </div>
+
+        <h3 class="font-serif text-2xl font-bold text-slate-50 mb-2">Celebraciones y Servicios</h3>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
+          Nuestra secretaría y templo se encuentran abiertos para recibirte y acompañar tus intenciones de oración.
+        </p>
+
+        <!-- Quick link boxes -->
+        <div class="flex flex-col gap-3 mb-6">
+          <div class="bg-white/[0.03] border border-white/10 hover:border-gold-500/30 p-3.5 rounded-xl flex flex-col gap-1 transition-colors">
+            <span class="text-[0.7rem] font-bold uppercase tracking-wider text-gold-400">Domingos</span>
+            <span class="font-bold text-base text-slate-50">09:00, 11:00, 19:30, 21:00 hs</span>
+            <span class="text-xs text-slate-400">Misas comunitarias y jóvenes</span>
+          </div>
+
+          <div class="bg-white/[0.03] border border-white/10 hover:border-gold-500/30 p-3.5 rounded-xl flex flex-col gap-1 transition-colors">
+            <span class="text-[0.7rem] font-bold uppercase tracking-wider text-gold-400">Lunes a Sábados</span>
+            <span class="font-bold text-base text-slate-50">19:30 hs</span>
+            <span class="text-xs text-slate-400">Misa diaria y confesiones</span>
+          </div>
+        </div>
+
+        <!-- Card bottom link -->
+        <a
+          href="#horarios"
+          class="flex items-center justify-between text-gold-400 hover:text-gold-300 font-semibold text-xs sm:text-sm pt-3.5 border-t border-white/10 transition-colors"
+        >
+          <span>Explorar el cronograma completo por día</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 group-hover:translate-x-1 transition-transform">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

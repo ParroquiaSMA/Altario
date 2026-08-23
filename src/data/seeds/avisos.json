@@ -1,0 +1,26 @@
+[
+  {
+    "id": "a1",
+    "fecha": "2026-09-08",
+    "titulo": "Fiesta patronal",
+    "descripcion": "Misa solemne a las 19:00 y procesión con la imagen de Santa María de la Ayuda. Después, chocolatada en el salón.",
+    "activo": true,
+    "orden": 1
+  },
+  {
+    "id": "a2",
+    "fecha": "2026-09-20",
+    "titulo": "Retiro para adultos",
+    "descripcion": "De 9:00 a 16:00 en la casa de retiros. Inscripción en secretaría hasta el día 15.",
+    "activo": true,
+    "orden": 2
+  },
+  {
+    "id": "a3",
+    "fecha": "2026-10-04",
+    "titulo": "Bendición de animales",
+    "descripcion": "En el atrio, a las 11:00, en la memoria de san Francisco de Asís. Traelos con correa o transportadora.",
+    "activo": true,
+    "orden": 3
+  }
+]

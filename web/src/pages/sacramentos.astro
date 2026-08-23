@@ -1,0 +1,105 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Sacramentos — Parroquia Santa María de la Ayuda" currentPage="sacramentos">
+  <section class="portada">
+    <svg class="portada__fondo" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <g fill="none" stroke="#C9A96A">
+        <circle cx="980" cy="150" r="60"></circle><circle cx="980" cy="150" r="110"></circle>
+        <circle cx="980" cy="150" r="160"></circle><circle cx="980" cy="150" r="215"></circle>
+        <path d="M980 -70 V370 M760 150 H1200"></path>
+        <path d="M825 -5 L1135 305 M1135 -5 L825 305"></path>
+        <path d="M200 300 V170 a60 60 0 0 1 120 0 V300"></path>
+      </g>
+    </svg>
+    <div class="contenedor">
+      <p class="miga"><a href="/">Inicio</a><span aria-hidden="true">›</span>Sacramentos</p>
+      <p class="antetitulo">Sacramentos y trámites</p>
+      <h1>Cada preparación tiene sus tiempos</h1>
+      <p class="portada__bajada">
+        Todo empieza igual: pasás por la secretaría, se anota tu caso y te decimos la fecha más cercana.
+        Cuanto antes vengas, más tranquilo se organiza todo.
+      </p>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="rejilla">
+        <article class="tarjeta" data-tipo="sacramento">
+          <h3>Bautismo</h3>
+          <p>Se celebra el segundo y el cuarto sábado de cada mes, a las 16:00, en misa comunitaria. Los padres y padrinos participan antes de dos encuentros de preparación, un martes de por medio a las 20:00.</p>
+          <p class="tarjeta__requisito"><strong>Traer:</strong> Partida de nacimiento del niño y documento de padres y padrinos. Los padrinos tienen que estar confirmados.</p>
+        </article>
+        <article class="tarjeta" data-tipo="sacramento">
+          <h3>Primera Comunión</h3>
+          <p>La catequesis empieza en marzo y dura dos años. Los encuentros son los sábados de 10:00 a 11:30 y se pide que la familia participe de la misa dominical.</p>
+          <p class="tarjeta__requisito"><strong>Inscripciones:</strong> Todo febrero en secretaría, para chicos desde 8 años. Se pide fe de bautismo.</p>
+        </article>
+        <article class="tarjeta" data-tipo="sacramento">
+          <h3>Confirmación</h3>
+          <p>Para adolescentes desde los 14 años y para adultos que quieran completar su iniciación cristiana. Son dos años de preparación con encuentros semanales y un retiro.</p>
+          <p class="tarjeta__requisito"><strong>Inscripciones:</strong> Marzo para adolescentes, agosto para adultos.</p>
+        </article>
+        <article class="tarjeta" data-tipo="sacramento">
+          <h3>Matrimonio</h3>
+          <p>Reservá la fecha con seis meses de anticipación: los sábados de primavera se llenan temprano. El curso prematrimonial son cuatro encuentros y se dicta tres veces al año.</p>
+          <p class="tarjeta__requisito"><strong>Traer:</strong> Fe de bautismo actualizada de ambos (con menos de seis meses), documentos y dos testigos.</p>
+        </article>
+        <article class="tarjeta" data-tipo="acompanamiento">
+          <h3>Unción de enfermos</h3>
+          <p>Si alguien de la familia está internado, operándose o no puede salir de su casa, avisanos y el sacerdote lo visita. No hace falta esperar a que sea grave.</p>
+          <p class="tarjeta__requisito"><strong>Urgencias:</strong> Llamá a cualquier hora al teléfono de la parroquia. Si no atiende, dejá mensaje de voz.</p>
+        </article>
+        <article class="tarjeta" data-tipo="acompanamiento">
+          <h3>Exequias</h3>
+          <p>Acompañamos a la familia en el velatorio, en la misa de despedida y en la misa de los treinta días. También hay un grupo de duelo que se reúne una vez al mes.</p>
+          <p class="tarjeta__requisito"><strong>Coordinación:</strong> Directa con la secretaría o a través de la empresa fúnebre.</p>
+        </article>
+        <article class="tarjeta" data-tipo="vocacion">
+          <h3>Orden sagrado</h3>
+          <p>Si estás pensando en el sacerdocio o en la vida consagrada, podés hablar con el párroco sin compromiso. También hay encuentros vocacionales en la diócesis.</p>
+          <p class="tarjeta__requisito"><strong>Primer paso:</strong> Pedí una entrevista en secretaría. Queda entre vos y el sacerdote.</p>
+        </article>
+        <article class="tarjeta" data-tipo="sacramento">
+          <h3>Reconciliación</h3>
+          <p>Confesiones media hora antes de cada misa y los sábados de 17:00 a 18:30, sin pedir hora. Si preferís hablar con calma, se puede coordinar un encuentro aparte.</p>
+          <p class="tarjeta__requisito"><strong>Dónde:</strong> En el confesionario de la nave lateral, o en la sacristía si necesitás acceso sin escalones.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion seccion--oscura">
+    <div class="contenedor">
+      <p class="antetitulo">Antes de venir</p>
+      <h2>Tres cosas que conviene saber</h2>
+      <p class="divisor"><i aria-hidden="true"></i></p>
+      <div class="rejilla">
+        <article class="tarjeta">
+          <h3>Los papeles se piden donde te bautizaron</h3>
+          <p>La fe de bautismo la emite la parroquia donde se celebró, no esta. Si fue acá, te la damos en el momento; si fue en otro lado, escribiles con nombre completo y fecha aproximada.</p>
+        </article>
+        <article class="tarjeta">
+          <h3>No hace falta ser socio ni pagar un arancel</h3>
+          <p>Los sacramentos no se cobran. Hay una colaboración sugerida para gastos de la celebración, y si no podés darla, se celebra igual.</p>
+        </article>
+        <article class="tarjeta">
+          <h3>Se puede venir sin saber nada</h3>
+          <p>Mucha gente llega diciendo "hace treinta años que no piso una iglesia". No es un problema: es exactamente para eso que están los encuentros de preparación.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="franja">
+    <div class="contenedor franja__fila">
+      <div>
+        <h2>¿Querés empezar un trámite?</h2>
+        <p>Escribinos contando cuál es el sacramento y te decimos qué traer y cuándo pasar. También podés venir directo en el horario de secretaría.</p>
+      </div>
+      <a class="boton boton--azul" href="/contacto">Ir a contacto</a>
+    </div>
+  </section>
+</Layout>

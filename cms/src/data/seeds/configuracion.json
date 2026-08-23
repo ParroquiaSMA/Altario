@@ -1,0 +1,16 @@
+{
+  "parroquia": {
+    "nombre": "Santa María de la Ayuda",
+    "diocesis": "Diócesis de Buenos Aires",
+    "direccion": "Av. San Martín 1234, Buenos Aires",
+    "telefono": "+54 11 4000-0000",
+    "email": "contacto@santamariadelaayuda.org",
+    "descripcion": "Parroquia Santa María de la Ayuda, al servicio de la comunidad desde 1892."
+  },
+  "redes": {
+    "facebook": "https://facebook.com/parroquiasantamaria",
+    "instagram": "https://instagram.com/parroquiasantamaria",
+    "youtube": "",
+    "whatsapp": "+5491140000000"
+  }
+}

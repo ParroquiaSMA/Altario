@@ -1,0 +1,11 @@
+[
+  { "id": "f1", "titulo": "Campanario", "descripcion": "El campanario visto desde la vereda de enfrente, a media tarde.", "categoria": "templo", "imagen_url": "/assets/img/fachada.jpg", "es_destacado": true, "activo": true, "orden": 1 },
+  { "id": "f2", "titulo": "Nave central", "descripcion": "La nave central con los bancos alineados hacia el altar.", "categoria": "templo", "imagen_url": "/assets/img/nave.jpg", "es_destacado": false, "activo": true, "orden": 2 },
+  { "id": "f3", "titulo": "Rosetón, 1998", "descripcion": "El rosetón sobre la puerta principal, visto desde adentro.", "categoria": "templo", "imagen_url": "/assets/img/roseton.jpg", "es_destacado": true, "activo": true, "orden": 3 },
+  { "id": "f4", "titulo": "Vitrales del ábside, 1974", "descripcion": "Detalle de uno de los cinco paños de vitral del ábside.", "categoria": "templo", "imagen_url": "/assets/img/vitral.jpg", "es_destacado": false, "activo": true, "orden": 4 },
+  { "id": "f5", "titulo": "Portal de acceso", "descripcion": "El portal de acceso con sus tres arcos concéntricos.", "categoria": "templo", "imagen_url": "/assets/img/portal.jpg", "es_destacado": false, "activo": true, "orden": 5 },
+  { "id": "f6", "titulo": "La patrona", "descripcion": "La imagen de Santa María de la Ayuda en su altar lateral, con velas encendidas.", "categoria": "celebraciones", "imagen_url": "/assets/img/patrona.jpg", "es_destacado": false, "activo": true, "orden": 6 },
+  { "id": "f7", "titulo": "Velas del altar lateral", "descripcion": "Velas encendidas por los fieles en el altar lateral.", "categoria": "celebraciones", "imagen_url": "/assets/img/velas.jpg", "es_destacado": true, "activo": true, "orden": 7 },
+  { "id": "f8", "titulo": "Café después de misa", "descripcion": "Encuentro en el salón parroquial después de la misa del domingo.", "categoria": "comunidad", "imagen_url": "/assets/img/comunidad.jpg", "es_destacado": false, "activo": true, "orden": 8 },
+  { "id": "f9", "titulo": "Leccionario y candelabros", "descripcion": "El leccionario abierto sobre el ambón, entre dos candelabros de bronce.", "categoria": "celebraciones", "imagen_url": "/assets/img/detalle.jpg", "es_destacado": false, "activo": true, "orden": 9 }
+]

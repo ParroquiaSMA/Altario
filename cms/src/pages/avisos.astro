@@ -1,0 +1,11 @@
+---
+import RootLayout from '../layouts/RootLayout.astro';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { AvisosView } from '@/components/views/avisos-view';
+---
+
+<RootLayout title="Avisos — Altario CMS">
+  <DashboardShell client:load title="Avisos" currentPath="/avisos">
+    <AvisosView client:load />
+  </DashboardShell>
+</RootLayout>

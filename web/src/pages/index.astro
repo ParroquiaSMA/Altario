@@ -1,0 +1,189 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Parroquia Santa María de la Ayuda — Horarios de misa y sacramentos" currentPage="inicio">
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <svg class="hero__fondo" viewBox="0 0 1200 620" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <g fill="none" stroke="#C9A96A">
+        <circle cx="960" cy="250" r="70"></circle>
+        <circle cx="960" cy="250" r="130"></circle>
+        <circle cx="960" cy="250" r="190"></circle>
+        <circle cx="960" cy="250" r="250"></circle>
+        <path d="M960 0 V620 M650 250 H1270"></path>
+        <path d="M741 31 L1179 469 M1179 31 L741 469"></path>
+        <path d="M840 6 L1080 494 M1080 6 L840 494"></path>
+        <path d="M716 130 L1204 370 M1204 130 L716 370"></path>
+        <path d="M180 620 V330 a110 110 0 0 1 220 0 V620"></path>
+        <path d="M230 620 V345 a60 60 0 0 1 120 0 V620"></path>
+      </g>
+    </svg>
+
+    <div class="contenedor">
+      <div class="hero__grilla">
+        <div>
+          <p class="antetitulo">Comunidad católica · Desde 1948</p>
+          <h1>Parroquia Santa María de la Ayuda</h1>
+          <p class="hero__lema">
+            Las puertas están abiertas todos los días. Acá encontrás los horarios de misa,
+            cómo preparar un sacramento y a quién escribirle.
+          </p>
+          <div class="hero__acciones">
+            <a class="boton boton--oro" href="#horarios">Ver horarios de misa</a>
+            <a class="boton boton--linea" href="/contacto">Cómo llegar</a>
+          </div>
+        </div>
+
+        <div class="proxima">
+          <p class="proxima__rotulo">Próxima misa</p>
+          <p class="proxima__cuando" id="proxima-cuando">
+            <span id="proxima-dia">Consultá los horarios</span>
+            <strong class="proxima__hora" id="proxima-hora">—</strong>
+          </p>
+          <p class="proxima__detalle" id="proxima-detalle">Iglesia principal</p>
+          <p class="proxima__pie">
+            Confesiones media hora antes de cada misa.
+            <a href="#horarios">Ver la grilla completa</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HORARIOS ===== -->
+  <section class="seccion" id="horarios">
+    <div class="contenedor">
+      <p class="antetitulo">Horarios</p>
+      <h2>Celebraciones y atención</h2>
+      <p class="divisor"><i aria-hidden="true"></i></p>
+
+      <div class="horarios">
+        <div class="tabla-envoltorio">
+          <table>
+            <caption>Misas</caption>
+            <thead><tr><th scope="col">Día</th><th scope="col">Horario</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Lunes a viernes</th><td>8:00 y 19:00</td></tr>
+              <tr><th scope="row">Sábado</th><td>19:00 <span class="nota">Misa de vigilia del domingo</span></td></tr>
+              <tr><th scope="row">Domingo</th><td>9:00 · 11:00 · 19:30 <span class="nota">La de 11:00 es la misa con las familias y el coro</span></td></tr>
+              <tr><th scope="row">Feriados</th><td>10:00 <span class="nota">Horario único</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <div class="ficha">
+            <h3>Confesiones</h3>
+            <p>Media hora antes de cada misa, y los sábados de 17:00 a 18:30 sin necesidad de pedir hora.</p>
+          </div>
+          <div class="ficha">
+            <h3>Adoración eucarística</h3>
+            <p>Jueves de 18:00 a 19:00, en la capilla del Santísimo.</p>
+          </div>
+          <div class="ficha">
+            <h3>Secretaría parroquial</h3>
+            <dl>
+              <dt>Lun a vie</dt><dd>9:00 – 12:00 y 16:00 – 19:00</dd>
+              <dt>Sábado</dt><dd>9:00 – 12:00</dd>
+              <dt>Domingo</dt><dd>Cerrada</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ACCESOS A LAS DEMÁS PÁGINAS ===== -->
+  <section class="seccion seccion--oscura">
+    <div class="contenedor">
+      <p class="antetitulo">Dónde seguir</p>
+      <h2>Lo que más nos preguntan</h2>
+      <p class="divisor"><i aria-hidden="true"></i></p>
+
+      <div class="rejilla">
+        <a class="tarjeta tarjeta-enlace" href="/sacramentos">
+          <h3>Sacramentos</h3>
+          <p>Bautismo, primera comunión, confirmación, matrimonio, unción de enfermos y exequias: fechas, requisitos y qué papeles traer.</p>
+          <span class="flecha" aria-hidden="true">Ver los seis →</span>
+        </a>
+        <a class="tarjeta tarjeta-enlace" href="/comunidad">
+          <h3>Comunidad</h3>
+          <p>Cáritas, catequesis, coro, grupo de jóvenes y adultos mayores. Cuándo se reúnen y cómo sumarse.</p>
+          <span class="flecha" aria-hidden="true">Ver los grupos →</span>
+        </a>
+        <a class="tarjeta tarjeta-enlace" href="/historia">
+          <h3>Historia</h3>
+          <p>Desde la capilla de chapa de 1948 hasta el templo de hoy, y por qué la patrona se llama María de la Ayuda.</p>
+          <span class="flecha" aria-hidden="true">Leer la historia →</span>
+        </a>
+        <a class="tarjeta tarjeta-enlace" href="/galeria">
+          <h3>Galería</h3>
+          <p>El templo, los vitrales, las fiestas patronales y la vida de todos los días en fotos.</p>
+          <span class="flecha" aria-hidden="true">Ver las fotos →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== AVISOS ===== -->
+  <section class="seccion seccion--papel" id="avisos">
+    <div class="contenedor">
+      <p class="antetitulo">Próximas fechas</p>
+      <h2>Avisos de la comunidad</h2>
+      <p class="divisor"><i aria-hidden="true"></i></p>
+
+      <ol class="avisos">
+        <li>
+          <time datetime="2026-09-08">8 de setiembre</time>
+          <div>
+            <h3>Fiesta patronal</h3>
+            <p>Misa solemne a las 19:00 y procesión con la imagen de Santa María de la Ayuda. Después, chocolatada en el salón.</p>
+          </div>
+        </li>
+        <li>
+          <time datetime="2026-09-20">20 de setiembre</time>
+          <div>
+            <h3>Retiro para adultos</h3>
+            <p>De 9:00 a 16:00 en la casa de retiros. Inscripción en secretaría hasta el día 15.</p>
+          </div>
+        </li>
+        <li>
+          <time datetime="2026-10-04">4 de octubre</time>
+          <div>
+            <h3>Bendición de animales</h3>
+            <p>En el atrio, a las 11:00, en la memoria de san Francisco de Asís. Traelos con correa o transportadora.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===== GALERÍA: ADELANTO ===== -->
+  <section class="seccion">
+    <div class="contenedor">
+      <p class="antetitulo">Galería</p>
+      <h2>La parroquia por dentro</h2>
+      <p class="divisor"><i aria-hidden="true"></i></p>
+
+      <div class="rejilla-fotos">
+        <img src="/assets/img/mini-fachada.jpg" alt="El campanario de la parroquia recortado contra el cielo." width="900" height="600" loading="lazy" />
+        <img src="/assets/img/mini-roseton.jpg" alt="El rosetón sobre la puerta principal, visto desde adentro." width="900" height="900" loading="lazy" />
+        <img src="/assets/img/mini-velas.jpg" alt="Velas encendidas en el altar lateral de la Virgen." width="900" height="600" loading="lazy" />
+      </div>
+
+      <p style="margin-top:1.75rem"><a class="boton boton--azul" href="/galeria">Ver la galería completa</a></p>
+    </div>
+  </section>
+
+  <!-- ===== FRANJA: COLABORAR ===== -->
+  <section class="franja">
+    <div class="contenedor franja__fila">
+      <div>
+        <h2>La parroquia se sostiene entre todos</h2>
+        <p>La colecta del domingo y el aporte de los socios pagan la luz, los materiales de catequesis y la ayuda a las familias del barrio.</p>
+      </div>
+      <a class="boton boton--azul" href="/contacto#colaborar">Quiero colaborar</a>
+    </div>
+  </section>
+</Layout>

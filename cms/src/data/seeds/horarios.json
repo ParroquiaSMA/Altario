@@ -1,0 +1,11 @@
+[
+  { "id": "h1", "dia_semana": 0, "categoria": "misa", "hora_inicio": "09:00", "hora_fin": "10:00", "titulo": "Misa de la Mañana", "descripcion": "Eucaristía dominical comunitaria", "lugar": "Iglesia Principal", "activo": true, "orden": 1 },
+  { "id": "h2", "dia_semana": 0, "categoria": "misa", "hora_inicio": "11:00", "hora_fin": "12:00", "titulo": "Misa con las Familias", "descripcion": "Misa comunitaria animada por el coro parroquial", "lugar": "Iglesia Principal", "activo": true, "orden": 2 },
+  { "id": "h3", "dia_semana": 0, "categoria": "misa", "hora_inicio": "19:30", "hora_fin": "20:30", "titulo": "Misa de la Tarde", "descripcion": "Eucaristía vespertina del domingo", "lugar": "Iglesia Principal", "activo": true, "orden": 3 },
+  { "id": "h4", "dia_semana": 1, "categoria": "misa", "hora_inicio": "08:00", "hora_fin": "08:45", "titulo": "Misa Matutina", "descripcion": "Eucaristía de primera hora", "lugar": "Iglesia Principal", "activo": true, "orden": 1 },
+  { "id": "h5", "dia_semana": 1, "categoria": "misa", "hora_inicio": "19:00", "hora_fin": "19:45", "titulo": "Misa Vespertina", "descripcion": "Eucaristía diaria", "lugar": "Iglesia Principal", "activo": true, "orden": 2 },
+  { "id": "h6", "dia_semana": 1, "categoria": "secretaria", "hora_inicio": "09:00", "hora_fin": "12:00", "titulo": "Secretaría Parroquial (Mañana)", "descripcion": "Atención de trámites y consultas", "lugar": "Salón Parroquial", "activo": true, "orden": 3 },
+  { "id": "h7", "dia_semana": 4, "categoria": "adoracion", "hora_inicio": "18:00", "hora_fin": "19:00", "titulo": "Adoración Eucarística", "descripcion": "Exposición del Santísimo Sacramento y oración silenciosa", "lugar": "Capilla del Santísimo", "activo": true, "orden": 1 },
+  { "id": "h8", "dia_semana": 6, "categoria": "confesion", "hora_inicio": "17:00", "hora_fin": "18:30", "titulo": "Confesiones", "descripcion": "Atención sacerdotal sin necesidad de pedir hora", "lugar": "Confesionarios", "activo": true, "orden": 2 },
+  { "id": "h9", "dia_semana": 6, "categoria": "misa", "hora_inicio": "19:00", "hora_fin": "20:00", "titulo": "Misa de Vigilia", "descripcion": "Misa de vigilia del domingo", "lugar": "Iglesia Principal", "activo": true, "orden": 3 }
+]

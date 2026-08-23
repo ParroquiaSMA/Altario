@@ -1,0 +1,12 @@
+[
+  { "id": 1, "nombre": "María González", "motivo": "Bautismo", "status": "Pendiente", "fecha": "10:30 AM", "correo": "mgonzalez@email.com" },
+  { "id": 2, "nombre": "Carlos Rodríguez", "motivo": "Matrimonio", "status": "Atendido", "fecha": "11:00 AM", "correo": "crodriguez@email.com" },
+  { "id": 3, "nombre": "Ana Martínez", "motivo": "Consulta General", "status": "Pendiente", "fecha": "11:15 AM", "correo": "amartinez@email.com" },
+  { "id": 4, "nombre": "Jorge Fernández", "motivo": "Primera Comunión", "status": "Atendido", "fecha": "11:45 AM", "correo": "jfernandez@email.com" },
+  { "id": 5, "nombre": "Lucía Benítez", "motivo": "Confirmación", "status": "Pendiente", "fecha": "12:00 PM", "correo": "lbenitez@email.com" },
+  { "id": 6, "nombre": "Roberto Gómez", "motivo": "Bautismo", "status": "Pendiente", "fecha": "12:30 PM", "correo": "rgomez@email.com" },
+  { "id": 7, "nombre": "Paula Soria", "motivo": "Matrimonio", "status": "Atendido", "fecha": "01:00 PM", "correo": "psoria@email.com" },
+  { "id": 8, "nombre": "Tomás Vega", "motivo": "Consulta General", "status": "Pendiente", "fecha": "01:20 PM", "correo": "tvega@email.com" },
+  { "id": 9, "nombre": "Sofía Díaz", "motivo": "Primera Comunión", "status": "Atendido", "fecha": "02:00 PM", "correo": "sdiaz@email.com" },
+  { "id": 10, "nombre": "Martín Castro", "motivo": "Confirmación", "status": "Pendiente", "fecha": "02:30 PM", "correo": "mcastro@email.com" }
+]

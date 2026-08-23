@@ -1,0 +1,5 @@
+[
+  { "id": "ms1", "nombre": "María González", "correo": "maria@ejemplo.com", "telefono": "099 111 222", "motivo": "Bautismo", "mensaje": "Quisiera saber las fechas disponibles para bautizar a mi hijo en octubre.", "leido": false, "respondido": false, "created_at": "2026-08-22 18:30" },
+  { "id": "ms2", "nombre": "Carlos Silva", "correo": "carlos@ejemplo.com", "telefono": "098 333 444", "motivo": "Consulta General", "mensaje": "Me gustaría participar del coro parroquial o de Cáritas.", "leido": true, "respondido": false, "created_at": "2026-08-21 14:15" },
+  { "id": "ms3", "nombre": "Lucía Fernández", "correo": "lucia@ejemplo.com", "telefono": "091 555 666", "motivo": "Catequesis", "mensaje": "Necesito solicitar una partida de bautismo de 1995 para un casamiento.", "leido": true, "respondido": true, "created_at": "2026-08-20 10:00" }
+]
