@@ -251,42 +251,21 @@ export function SitioSettings() {
 
             <Card className="p-0">
               <CardContent className="p-5 space-y-4">
-                <h3 className="text-sm font-semibold text-foreground">Escudo y logotipo</h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="grid gap-1.5">
-                      <Label className="text-xs">Iniciales del monograma</Label>
-                      <Input
-                        maxLength={4}
-                        value={config.parroquia.logo_iniciales}
-                        onChange={(e) => updateSection("parroquia", "logo_iniciales", e.target.value.toUpperCase())}
-                        placeholder="AM"
-                      />
-                      <span className="text-[11px] text-muted-foreground">
-                        Se muestra como monograma clásico cuando no se use un escudo en imagen.
-                      </span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <ImageUpload
-                      value={config.parroquia.logo_url}
-                      onChange={(url) => {
-                        updateSection("parroquia", "logo_url", url)
-                        updateSection("parroquia", "logo_tipo", url ? "imagen" : "monograma")
-                      }}
-                      folder="logos"
-                      label="Logo o Escudo oficial"
-                      description="Subí el escudo en formato PNG transparente, SVG o JPG."
-                      aspectRatio="square"
-                      presets={[
-                        { label: "Imagen patrona", url: "/assets/img/patrona.jpg" },
-                        { label: "Rosetón histórico", url: "/assets/img/roseton.jpg" },
-                      ]}
-                    />
-                  </div>
-                </div>
+                <ImageUpload
+                  value={config.parroquia.logo_url}
+                  onChange={(url) => {
+                    updateSection("parroquia", "logo_url", url)
+                    updateSection("parroquia", "logo_tipo", url ? "imagen" : "monograma")
+                  }}
+                  folder="logos"
+                  label="Escudo o logotipo oficial"
+                  description="Subí el escudo oficial de la parroquia. Si no hay imagen, la web creará un monograma con las iniciales automáticamente."
+                  aspectRatio="square"
+                  presets={[
+                    { label: "Imagen patrona", url: "/assets/img/patrona.jpg" },
+                    { label: "Rosetón histórico", url: "/assets/img/roseton.jpg" },
+                  ]}
+                />
               </CardContent>
             </Card>
           </div>

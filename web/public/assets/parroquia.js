@@ -69,7 +69,16 @@
           var currentSvg = marcaAnchor.querySelector("svg");
           var oroCol = (cfg.apariencia && cfg.apariencia.color_acento) || "#C9A96A";
           var lapisCol = (cfg.apariencia && cfg.apariencia.color_primario) || "#22366B";
-          var logoInit = cfg.parroquia.logo_iniciales || "AM";
+          function getAutoInitials(name) {
+            if (!name) return "AM";
+            var clean = name.replace(/^parroquia\s+(de\s+(la\s+)?)?/i, "").trim();
+            var words = clean.split(/\s+/).filter(Boolean);
+            if (words.length >= 2) {
+              return (words[0][0] + words[1][0]).toUpperCase();
+            }
+            return clean.slice(0, 2).toUpperCase() || "AM";
+          }
+          var logoInit = cfg.parroquia.logo_iniciales || getAutoInitials(cfg.parroquia.nombre);
           var logoUrl = cfg.parroquia.logo_url;
 
           if (logoUrl) {
