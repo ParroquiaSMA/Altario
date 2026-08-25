@@ -1,21 +1,37 @@
 ---
+import { getSiteConfig } from '../lib/supabase';
+
 interface Props {
   currentPage?: string;
 }
 
 const { currentPage = '' } = Astro.props;
+const siteConfig = await getSiteConfig();
+const { parroquia, apariencia } = siteConfig;
 ---
 
 <header class="cabecera">
   <div class="contenedor cabecera__fila">
     <a class="marca" href="/">
-      <svg width="44" height="44" viewBox="0 0 44 44" role="img" aria-label="Escudo de la parroquia">
-        <circle cx="22" cy="22" r="20.5" fill="none" stroke="#7A5C24"></circle>
-        <circle cx="22" cy="22" r="17" fill="#22366B"></circle>
-        <text x="22" y="28.5" text-anchor="middle" fill="#C9A96A" font-family="Marcellus, Georgia, serif" font-size="16">AM</text>
-      </svg>
+      {parroquia.logo_tipo === 'imagen' && parroquia.logo_url ? (
+        <img
+          src={parroquia.logo_url}
+          alt={`Escudo de ${parroquia.nombre}`}
+          class="size-11 object-contain rounded-full border border-[#C9A96A]/40"
+          width="44"
+          height="44"
+        />
+      ) : (
+        <svg width="44" height="44" viewBox="0 0 44 44" role="img" aria-label={`Escudo de ${parroquia.nombre}`}>
+          <circle cx="22" cy="22" r="20.5" fill="none" stroke={apariencia.color_acento || '#7A5C24'}></circle>
+          <circle cx="22" cy="22" r="17" fill={apariencia.color_primario || '#22366B'}></circle>
+          <text x="22" y="28.5" text-anchor="middle" fill={apariencia.color_acento || '#C9A96A'} font-family="Marcellus, Georgia, serif" font-size="16">
+            {parroquia.logo_iniciales || 'AM'}
+          </text>
+        </svg>
+      )}
       <span>
-        <strong class="marca__nombre">Santa María de la Ayuda</strong>
+        <strong class="marca__nombre">{parroquia.nombre}</strong>
         <span class="marca__bajada">Parroquia</span>
       </span>
     </a>

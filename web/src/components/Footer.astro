@@ -1,4 +1,9 @@
 ---
+import { getSiteConfig } from '../lib/supabase';
+
+const siteConfig = await getSiteConfig();
+const { parroquia, contacto, redes } = siteConfig;
+const currentYear = new Date().getFullYear();
 ---
 
 <!-- ===== PIE (igual en todas las páginas) ===== -->
@@ -6,11 +11,17 @@
   <div class="contenedor">
     <div class="pie__grilla">
       <div>
-        <h2>Parroquia Santa María de la Ayuda</h2>
-        <p>Calle Ejemplo 1234, esquina Avenida Principal<br>Montevideo, Uruguay</p>
+        <h2>{parroquia.nombre}</h2>
+        <p>{contacto.direccion}</p>
         <p>
-          <a href="tel:+59829001234">2900 1234</a><br>
-          <a href="mailto:hola@santamariadelaayuda.org">hola@santamariadelaayuda.org</a>
+          {contacto.telefono && (
+            <>
+              <a href={`tel:${contacto.telefono.replace(/[^0-9+]/g, '')}`}>{contacto.telefono}</a><br>
+            </>
+          )}
+          {contacto.email && (
+            <a href={`mailto:${contacto.email}`}>{contacto.email}</a>
+          )}
         </p>
       </div>
 
@@ -29,24 +40,52 @@
       <div>
         <h2>Seguinos</h2>
         <ul class="redes">
-          <li><a href="https://facebook.com/" rel="me noopener">
-            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.7 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.3-1.5 1.6-1.5h1.6V3.6c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.1v2.3H7.8V13h2.7v8h3.2z"/></svg>
-            Facebook</a></li>
-          <li><a href="https://instagram.com/" rel="me noopener">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.1" cy="6.9" r="1.1" fill="currentColor" stroke="none"/></svg>
-            Instagram</a></li>
-          <li><a href="https://youtube.com/" rel="me noopener">
-            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12s0-3.3-.4-4.9a2.6 2.6 0 0 0-1.8-1.8C18.2 4.9 12 4.9 12 4.9s-6.2 0-7.8.4a2.6 2.6 0 0 0-1.8 1.8C2 8.7 2 12 2 12s0 3.3.4 4.9a2.6 2.6 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.6 2.6 0 0 0 1.8-1.8c.4-1.6.4-4.9.4-4.9zM10 15.2V8.8l5.5 3.2-5.5 3.2z"/></svg>
-            YouTube</a></li>
-          <li><a href="https://wa.me/59899123456" rel="me noopener">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.6a9.4 9.4 0 0 0-8 14.3L2.6 21.4l4.7-1.3A9.4 9.4 0 1 0 12 2.6z"/><path d="M9.1 8c.3 0 .5.1.7.5l.7 1.4c.1.3 0 .5-.2.7l-.5.5c-.2.2-.2.4-.1.6.5.9 1.3 1.7 2.2 2.2.2.1.4.1.6-.1l.5-.5c.2-.2.4-.3.7-.2l1.4.7c.4.2.5.4.5.7 0 .8-.7 1.5-1.5 1.5-3 0-6-3-6-6C7.6 8.7 8.3 8 9.1 8z" stroke-linecap="round"/></svg>
-            WhatsApp</a></li>
+          {redes.facebook && (
+            <li>
+              <a href={redes.facebook} rel="me noopener" target="_blank">
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.7 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.3-1.5 1.6-1.5h1.6V3.6c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.1v2.3H7.8V13h2.7v8h3.2z"/></svg>
+                Facebook
+              </a>
+            </li>
+          )}
+          {redes.instagram && (
+            <li>
+              <a href={redes.instagram} rel="me noopener" target="_blank">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.1" cy="6.9" r="1.1" fill="currentColor" stroke="none"/></svg>
+                Instagram
+              </a>
+            </li>
+          )}
+          {redes.youtube && (
+            <li>
+              <a href={redes.youtube} rel="me noopener" target="_blank">
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12s0-3.3-.4-4.9a2.6 2.6 0 0 0-1.8-1.8C18.2 4.9 12 4.9 12 4.9s-6.2 0-7.8.4a2.6 2.6 0 0 0-1.8 1.8C2 8.7 2 12 2 12s0 3.3.4 4.9a2.6 2.6 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.6 2.6 0 0 0 1.8-1.8c.4-1.6.4-4.9.4-4.9zM10 15.2V8.8l5.5 3.2-5.5 3.2z"/></svg>
+                YouTube
+              </a>
+            </li>
+          )}
+          {redes.whatsapp && (
+            <li>
+              <a href={redes.whatsapp.startsWith('http') ? redes.whatsapp : `https://wa.me/${redes.whatsapp.replace(/[^0-9]/g, '')}`} rel="me noopener" target="_blank">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.6a9.4 9.4 0 0 0-8 14.3L2.6 21.4l4.7-1.3A9.4 9.4 0 1 0 12 2.6z"/><path d="M9.1 8c.3 0 .5.1.7.5l.7 1.4c.1.3 0 .5-.2.7l-.5.5c-.2.2-.2.4-.1.6.5.9 1.3 1.7 2.2 2.2.2.1.4.1.6-.1l.5-.5c.2-.2.4-.3.7-.2l1.4.7c.4.2.5.4.5.7 0 .8-.7 1.5-1.5 1.5-3 0-6-3-6-6C7.6 8.7 8.3 8 9.1 8z" stroke-linecap="round"/></svg>
+                WhatsApp
+              </a>
+            </li>
+          )}
+          {redes.spotify && (
+            <li>
+              <a href={redes.spotify} rel="me noopener" target="_blank">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 11.5c2.5-.7 5.5-.5 8 1"/><path d="M7 14.5c3-1 7-.8 10 1"/><path d="M9 8.5c2-.5 4.5-.4 6.5.5"/></svg>
+                Spotify
+              </a>
+            </li>
+          )}
         </ul>
       </div>
     </div>
 
     <div class="pie__legal">
-      <p>© 2026 Parroquia Santa María de la Ayuda · Diócesis de Montevideo</p>
+      <p>© {currentYear} {parroquia.nombre} {parroquia.diocesis ? `· ${parroquia.diocesis}` : ''}</p>
       <p><a href="#principal">Volver arriba</a></p>
     </div>
   </div>

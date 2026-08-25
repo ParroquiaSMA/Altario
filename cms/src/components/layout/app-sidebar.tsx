@@ -18,8 +18,8 @@ import {
   MegaphoneIcon,
   ImagesIcon,
   MailIcon,
-  BookOpenIcon,
-  UsersIcon,
+  GlobeIcon,
+  PaletteIcon,
   ExternalLinkIcon,
   SettingsIcon,
 } from "lucide-react"
@@ -33,13 +33,12 @@ const NAV_SITIO_WEB = [
   { name: "Horarios", url: "/horarios", icon: <ClockIcon /> },
   { name: "Avisos", url: "/avisos", icon: <MegaphoneIcon /> },
   { name: "Galería", url: "/galeria", icon: <ImagesIcon /> },
-  { name: "Sacramentos", url: "/sacramentos", icon: <BookOpenIcon /> },
-  { name: "Grupos", url: "/grupos", icon: <UsersIcon /> },
+  { name: "Ajustes web", url: "/settings-web", icon: <PaletteIcon /> },
 ]
 
 const NAV_SECONDARY = [
   { title: "Ver web", url: "http://localhost:4321", icon: <ExternalLinkIcon />, target: "_blank" },
-  { title: "Ajustes", url: "/settings", icon: <SettingsIcon /> },
+  { title: "Ajustes del sistema", url: "/settings", icon: <SettingsIcon /> },
 ]
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {

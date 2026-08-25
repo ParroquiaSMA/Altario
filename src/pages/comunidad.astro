@@ -1,8 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getGrupos, getSiteConfig } from '../lib/supabase';
+
+const siteConfig = await getSiteConfig();
+const grupos = await getGrupos();
+const { parroquia, parroco } = siteConfig;
 ---
 
-<Layout title="Comunidad — Parroquia Santa María de la Ayuda" currentPage="comunidad">
+<Layout title={`Comunidad — ${parroquia.nombre}`} currentPage="comunidad">
   <section class="portada">
     <svg class="portada__fondo" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
       <g fill="none" stroke="#C9A96A">
@@ -27,67 +32,31 @@ import Layout from '../layouts/Layout.astro';
   <section class="seccion">
     <div class="contenedor">
       <div class="rejilla">
-        <article class="tarjeta">
-          <h3>Cáritas parroquial</h3>
-          <p>Ropero, entrega de alimentos y acompañamiento a familias del barrio. Recibimos donaciones de ropa en buen estado y alimentos no perecederos en la secretaría.</p>
-          <p class="tarjeta__requisito">Martes y jueves, 15:00 – 18:00</p>
-        </article>
-        <article class="tarjeta">
-          <h3>Catequesis de niños</h3>
-          <p>Dos años de preparación para la primera comunión, con un equipo de catequistas que se forma durante todo el año.</p>
-          <p class="tarjeta__requisito">Sábados, 10:00 – 11:30</p>
-        </article>
-        <article class="tarjeta">
-          <h3>Catequesis de adultos</h3>
-          <p>Para quienes no fueron bautizados, no hicieron la comunión o quieren confirmarse de grandes. Grupo chico y sin apuro.</p>
-          <p class="tarjeta__requisito">Miércoles, 20:00</p>
-        </article>
-        <article class="tarjeta">
-          <h3>Coro parroquial</h3>
-          <p>Anima la misa de las 11:00 del domingo y las celebraciones grandes. No hace falta saber leer música: hace falta venir a ensayar.</p>
-          <p class="tarjeta__requisito">Ensayo: viernes, 20:00</p>
-        </article>
-        <article class="tarjeta">
-          <h3>Grupo de jóvenes</h3>
-          <p>Encuentro semanal, salidas, campamentos y servicio en el barrio. Desde los 15 años.</p>
-          <p class="tarjeta__requisito">Sábados, 19:45, después de misa</p>
-        </article>
-        <article class="tarjeta">
-          <h3>Encuentro de adultos mayores</h3>
-          <p>Café, juegos de mesa, charlas y una salida por mes. Si te cuesta llegar, coordinamos que alguien te pase a buscar.</p>
-          <p class="tarjeta__requisito">Miércoles, 15:00 – 17:30</p>
-        </article>
-        <article class="tarjeta">
-          <h3>Ministros de la comunión</h3>
-          <p>Llevan la comunión a personas enfermas o que no pueden salir de su casa. Se forman una vez al año.</p>
-          <p class="tarjeta__requisito">Domingos, después de la misa de 9:00</p>
-        </article>
-        <article class="tarjeta">
-          <h3>Grupo de liturgia</h3>
-          <p>Prepara las celebraciones, los cantos y el adorno del templo según el tiempo litúrgico.</p>
-          <p class="tarjeta__requisito">Primer lunes de cada mes, 19:45</p>
-        </article>
+        {grupos.map((g) => (
+          <article class="tarjeta">
+            <h3>{g.nombre}</h3>
+            <p>{g.descripcion}</p>
+            {g.horario_encuentro && <p class="tarjeta__requisito">{g.horario_encuentro}</p>}
+          </article>
+        ))}
       </div>
     </div>
   </section>
 
-  <section class="seccion seccion--papel">
-    <div class="contenedor--angosto">
-      <p class="antetitulo">Dar una mano</p>
-      <h2>Dónde hace falta gente ahora</h2>
-      <p class="divisor"><i aria-hidden="true"></i></p>
-      <div class="prosa">
-        <p>Esto cambia seguido. Lo actualizamos cada par de meses.</p>
-        <ul>
-          <li><strong>Cáritas:</strong> dos personas más para el ropero los jueves de tarde.</li>
-          <li><strong>Catequesis:</strong> catequistas para el grupo de segundo año, a partir de marzo.</li>
-          <li><strong>Limpieza del templo:</strong> el equipo se junta los viernes a las 9:00 y siempre viene bien una mano.</li>
-          <li><strong>Lectores:</strong> para la misa de 19:00 de los días de semana.</li>
-        </ul>
-        <p>Si algo de esto te interesa, hablá con el sacerdote después de misa o escribinos.</p>
+  {parroco.nombre && (
+    <section class="seccion seccion--papel">
+      <div class="contenedor--angosto">
+        <p class="antetitulo">Atención pastoral</p>
+        <h2>{parroco.nombre}</h2>
+        <p class="divisor"><i aria-hidden="true"></i></p>
+        <div class="prosa">
+          <p><strong>{parroco.titulo || 'Párroco'}</strong></p>
+          <p>{parroco.biografia}</p>
+          <p>Si querés hablar con el sacerdote para una dirección espiritual o confesión, podés escribirnos o acercarte después de misa.</p>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <section class="franja">
     <div class="contenedor franja__fila">

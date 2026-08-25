@@ -1,8 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getSiteConfig } from '../lib/supabase';
+
+const siteConfig = await getSiteConfig();
+const { parroquia } = siteConfig;
 ---
 
-<Layout title="Parroquia Santa María de la Ayuda — Horarios de misa y sacramentos" currentPage="inicio">
+<Layout title={`${parroquia.nombre} — Horarios de misa y sacramentos`} currentPage="inicio">
   <!-- ===== HERO ===== -->
   <section class="hero">
     <svg class="hero__fondo" viewBox="0 0 1200 620" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
@@ -23,11 +27,10 @@ import Layout from '../layouts/Layout.astro';
     <div class="contenedor">
       <div class="hero__grilla">
         <div>
-          <p class="antetitulo">Comunidad católica · Desde 1948</p>
-          <h1>Parroquia Santa María de la Ayuda</h1>
+          <p class="antetitulo">Comunidad católica {parroquia.diocesis ? `· ${parroquia.diocesis}` : ''}</p>
+          <h1>{parroquia.nombre}</h1>
           <p class="hero__lema">
-            Las puertas están abiertas todos los días. Acá encontrás los horarios de misa,
-            cómo preparar un sacramento y a quién escribirle.
+            {parroquia.lema || 'Las puertas están abiertas todos los días. Acá encontrás los horarios de misa, cómo preparar un sacramento y a quién escribirle.'}
           </p>
           <div class="hero__acciones">
             <a class="boton boton--oro" href="#horarios">Ver horarios de misa</a>
@@ -58,70 +61,41 @@ import Layout from '../layouts/Layout.astro';
       <h2>Celebraciones y atención</h2>
       <p class="divisor"><i aria-hidden="true"></i></p>
 
-      <div class="horarios">
-        <div class="tabla-envoltorio">
-          <table>
-            <caption>Misas</caption>
-            <thead><tr><th scope="col">Día</th><th scope="col">Horario</th></tr></thead>
-            <tbody>
-              <tr><th scope="row">Lunes a viernes</th><td>8:00 y 19:00</td></tr>
-              <tr><th scope="row">Sábado</th><td>19:00 <span class="nota">Misa de vigilia del domingo</span></td></tr>
-              <tr><th scope="row">Domingo</th><td>9:00 · 11:00 · 19:30 <span class="nota">La de 11:00 es la misa con las familias y el coro</span></td></tr>
-              <tr><th scope="row">Feriados</th><td>10:00 <span class="nota">Horario único</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div>
-          <div class="ficha">
-            <h3>Confesiones</h3>
-            <p>Media hora antes de cada misa, y los sábados de 17:00 a 18:30 sin necesidad de pedir hora.</p>
-          </div>
-          <div class="ficha">
-            <h3>Adoración eucarística</h3>
-            <p>Jueves de 18:00 a 19:00, en la capilla del Santísimo.</p>
-          </div>
-          <div class="ficha">
-            <h3>Secretaría parroquial</h3>
-            <dl>
-              <dt>Lun a vie</dt><dd>9:00 – 12:00 y 16:00 – 19:00</dd>
-              <dt>Sábado</dt><dd>9:00 – 12:00</dd>
-              <dt>Domingo</dt><dd>Cerrada</dd>
-            </dl>
-          </div>
-        </div>
+      <div class="dias-nav" role="tablist" aria-label="Días de la semana">
+        <button class="activo" role="tab" aria-selected="true" data-dia="0">Domingo</button>
+        <button role="tab" aria-selected="false" data-dia="1">Lunes</button>
+        <button role="tab" aria-selected="false" data-dia="2">Martes</button>
+        <button role="tab" aria-selected="false" data-dia="3">Miércoles</button>
+        <button role="tab" aria-selected="false" data-dia="4">Jueves</button>
+        <button role="tab" aria-selected="false" data-dia="5">Viernes</button>
+        <button role="tab" aria-selected="false" data-dia="6">Sábado</button>
       </div>
-    </div>
-  </section>
 
-  <!-- ===== ACCESOS A LAS DEMÁS PÁGINAS ===== -->
-  <section class="seccion seccion--oscura">
-    <div class="contenedor">
-      <p class="antetitulo">Dónde seguir</p>
-      <h2>Lo que más nos preguntan</h2>
-      <p class="divisor"><i aria-hidden="true"></i></p>
-
-      <div class="rejilla">
-        <a class="tarjeta tarjeta-enlace" href="/sacramentos">
-          <h3>Sacramentos</h3>
-          <p>Bautismo, primera comunión, confirmación, matrimonio, unción de enfermos y exequias: fechas, requisitos y qué papeles traer.</p>
-          <span class="flecha" aria-hidden="true">Ver los seis →</span>
-        </a>
-        <a class="tarjeta tarjeta-enlace" href="/comunidad">
-          <h3>Comunidad</h3>
-          <p>Cáritas, catequesis, coro, grupo de jóvenes y adultos mayores. Cuándo se reúnen y cómo sumarse.</p>
-          <span class="flecha" aria-hidden="true">Ver los grupos →</span>
-        </a>
-        <a class="tarjeta tarjeta-enlace" href="/historia">
-          <h3>Historia</h3>
-          <p>Desde la capilla de chapa de 1948 hasta el templo de hoy, y por qué la patrona se llama María de la Ayuda.</p>
-          <span class="flecha" aria-hidden="true">Leer la historia →</span>
-        </a>
-        <a class="tarjeta tarjeta-enlace" href="/galeria">
-          <h3>Galería</h3>
-          <p>El templo, los vitrales, las fiestas patronales y la vida de todos los días en fotos.</p>
-          <span class="flecha" aria-hidden="true">Ver las fotos →</span>
-        </a>
+      <div class="horarios-grid" id="horarios-dia">
+        <div class="horario-card misa">
+          <div class="horario-card__hora">09:00</div>
+          <div class="horario-card__info">
+            <h3>Misa de la mañana</h3>
+            <p>Eucaristía dominical comunitaria.</p>
+            <span class="horario-card__lugar">Templo parroquial</span>
+          </div>
+        </div>
+        <div class="horario-card misa destacada">
+          <div class="horario-card__hora">11:00</div>
+          <div class="horario-card__info">
+            <h3>Misa con familias y coro</h3>
+            <p>Participación especial de los niños de catequesis.</p>
+            <span class="horario-card__lugar">Templo parroquial</span>
+          </div>
+        </div>
+        <div class="horario-card misa">
+          <div class="horario-card__hora">19:30</div>
+          <div class="horario-card__info">
+            <h3>Misa de la tarde</h3>
+            <p>Eucaristía vespertina.</p>
+            <span class="horario-card__lugar">Templo parroquial</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -129,11 +103,11 @@ import Layout from '../layouts/Layout.astro';
   <!-- ===== AVISOS ===== -->
   <section class="seccion seccion--papel" id="avisos">
     <div class="contenedor">
-      <p class="antetitulo">Próximas fechas</p>
-      <h2>Avisos de la comunidad</h2>
+      <p class="antetitulo">Comunidad</p>
+      <h2>Avisos y actividades</h2>
       <p class="divisor"><i aria-hidden="true"></i></p>
 
-      <ol class="avisos">
+      <ol class="lista-avisos">
         <li>
           <time datetime="2026-09-08">8 de setiembre</time>
           <div>

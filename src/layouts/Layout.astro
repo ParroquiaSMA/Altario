@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { getSiteConfig } from '../lib/supabase';
 
 interface Props {
   title?: string;
@@ -8,9 +9,12 @@ interface Props {
   currentPage?: string;
 }
 
+const siteConfig = await getSiteConfig();
+const { parroquia, apariencia } = siteConfig;
+
 const {
-  title = 'Parroquia Santa María de la Ayuda — Horarios de misa y sacramentos',
-  description = 'Horarios de misa y confesión, sacramentos, grupos, historia y contacto de la Parroquia Santa María de la Ayuda.',
+  title = `${parroquia.nombre} — Horarios de misa y sacramentos`,
+  description = `Horarios de misa y confesión, sacramentos, grupos, historia y contacto de la ${parroquia.nombre}.`,
   currentPage = '',
 } = Astro.props;
 ---
@@ -22,7 +26,7 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#16244A" />
+    <meta name="theme-color" content={apariencia.color_primario || '#16244A'} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -31,6 +35,14 @@ const {
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/assets/estilos.css" />
+    {apariencia.color_acento && (
+      <style define:vars={{ colorAcento: apariencia.color_acento, colorPrimario: apariencia.color_primario, colorFondoHero: apariencia.color_fondo_hero }}>
+        :root {
+          --oro: var(--colorAcento);
+          --azul: var(--colorPrimario);
+        }
+      </style>
+    )}
   </head>
   <body>
     <a class="saltar" href="#principal">Ir al contenido</a>

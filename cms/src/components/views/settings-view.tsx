@@ -2,11 +2,12 @@
 
 import * as React from "react"
 import { FullPageModal } from "@/components/ui/full-page-modal"
+import { SitioSettings } from "@/components/views/settings/sitio-settings"
 import { UsuariosSettings } from "@/components/views/settings/usuarios-settings"
 import { CatalogosSettings } from "@/components/views/settings/catalogos-settings"
 import { GeneralSettings } from "@/components/views/settings/general-settings"
 import {
-  ChurchIcon,
+  GlobeIcon,
   LayersIcon,
   UsersIcon,
   SlidersIcon,
@@ -14,10 +15,10 @@ import {
   ShieldCheckIcon,
 } from "lucide-react"
 
-type SettingsSection = "parroquia" | "catalogos" | "usuarios" | "general" | "notificaciones" | "seguridad"
+type SettingsSection = "sitio" | "catalogos" | "usuarios" | "general" | "notificaciones" | "seguridad"
 
 const NAV_ITEMS: { id: SettingsSection; title: string; icon: React.ReactNode }[] = [
-  { id: "parroquia", title: "Parroquia", icon: <ChurchIcon className="size-4 shrink-0" /> },
+  { id: "sitio", title: "Sitio Web & Diseño", icon: <GlobeIcon className="size-4 shrink-0" /> },
   { id: "catalogos", title: "Catálogos", icon: <LayersIcon className="size-4 shrink-0" /> },
   { id: "usuarios", title: "Usuarios", icon: <UsersIcon className="size-4 shrink-0" /> },
   { id: "general", title: "General", icon: <SlidersIcon className="size-4 shrink-0" /> },
@@ -26,7 +27,7 @@ const NAV_ITEMS: { id: SettingsSection; title: string; icon: React.ReactNode }[]
 ]
 
 export function SettingsView() {
-  const [activeSection, setActiveSection] = React.useState<SettingsSection>("parroquia")
+  const [activeSection, setActiveSection] = React.useState<SettingsSection>("sitio")
   const [open, setOpen] = React.useState(true)
 
   const activeItem = NAV_ITEMS.find((i) => i.id === activeSection)
@@ -78,7 +79,7 @@ export function SettingsView() {
 
       {/* Main content area */}
       <main className={`flex-1 overflow-y-auto min-w-0 ${activeSection === "catalogos" ? "p-0 h-full" : "p-4 lg:p-6"}`}>
-        {activeSection === "parroquia" && <ParroquiaSettings />}
+        {activeSection === "sitio" && <SitioSettings />}
         {activeSection === "catalogos" && <CatalogosSettings />}
         {activeSection === "usuarios" && <UsuariosSettings />}
         {activeSection === "general" && <GeneralSettings />}
@@ -86,40 +87,6 @@ export function SettingsView() {
         {activeSection === "seguridad" && <SeguridadSettings />}
       </main>
     </FullPageModal>
-  )
-}
-
-function ParroquiaSettings() {
-  return (
-    <div className="space-y-6 max-w-2xl">
-      <div>
-        <h2 className="text-base font-semibold">Información de la Parroquia</h2>
-        <p className="text-sm text-muted-foreground mt-0.5">Datos que aparecen en la web pública.</p>
-      </div>
-      <div className="grid gap-4">
-        <FieldRow label="Nombre de la Parroquia">
-          <input className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs outline-none" defaultValue="Santa María de la Ayuda" />
-        </FieldRow>
-        <FieldRow label="Diócesis">
-          <input className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs outline-none" defaultValue="Diócesis de Buenos Aires" />
-        </FieldRow>
-        <FieldRow label="Dirección">
-          <input className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs outline-none" defaultValue="Av. San Martín 1234, Buenos Aires" />
-        </FieldRow>
-        <div className="grid grid-cols-2 gap-4">
-          <FieldRow label="Teléfono">
-            <input className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs outline-none" defaultValue="+54 11 4000-0000" />
-          </FieldRow>
-          <FieldRow label="Correo Electrónico">
-            <input type="email" className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs outline-none" defaultValue="contacto@santamariadelaayuda.org" />
-          </FieldRow>
-        </div>
-        <FieldRow label="Descripción Corta">
-          <textarea className="flex min-h-16 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none resize-none" rows={2} defaultValue="Parroquia Santa María de la Ayuda, al servicio de la comunidad desde 1892." />
-        </FieldRow>
-      </div>
-      <SaveButton />
-    </div>
   )
 }
 

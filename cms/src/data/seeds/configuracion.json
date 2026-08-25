@@ -2,15 +2,40 @@
   "parroquia": {
     "nombre": "Santa María de la Ayuda",
     "diocesis": "Diócesis de Buenos Aires",
-    "direccion": "Av. San Martín 1234, Buenos Aires",
+    "lema": "Una comunidad de fe, esperanza y caridad al servicio de todos",
+    "descripcion": "Parroquia Santa María de la Ayuda, al servicio de la comunidad desde 1892.",
+    "logo_tipo": "monograma",
+    "logo_iniciales": "AM",
+    "logo_url": ""
+  },
+  "parroco": {
+    "nombre": "Padre Martín Morales",
+    "titulo": "Párroco",
+    "email": "martin@santamariadelaayuda.org",
+    "telefono": "+54 11 4000-0001",
+    "biografia": "Al servicio de la comunidad parroquial desde 2018. Acompañando a familias, jóvenes y enfermos.",
+    "foto_url": "/assets/img/patrona.jpg"
+  },
+  "contacto": {
+    "direccion": "Av. San Martín 1234, esquina Avenida Principal, Buenos Aires",
     "telefono": "+54 11 4000-0000",
+    "whatsapp": "+5491140000000",
     "email": "contacto@santamariadelaayuda.org",
-    "descripcion": "Parroquia Santa María de la Ayuda, al servicio de la comunidad desde 1892."
+    "horario_secretaria": "Lun a vie 9:00 – 12:00 y 16:00 – 19:00 | Sábados 9:00 – 12:00",
+    "como_llegar": "Líneas de colectivo 24, 37, 105, 146. Subte Línea B (Estación Dorrego, 4 cuadras)."
   },
   "redes": {
     "facebook": "https://facebook.com/parroquiasantamaria",
     "instagram": "https://instagram.com/parroquiasantamaria",
-    "youtube": "",
-    "whatsapp": "+5491140000000"
+    "youtube": "https://youtube.com/@parroquiasantamaria",
+    "whatsapp": "https://wa.me/5491140000000",
+    "twitter": "",
+    "spotify": "https://spotify.com"
+  },
+  "apariencia": {
+    "color_primario": "#22366B",
+    "color_acento": "#C9A96A",
+    "color_fondo_hero": "#1B2A52",
+    "mostrar_banner_anuncio": true
   }
 }

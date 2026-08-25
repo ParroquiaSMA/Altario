@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Horario, Aviso, FotoGaleria, Sacramento, Grupo, MensajeContacto } from '../types/database';
+import seedConfig from '../data/seeds/configuracion.json';
 
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || '';
@@ -16,6 +17,72 @@ export const isSupabaseConfigured = (): boolean => {
 export const supabase = isSupabaseConfigured()
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
+
+// ==========================================
+// CONFIGURACIÓN DE SITIO WEB
+// ==========================================
+
+export interface SiteConfig {
+  parroquia: {
+    nombre: string;
+    diocesis: string;
+    lema: string;
+    descripcion: string;
+    logo_tipo: 'monograma' | 'imagen';
+    logo_iniciales: string;
+    logo_url: string;
+  };
+  parroco: {
+    nombre: string;
+    titulo: string;
+    email: string;
+    telefono: string;
+    biografia: string;
+    foto_url: string;
+  };
+  contacto: {
+    direccion: string;
+    telefono: string;
+    whatsapp: string;
+    email: string;
+    horario_secretaria: string;
+    como_llegar: string;
+  };
+  redes: {
+    facebook: string;
+    instagram: string;
+    youtube: string;
+    whatsapp: string;
+    twitter: string;
+    spotify: string;
+  };
+  apariencia: {
+    color_primario: string;
+    color_acento: string;
+    color_fondo_hero: string;
+    mostrar_banner_anuncio: boolean;
+  };
+}
+
+export async function getSiteConfig(): Promise<SiteConfig> {
+  const fallback = seedConfig as SiteConfig;
+  if (!supabase) return fallback;
+  try {
+    const { data, error } = await supabase.from('configuracion').select('clave, valor');
+    if (error || !data || data.length === 0) return fallback;
+    const configMap: Record<string, any> = {};
+    data.forEach((row) => { configMap[row.clave] = row.valor; });
+    return {
+      parroquia: { ...fallback.parroquia, ...(configMap['parroquia'] || {}) },
+      parroco: { ...fallback.parroco, ...(configMap['parroco'] || {}) },
+      contacto: { ...fallback.contacto, ...(configMap['contacto'] || {}) },
+      redes: { ...fallback.redes, ...(configMap['redes'] || {}) },
+      apariencia: { ...fallback.apariencia, ...(configMap['apariencia'] || {}) },
+    };
+  } catch {
+    return fallback;
+  }
+}
 
 // ==========================================
 // SEEDS LOCALES (FALLBACK RESILIENTE)

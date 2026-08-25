@@ -1,0 +1,13 @@
+---
+import RootLayout from '../layouts/RootLayout.astro';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { SitioSettings } from '@/components/views/settings/sitio-settings';
+---
+
+<RootLayout title="Ajustes Web & Diseño — Altario CMS">
+  <DashboardShell client:load title="Ajustes web" currentPath="/settings-web">
+    <div className="p-4 lg:p-6 h-full">
+      <SitioSettings client:load />
+    </div>
+  </DashboardShell>
+</RootLayout>
