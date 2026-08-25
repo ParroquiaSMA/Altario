@@ -5,7 +5,7 @@ import { SitioSettings } from '@/components/views/settings/sitio-settings';
 ---
 
 <RootLayout title="Diseño & Web — Altario CMS">
-  <DashboardShell client:load title="Ajustes web" currentPath="/diseno">
-    <SitioSettings client:load />
+  <DashboardShell client:only="react" title="Ajustes web" currentPath="/diseno">
+    <SitioSettings client:only="react" />
   </DashboardShell>
 </RootLayout>

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
+import seedConfig from "@/data/seeds/configuracion.json"
 import {
   getLocalConfig,
   fetchSiteConfigFromDb,
@@ -26,19 +27,27 @@ const TABS: { id: TabKey; label: string }[] = [
 
 export function SitioSettings() {
   const [activeTab, setActiveTab] = React.useState<TabKey>("identidad")
-  const [config, setConfig] = React.useState<SiteConfig>(getLocalConfig())
+  // Initialize with seedConfig so SSR and client initial render match 100%
+  const [config, setConfig] = React.useState<SiteConfig>(seedConfig as SiteConfig)
+  const [mounted, setMounted] = React.useState(false)
   const [saving, setSaving] = React.useState(false)
   const [savedSuccess, setSavedSuccess] = React.useState(false)
 
-  // Sync tab with URL search params on mount
+  // On mount: load local storage, URL params, and DB
   React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search)
-      const tabParam = params.get("tab") as TabKey
-      if (tabParam && TABS.some((t) => t.id === tabParam)) {
-        setActiveTab(tabParam)
-      }
+    setMounted(true)
+    const local = getLocalConfig()
+    setConfig(local)
+
+    const params = new URLSearchParams(window.location.search)
+    const tabParam = params.get("tab") as TabKey
+    if (tabParam && TABS.some((t) => t.id === tabParam)) {
+      setActiveTab(tabParam)
     }
+
+    fetchSiteConfigFromDb().then((data) => {
+      setConfig(data)
+    })
   }, [])
 
   // Listen for browser back/forward navigation
@@ -52,12 +61,6 @@ export function SitioSettings() {
     }
     window.addEventListener("popstate", handlePopState)
     return () => window.removeEventListener("popstate", handlePopState)
-  }, [])
-
-  React.useEffect(() => {
-    fetchSiteConfigFromDb().then((data) => {
-      setConfig(data)
-    })
   }, [])
 
   const handleTabChange = (tabId: TabKey) => {
@@ -102,6 +105,23 @@ export function SitioSettings() {
         [key]: value,
       },
     }))
+  }
+
+  if (!mounted) {
+    // Show clean SSR skeleton or seed match until hydrated
+    return (
+      <div className="flex flex-col gap-6 py-4 md:py-6 px-4 lg:px-6 opacity-60">
+        <div className="flex items-center justify-between border-b pb-4">
+          <div className="flex gap-2">
+            {TABS.map((t) => (
+              <span key={t.id} className="px-3 py-1.5 rounded-md text-xs font-medium text-muted-foreground">
+                {t.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
