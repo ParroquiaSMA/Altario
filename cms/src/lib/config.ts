@@ -119,26 +119,26 @@ export async function saveSiteConfigSection<K extends keyof SiteConfig>(
     [section]: value,
   }
 
-  saveLocalConfig(updated)
-
-  if (supabase) {
-    try {
-      await supabase.from("configuracion").upsert(
-        {
-          clave: section,
-          valor: value,
-          actualizado_en: new Date().toISOString(),
-        },
-        { onConflict: "clave" }
-      )
-    } catch (err) {
-      console.warn(`Error al sincronizar sección ${section} con Supabase:`, err)
-    }
-  }
+  await saveFullSiteConfig(updated)
 }
 
 export async function saveFullSiteConfig(config: SiteConfig): Promise<void> {
   saveLocalConfig(config)
+
+  // 1. Sync to local files via API endpoint (allows web dev server to see changes immediately)
+  try {
+    if (typeof window !== "undefined") {
+      await fetch("/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(config),
+      })
+    }
+  } catch (err) {
+    console.warn("No se pudo persistir en API local:", err)
+  }
+
+  // 2. Sync to Supabase if connected
   if (supabase) {
     const sections: (keyof SiteConfig)[] = ["parroquia", "parroco", "contacto", "redes", "apariencia"]
     try {
@@ -149,7 +149,7 @@ export async function saveFullSiteConfig(config: SiteConfig): Promise<void> {
       }))
       await supabase.from("configuracion").upsert(updates, { onConflict: "clave" })
     } catch (err) {
-      console.warn("Error al sincronizar configuración completa con Supabase:", err)
+      console.warn("Error al sincronizar configuración con Supabase:", err)
     }
   }
 }
