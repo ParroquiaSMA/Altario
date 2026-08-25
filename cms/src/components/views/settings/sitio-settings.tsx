@@ -40,6 +40,33 @@ export function SitioSettings() {
   const [mounted, setMounted] = React.useState(false)
   const [saving, setSaving] = React.useState(false)
   const [savedSuccess, setSavedSuccess] = React.useState(false)
+  const [linkingVercel, setLinkingVercel] = React.useState(false)
+  const [vercelLinkedMessage, setVercelLinkedMessage] = React.useState<string | null>(null)
+
+  const handleLinkVercel = async () => {
+    setLinkingVercel(true)
+    setVercelLinkedMessage(null)
+    try {
+      const res = await fetch("/api/vercel/link-domain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          webDomain: config.dominio?.dominio_web,
+          cmsDomain: config.dominio?.subdominio_cms,
+        }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setVercelLinkedMessage("¡Dominios agregados a Vercel exitosamente!")
+      } else {
+        setVercelLinkedMessage(data.error || "Error al vincular en Vercel")
+      }
+    } catch {
+      setVercelLinkedMessage("Error de conexión al vincular en Vercel")
+    }
+    setLinkingVercel(false)
+    setTimeout(() => setVercelLinkedMessage(null), 5000)
+  }
 
   React.useEffect(() => {
     setMounted(true)
@@ -513,7 +540,30 @@ export function SitioSettings() {
           <div className="space-y-6">
             <Card className="p-0">
               <CardContent className="p-5 space-y-4">
-                <h3 className="text-sm font-semibold text-foreground">Configuración de dominios</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">Configuración de dominios</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Asigná las direcciones web oficiales y vincúlas con un solo clic.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={linkingVercel || !config.dominio?.dominio_web}
+                    onClick={handleLinkVercel}
+                    className="text-xs gap-1.5 cursor-pointer self-start sm:self-auto"
+                  >
+                    {linkingVercel ? "Vinculando en Vercel..." : "Vincular dominios en Vercel"}
+                  </Button>
+                </div>
+
+                {vercelLinkedMessage && (
+                  <div className="text-xs p-2.5 rounded-md bg-muted text-foreground border">
+                    {vercelLinkedMessage}
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="grid gap-1.5">
@@ -521,7 +571,7 @@ export function SitioSettings() {
                     <Input
                       value={config.dominio?.dominio_web || ""}
                       onChange={(e) => updateSection("dominio", "dominio_web", e.target.value.toLowerCase().trim())}
-                      placeholder="santamariadelaayuda.org"
+                      placeholder="parroquiasma.org"
                     />
                     <span className="text-[11px] text-muted-foreground">
                       Dirección web para los fieles.
@@ -533,7 +583,7 @@ export function SitioSettings() {
                     <Input
                       value={config.dominio?.subdominio_cms || ""}
                       onChange={(e) => updateSection("dominio", "subdominio_cms", e.target.value.toLowerCase().trim())}
-                      placeholder="admin.santamariadelaayuda.org"
+                      placeholder="admin.parroquiasma.org"
                     />
                     <span className="text-[11px] text-muted-foreground">
                       Acceso administrativo.
