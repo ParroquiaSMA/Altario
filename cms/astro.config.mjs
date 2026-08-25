@@ -9,15 +9,22 @@ import { promisify } from 'node:util';
 
 const execAsync = promisify(exec);
 
+/** @returns {import('vite').Plugin} */
 function devConfigApiPlugin() {
   return {
     name: 'dev-config-api',
+    /** @param {import('vite').ViteDevServer} server */
     configureServer(server) {
+      /**
+       * @param {import('node:http').IncomingMessage} req
+       * @param {import('node:http').ServerResponse} res
+       * @param {(err?: any) => void} next
+       */
       server.middlewares.use(async (req, res, next) => {
         // 1. Sync Config JSON
         if (req.url === '/api/config' && req.method === 'POST') {
           let body = '';
-          req.on('data', (chunk) => (body += chunk));
+          req.on('data', (/** @type {any} */ chunk) => (body += chunk));
           req.on('end', () => {
             try {
               const config = JSON.parse(body);
@@ -51,7 +58,7 @@ function devConfigApiPlugin() {
         // 2. Link Domains automatically to Vercel
         if (req.url === '/api/vercel/link-domain' && req.method === 'POST') {
           let body = '';
-          req.on('data', (chunk) => (body += chunk));
+          req.on('data', (/** @type {any} */ chunk) => (body += chunk));
           req.on('end', async () => {
             try {
               const { webDomain, cmsDomain } = JSON.parse(body);
@@ -61,7 +68,7 @@ function devConfigApiPlugin() {
                 try {
                   const { stdout } = await execAsync(`npx vercel domains add ${webDomain} altario-web`);
                   results.push({ domain: webDomain, project: 'altario-web', output: stdout });
-                } catch (e) {
+                } catch (/** @type {any} */ e) {
                   results.push({ domain: webDomain, project: 'altario-web', error: e.message });
                 }
 
@@ -69,7 +76,7 @@ function devConfigApiPlugin() {
                   try {
                     const { stdout } = await execAsync(`npx vercel domains add www.${webDomain} altario-web`);
                     results.push({ domain: `www.${webDomain}`, project: 'altario-web', output: stdout });
-                  } catch (e) {
+                  } catch (/** @type {any} */ e) {
                     results.push({ domain: `www.${webDomain}`, project: 'altario-web', error: e.message });
                   }
                 }
@@ -79,7 +86,7 @@ function devConfigApiPlugin() {
                 try {
                   const { stdout } = await execAsync(`npx vercel domains add ${cmsDomain} altario-cms`);
                   results.push({ domain: cmsDomain, project: 'altario-cms', output: stdout });
-                } catch (e) {
+                } catch (/** @type {any} */ e) {
                   results.push({ domain: cmsDomain, project: 'altario-cms', error: e.message });
                 }
               }
