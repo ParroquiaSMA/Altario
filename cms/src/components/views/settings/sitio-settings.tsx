@@ -6,6 +6,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table"
 import seedConfig from "@/data/seeds/configuracion.json"
 import {
   getLocalConfig,
@@ -543,36 +551,36 @@ export function SitioSettings() {
                 </p>
 
                 <div className="rounded-md border overflow-hidden">
-                  <table className="w-full text-xs text-left">
-                    <thead className="bg-muted/40 border-b text-muted-foreground font-medium">
-                      <tr>
-                        <th className="py-2 px-3">Tipo</th>
-                        <th className="py-2 px-3">Nombre</th>
-                        <th className="py-2 px-3">Valor / Destino</th>
-                        <th className="py-2 px-3">Uso</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border/60">
-                      <tr>
-                        <td className="py-2 px-3 font-semibold">A</td>
-                        <td className="py-2 px-3">@</td>
-                        <td className="py-2 px-3">76.76.21.21</td>
-                        <td className="py-2 px-3 text-muted-foreground">Web principal</td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 px-3 font-semibold">CNAME</td>
-                        <td className="py-2 px-3">www</td>
-                        <td className="py-2 px-3">cname.vercel-dns.com</td>
-                        <td className="py-2 px-3 text-muted-foreground">Redirección www</td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 px-3 font-semibold">CNAME</td>
-                        <td className="py-2 px-3">admin</td>
-                        <td className="py-2 px-3">cname.vercel-dns.com</td>
-                        <td className="py-2 px-3 text-muted-foreground">Panel CMS</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-24">Tipo</TableHead>
+                        <TableHead className="w-32">Nombre</TableHead>
+                        <TableHead>Valor / Destino</TableHead>
+                        <TableHead className="text-right">Uso</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-semibold text-xs">A</TableCell>
+                        <TableCell className="text-xs">@</TableCell>
+                        <TableCell className="text-xs">76.76.21.21</TableCell>
+                        <TableCell className="text-right text-xs text-muted-foreground">Web principal</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-semibold text-xs">CNAME</TableCell>
+                        <TableCell className="text-xs">www</TableCell>
+                        <TableCell className="text-xs">cname.vercel-dns.com</TableCell>
+                        <TableCell className="text-right text-xs text-muted-foreground">Redirección www</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-semibold text-xs">CNAME</TableCell>
+                        <TableCell className="text-xs">admin</TableCell>
+                        <TableCell className="text-xs">cname.vercel-dns.com</TableCell>
+                        <TableCell className="text-right text-xs text-muted-foreground">Panel CMS</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
                 </div>
               </CardContent>
             </Card>
