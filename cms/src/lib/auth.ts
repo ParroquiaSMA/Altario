@@ -10,8 +10,8 @@ export interface CMSUser {
   passwordHash: string
 }
 
-const USERS_KEY = "altario:db:users"
-const SESSION_KEY = "altario:session"
+const USERS_STORAGE_KEY = "altario:cms:users:v2"
+const SESSION_STORAGE_KEY = "altario:cms:session:v2"
 
 export function hashPassword(password: string): string {
   let h = 0
@@ -28,9 +28,9 @@ export function verifyPassword(password: string, hash: string): boolean {
 export function getUsers(): CMSUser[] {
   if (typeof window === "undefined") return seedUsuarios as CMSUser[]
   try {
-    const stored = localStorage.getItem(USERS_KEY)
+    const stored = localStorage.getItem(USERS_STORAGE_KEY)
     if (!stored) {
-      localStorage.setItem(USERS_KEY, JSON.stringify(seedUsuarios))
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(seedUsuarios))
       return seedUsuarios as CMSUser[]
     }
     return JSON.parse(stored) as CMSUser[]
@@ -41,7 +41,7 @@ export function getUsers(): CMSUser[] {
 
 export function saveUsers(users: CMSUser[]): void {
   if (typeof window === "undefined") return
-  localStorage.setItem(USERS_KEY, JSON.stringify(users))
+  localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
 }
 
 export function addUser(user: Omit<CMSUser, "id" | "passwordHash"> & { password: string }): CMSUser {
@@ -110,23 +110,23 @@ export function login(email: string, password: string): { ok: boolean; error?: s
     expiresAt: Date.now() + SESSION_DURATION_MS,
   }
 
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session))
   return { ok: true }
 }
 
 export function logout(): void {
   if (typeof window === "undefined") return
-  localStorage.removeItem(SESSION_KEY)
+  localStorage.removeItem(SESSION_STORAGE_KEY)
 }
 
 export function getSession(): Session | null {
   if (typeof window === "undefined") return null
   try {
-    const stored = localStorage.getItem(SESSION_KEY)
+    const stored = localStorage.getItem(SESSION_STORAGE_KEY)
     if (!stored) return null
     const session = JSON.parse(stored) as Session
     if (Date.now() > session.expiresAt) {
-      localStorage.removeItem(SESSION_KEY)
+      localStorage.removeItem(SESSION_STORAGE_KEY)
       return null
     }
     return session

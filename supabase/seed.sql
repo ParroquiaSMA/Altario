@@ -85,6 +85,7 @@ on conflict (clave) do nothing;
 -- 7. USUARIOS CMS
 insert into public.usuarios_cms (nombre, email, rol, status, password_hash)
 values
-  ('Secretaría Parroquial', 'secretaria@santamariadelaayuda.org', 'admin', 'activo', 'hash:1n2e14q:11'),
-  ('Padre Martín', 'martin@santamariadelaayuda.org', 'editor', 'activo', 'hash:1n2e14q:11')
+  ('Secretaría Parroquial', 'secretaria@santamariadelaayuda.org', 'admin', 'activo', 'hash:lbtveo:11'),
+  ('Padre Martín', 'martin@santamariadelaayuda.org', 'editor', 'activo', 'hash:lbtveo:11')
 on conflict (email) do nothing;
+
