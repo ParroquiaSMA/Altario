@@ -21,8 +21,8 @@ import {
   saveFullSiteConfig,
   type SiteConfig,
 } from "@/lib/config"
-import { uploadMediaFile } from "@/lib/storage"
-import { CheckIcon, UploadIcon } from "lucide-react"
+import { ImageUpload } from "@/components/ui/image-upload"
+import { CheckIcon } from "lucide-react"
 
 type TabKey = "identidad" | "parroco" | "contacto" | "redes" | "apariencia" | "dominio"
 
@@ -43,33 +43,6 @@ export function SitioSettings() {
   const [savedSuccess, setSavedSuccess] = React.useState(false)
   const [linkingVercel, setLinkingVercel] = React.useState(false)
   const [vercelLinkedMessage, setVercelLinkedMessage] = React.useState<string | null>(null)
-  const [uploadingLogo, setUploadingLogo] = React.useState(false)
-  const [uploadingParroco, setUploadingParroco] = React.useState(false)
-
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploadingLogo(true)
-    try {
-      const url = await uploadMediaFile(file, "logos")
-      updateSection("parroquia", "logo_url", url)
-      updateSection("parroquia", "logo_tipo", "imagen")
-    } finally {
-      setUploadingLogo(false)
-    }
-  }
-
-  const handleParrocoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploadingParroco(true)
-    try {
-      const url = await uploadMediaFile(file, "parroco")
-      updateSection("parroco", "foto_url", url)
-    } finally {
-      setUploadingParroco(false)
-    }
-  }
 
   const handleLinkVercel = async () => {
     setLinkingVercel(true)
@@ -280,45 +253,38 @@ export function SitioSettings() {
               <CardContent className="p-5 space-y-4">
                 <h3 className="text-sm font-semibold text-foreground">Escudo y logotipo</h3>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="grid gap-1.5">
-                    <Label className="text-xs">Iniciales del monograma</Label>
-                    <Input
-                      maxLength={4}
-                      value={config.parroquia.logo_iniciales}
-                      onChange={(e) => updateSection("parroquia", "logo_iniciales", e.target.value.toUpperCase())}
-                      placeholder="AM"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="grid gap-1.5">
+                      <Label className="text-xs">Iniciales del monograma</Label>
+                      <Input
+                        maxLength={4}
+                        value={config.parroquia.logo_iniciales}
+                        onChange={(e) => updateSection("parroquia", "logo_iniciales", e.target.value.toUpperCase())}
+                        placeholder="AM"
+                      />
+                      <span className="text-[11px] text-muted-foreground">
+                        Se muestra como monograma clásico cuando no se use un escudo en imagen.
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="grid gap-1.5">
-                    <Label className="text-xs">Imagen del logo o escudo</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        value={config.parroquia.logo_url}
-                        onChange={(e) => updateSection("parroquia", "logo_url", e.target.value)}
-                        placeholder="https://... o subí un archivo"
-                      />
-                      <label className="shrink-0 cursor-pointer">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleLogoUpload}
-                          disabled={uploadingLogo}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="h-9 pointer-events-none gap-1.5 cursor-pointer"
-                          disabled={uploadingLogo}
-                        >
-                          <UploadIcon className="size-3.5" />
-                          {uploadingLogo ? "Subiendo..." : "Subir"}
-                        </Button>
-                      </label>
-                    </div>
+                  <div>
+                    <ImageUpload
+                      value={config.parroquia.logo_url}
+                      onChange={(url) => {
+                        updateSection("parroquia", "logo_url", url)
+                        updateSection("parroquia", "logo_tipo", url ? "imagen" : "monograma")
+                      }}
+                      folder="logos"
+                      label="Logo o Escudo oficial"
+                      description="Subí el escudo en formato PNG transparente, SVG o JPG."
+                      aspectRatio="square"
+                      presets={[
+                        { label: "Imagen patrona", url: "/assets/img/patrona.jpg" },
+                        { label: "Rosetón histórico", url: "/assets/img/roseton.jpg" },
+                      ]}
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -371,34 +337,19 @@ export function SitioSettings() {
                 </div>
               </div>
 
-              <div className="grid gap-1.5">
-                <Label className="text-xs">Foto del párroco</Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={config.parroco.foto_url}
-                    onChange={(e) => updateSection("parroco", "foto_url", e.target.value)}
-                    placeholder="https://... o subí una foto"
-                  />
-                  <label className="shrink-0 cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleParrocoUpload}
-                      disabled={uploadingParroco}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="h-9 pointer-events-none gap-1.5 cursor-pointer"
-                      disabled={uploadingParroco}
-                    >
-                      <UploadIcon className="size-3.5" />
-                      {uploadingParroco ? "Subiendo..." : "Subir"}
-                    </Button>
-                  </label>
-                </div>
+              <div className="pt-2">
+                <ImageUpload
+                  value={config.parroco.foto_url}
+                  onChange={(url) => updateSection("parroco", "foto_url", url)}
+                  folder="parroco"
+                  label="Foto oficial del sacerdote"
+                  description="Fotografía oficial del párroco que se mostrará en la web."
+                  aspectRatio="portrait"
+                  presets={[
+                    { label: "Foto Patrona", url: "/assets/img/patrona.jpg" },
+                    { label: "Fachada", url: "/assets/img/fachada.jpg" },
+                  ]}
+                />
               </div>
 
               <div className="grid gap-1.5">

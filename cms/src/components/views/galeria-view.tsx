@@ -28,18 +28,16 @@ import {
   SearchIcon,
   Trash2Icon,
   EllipsisVerticalIcon,
-  UploadIcon,
 } from "lucide-react"
 import { getFotos, addFoto, deleteFoto, type FotoItem } from "@/lib/data-store"
 import { fetchCatalogFromDb, type CatalogOption } from "@/lib/catalog"
-import { uploadMediaFile } from "@/lib/storage"
+import { ImageUpload } from "@/components/ui/image-upload"
 
 export function GaleriaView() {
   const [fotos, setFotos] = React.useState<FotoItem[]>([])
   const [categoriasCatalogo, setCategoriasCatalogo] = React.useState<CatalogOption[]>([])
   const [searchTerm, setSearchTerm] = React.useState("")
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
-  const [uploadingImage, setUploadingImage] = React.useState(false)
 
   const [titulo, setTitulo] = React.useState("")
   const [categoria, setCategoria] = React.useState("templo")
@@ -71,18 +69,6 @@ export function GaleriaView() {
     setDescripcion("")
     setImagenUrl("/assets/img/fachada.jpg")
     setIsDialogOpen(true)
-  }
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploadingImage(true)
-    try {
-      const url = await uploadMediaFile(file, "galeria")
-      setImagenUrl(url)
-    } finally {
-      setUploadingImage(false)
-    }
   }
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -228,35 +214,25 @@ export function GaleriaView() {
               </Select>
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-medium">Foto / Imagen</Label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="/assets/img/fachada.jpg o https://..."
-                  value={imagenUrl}
-                  onChange={(e) => setImagenUrl(e.target.value)}
-                  className="text-xs h-8"
-                />
-                <label className="shrink-0 cursor-pointer">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageUpload}
-                    disabled={uploadingImage}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-8 pointer-events-none gap-1.5 cursor-pointer text-xs"
-                    disabled={uploadingImage}
-                  >
-                    <UploadIcon className="size-3.5" />
-                    {uploadingImage ? "Subiendo..." : "Subir"}
-                  </Button>
-                </label>
-              </div>
+            <div>
+              <ImageUpload
+                value={imagenUrl}
+                onChange={setImagenUrl}
+                folder="galeria"
+                label="Fotografía del templo o celebración"
+                description="Subí una foto o seleccionala de la biblioteca predeterminada."
+                aspectRatio="video"
+                presets={[
+                  { label: "Fachada del templo", url: "/assets/img/fachada.jpg" },
+                  { label: "Imagen patrona", url: "/assets/img/patrona.jpg" },
+                  { label: "Portal de entrada", url: "/assets/img/portal.jpg" },
+                  { label: "Nave central", url: "/assets/img/nave.jpg" },
+                  { label: "Rosetón histórico", url: "/assets/img/roseton.jpg" },
+                  { label: "Altar mayor", url: "/assets/img/altar.jpg" },
+                  { label: "Coro parroquial", url: "/assets/img/coro.jpg" },
+                  { label: "Patio y jardines", url: "/assets/img/patio.jpg" },
+                ]}
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">

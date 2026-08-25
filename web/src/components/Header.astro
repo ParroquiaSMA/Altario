@@ -13,11 +13,11 @@ const { parroquia, apariencia } = siteConfig;
 <header class="cabecera">
   <div class="contenedor cabecera__fila">
     <a class="marca" href="/">
-      {parroquia.logo_tipo === 'imagen' && parroquia.logo_url ? (
+      {parroquia.logo_url ? (
         <img
           src={parroquia.logo_url}
           alt={`Escudo de ${parroquia.nombre}`}
-          class="size-11 object-contain rounded-full border border-[#C9A96A]/40"
+          class="size-11 object-contain rounded-full border border-[#C9A96A]/40 bg-white/10"
           width="44"
           height="44"
         />

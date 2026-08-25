@@ -60,10 +60,44 @@
         var heroLema = document.querySelector(".hero__lema");
         if (heroLema) heroLema.textContent = cfg.parroquia.lema;
       }
-      if (cfg.parroquia?.logo_iniciales) {
-        document.querySelectorAll(".marca text").forEach(function (el) {
-          el.textContent = cfg.parroquia.logo_iniciales;
-        });
+
+      // Live Logo (Image vs SVG Monogram)
+      if (cfg.parroquia) {
+        var marcaAnchor = document.querySelector(".marca");
+        if (marcaAnchor) {
+          var currentImg = marcaAnchor.querySelector("img");
+          var currentSvg = marcaAnchor.querySelector("svg");
+          var oroCol = (cfg.apariencia && cfg.apariencia.color_acento) || "#C9A96A";
+          var lapisCol = (cfg.apariencia && cfg.apariencia.color_primario) || "#22366B";
+          var logoInit = cfg.parroquia.logo_iniciales || "AM";
+          var logoUrl = cfg.parroquia.logo_url;
+
+          if (logoUrl) {
+            if (currentImg) {
+              currentImg.src = logoUrl;
+              currentImg.alt = "Escudo de " + (cfg.parroquia.nombre || "la Parroquia");
+            } else if (currentSvg) {
+              var newImg = document.createElement("img");
+              newImg.src = logoUrl;
+              newImg.alt = "Escudo de " + (cfg.parroquia.nombre || "la Parroquia");
+              newImg.className = "size-11 object-contain rounded-full border border-[#C9A96A]/40 bg-white/10";
+              newImg.width = 44;
+              newImg.height = 44;
+              marcaAnchor.replaceChild(newImg, currentSvg);
+            }
+          } else {
+            if (currentImg) {
+              var svgWrapper = document.createElement("div");
+              svgWrapper.innerHTML = '<svg width="44" height="44" viewBox="0 0 44 44" role="img" aria-label="Escudo de ' + (cfg.parroquia.nombre || "la Parroquia") + '"><circle cx="22" cy="22" r="20.5" fill="none" stroke="' + oroCol + '"></circle><circle cx="22" cy="22" r="17" fill="' + lapisCol + '"></circle><text x="22" y="28.5" text-anchor="middle" fill="' + oroCol + '" font-family="Marcellus, Georgia, serif" font-size="16">' + logoInit + '</text></svg>';
+              if (svgWrapper.firstElementChild) {
+                marcaAnchor.replaceChild(svgWrapper.firstElementChild, currentImg);
+              }
+            } else if (currentSvg) {
+              var textEl = currentSvg.querySelector("text");
+              if (textEl) textEl.textContent = logoInit;
+            }
+          }
+        }
       }
 
       // 3. Contacto
