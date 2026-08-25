@@ -220,18 +220,8 @@ export function GaleriaView() {
                 onChange={setImagenUrl}
                 folder="galeria"
                 label="Fotografía del templo o celebración"
-                description="Subí una foto o seleccionala de la biblioteca predeterminada."
+                description="Subí una foto o ingresá un enlace directo."
                 aspectRatio="video"
-                presets={[
-                  { label: "Fachada del templo", url: "/assets/img/fachada.jpg" },
-                  { label: "Imagen patrona", url: "/assets/img/patrona.jpg" },
-                  { label: "Portal de entrada", url: "/assets/img/portal.jpg" },
-                  { label: "Nave central", url: "/assets/img/nave.jpg" },
-                  { label: "Rosetón histórico", url: "/assets/img/roseton.jpg" },
-                  { label: "Altar mayor", url: "/assets/img/altar.jpg" },
-                  { label: "Coro parroquial", url: "/assets/img/coro.jpg" },
-                  { label: "Patio y jardines", url: "/assets/img/patio.jpg" },
-                ]}
               />
             </div>
 

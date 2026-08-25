@@ -9,16 +9,9 @@ import {
   UploadCloudIcon,
   LinkIcon,
   Trash2Icon,
-  ImageIcon,
-  CheckIcon,
   Loader2Icon,
   RefreshCwIcon,
 } from "lucide-react"
-
-export interface PresetItem {
-  label: string
-  url: string
-}
 
 export interface ImageUploadProps {
   value?: string
@@ -29,8 +22,6 @@ export interface ImageUploadProps {
   folder?: "logos" | "parroco" | "galeria" | "general"
   aspectRatio?: "square" | "portrait" | "video" | "wide" | "auto"
   allowUrlInput?: boolean
-  allowPresetSelection?: boolean
-  presets?: PresetItem[]
   className?: string
   disabled?: boolean
 }
@@ -44,19 +35,10 @@ export function ImageUpload({
   folder = "general",
   aspectRatio = "auto",
   allowUrlInput = true,
-  allowPresetSelection = true,
-  presets = [
-    { label: "Fachada del templo", url: "/assets/img/fachada.jpg" },
-    { label: "Imagen patrona", url: "/assets/img/patrona.jpg" },
-    { label: "Portal de entrada", url: "/assets/img/portal.jpg" },
-    { label: "Nave central", url: "/assets/img/nave.jpg" },
-    { label: "Rosetón histórico", url: "/assets/img/roseton.jpg" },
-    { label: "Altar mayor", url: "/assets/img/altar.jpg" },
-  ],
   className = "",
   disabled = false,
 }: ImageUploadProps) {
-  const [mode, setMode] = React.useState<"upload" | "url" | "presets">("upload")
+  const [mode, setMode] = React.useState<"upload" | "url">("upload")
   const [urlInput, setUrlInput] = React.useState(value)
   const [isUploading, setIsUploading] = React.useState(false)
   const [isDragging, setIsDragging] = React.useState(false)
@@ -121,51 +103,44 @@ export function ImageUpload({
 
   return (
     <div className={`space-y-2.5 w-full ${className}`}>
-      {/* Header Label and mode buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-        <div>
+      {/* 1. Header: Title and Description stacked at top */}
+      {(label || description) && (
+        <div className="space-y-0.5">
           {label && <Label className="text-xs font-semibold text-foreground">{label}</Label>}
-          {description && <p className="text-[11px] text-muted-foreground mt-0.5">{description}</p>}
+          {description && <p className="text-[11px] text-muted-foreground">{description}</p>}
         </div>
+      )}
 
-        {/* Mode Selector Tabs */}
-        <div className="flex items-center gap-1 bg-muted/60 p-0.5 rounded-md border text-[11px] self-start sm:self-auto">
+      {/* 2. Mode Selector: Full width segmented tabs when no image is loaded */}
+      {!hasImage && allowUrlInput && (
+        <div className="grid grid-cols-2 w-full bg-muted/60 p-0.5 rounded-lg border text-xs font-medium">
           <button
             type="button"
             onClick={() => setMode("upload")}
-            className={`px-2 py-0.5 rounded transition-colors cursor-pointer font-medium ${
-              mode === "upload" ? "bg-background text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground"
+            className={`py-1.5 rounded-md transition-all text-center cursor-pointer ${
+              mode === "upload"
+                ? "bg-background text-foreground shadow-xs font-semibold"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Subir archivo
           </button>
-          {allowUrlInput && (
-            <button
-              type="button"
-              onClick={() => setMode("url")}
-              className={`px-2 py-0.5 rounded transition-colors cursor-pointer font-medium ${
-                mode === "url" ? "bg-background text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Enlace / URL
-            </button>
-          )}
-          {allowPresetSelection && presets.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setMode("presets")}
-              className={`px-2 py-0.5 rounded transition-colors cursor-pointer font-medium ${
-                mode === "presets" ? "bg-background text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Biblioteca
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setMode("url")}
+            className={`py-1.5 rounded-md transition-all text-center cursor-pointer ${
+              mode === "url"
+                ? "bg-background text-foreground shadow-xs font-semibold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Enlace / URL
+          </button>
         </div>
-      </div>
+      )}
 
-      {/* Main Container */}
-      <div className="space-y-3">
+      {/* 3. Main Body Container with stable height */}
+      <div>
         {/* If Image is Active: Show Sleek Preview Box */}
         {hasImage ? (
           <div className="relative rounded-lg border bg-muted/20 overflow-hidden group">
@@ -216,7 +191,7 @@ export function ImageUpload({
         ) : null}
 
         {/* MODE 1: Direct File Upload (Drag & Drop Zone) */}
-        {mode === "upload" && (
+        {!hasImage && mode === "upload" && (
           <div
             onDragOver={(e) => {
               e.preventDefault()
@@ -225,7 +200,7 @@ export function ImageUpload({
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
-            className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg text-center transition-all cursor-pointer ${
+            className={`h-[136px] flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-lg text-center transition-all cursor-pointer ${
               isDragging
                 ? "border-primary bg-primary/5 ring-2 ring-primary/20 scale-[0.99]"
                 : "border-border hover:border-foreground/30 hover:bg-muted/30"
@@ -240,15 +215,15 @@ export function ImageUpload({
             />
 
             {isUploading ? (
-              <div className="flex flex-col items-center gap-2 py-2">
-                <Loader2Icon className="size-7 text-primary animate-spin" />
+              <div className="flex flex-col items-center gap-2">
+                <Loader2Icon className="size-6 text-primary animate-spin" />
                 <p className="text-xs font-medium text-foreground">Subiendo imagen a Supabase Storage...</p>
                 <p className="text-[11px] text-muted-foreground">Optimizando y generando URL pública</p>
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-2">
-                <div className="size-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground group-hover:text-foreground">
-                  <UploadCloudIcon className="size-5" />
+              <div className="flex flex-col items-center gap-1.5">
+                <div className="size-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+                  <UploadCloudIcon className="size-4.5" />
                 </div>
                 <div>
                   <p className="text-xs font-medium text-foreground">
@@ -263,66 +238,36 @@ export function ImageUpload({
           </div>
         )}
 
-        {/* MODE 2: Direct URL Input */}
-        {mode === "url" && (
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Input
-                value={urlInput}
-                onChange={(e) => setUrlInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault()
-                    handleUrlApply()
-                  }
-                }}
-                placeholder="https://ejemplo.com/imagen.jpg o /assets/img/..."
-                className="text-xs h-9 font-mono pr-8"
-                disabled={disabled}
-              />
-              <LinkIcon className="size-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+        {/* MODE 2: Direct URL Input (Formatted to match the 136px height container) */}
+        {!hasImage && mode === "url" && (
+          <div className="h-[136px] flex flex-col items-center justify-center p-4 border rounded-lg bg-muted/20 text-center space-y-3">
+            <div className="w-full max-w-sm space-y-2">
+              <div className="relative">
+                <Input
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      handleUrlApply()
+                    }
+                  }}
+                  placeholder="https://ejemplo.com/imagen.jpg o /assets/img/..."
+                  className="text-xs h-9 font-mono pr-8 bg-background"
+                  disabled={disabled}
+                />
+                <LinkIcon className="size-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleUrlApply}
+                disabled={disabled || !urlInput.trim() || urlInput === value}
+                className="w-full text-xs h-8 cursor-pointer"
+              >
+                Cargar enlace
+              </Button>
             </div>
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleUrlApply}
-              disabled={disabled || !urlInput.trim() || urlInput === value}
-              className="text-xs h-9 cursor-pointer"
-            >
-              Aplicar
-            </Button>
-          </div>
-        )}
-
-        {/* MODE 3: Preset Library Picker */}
-        {mode === "presets" && allowPresetSelection && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 border rounded-lg p-2.5 bg-muted/20">
-            {presets.map((preset, idx) => {
-              const isSelected = value === preset.url
-              return (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => onChange(preset.url)}
-                  className={`group flex items-center gap-2 p-1.5 rounded-md border text-left transition-all cursor-pointer ${
-                    isSelected
-                      ? "border-primary bg-primary/10 ring-1 ring-primary"
-                      : "border-border hover:bg-background bg-card"
-                  }`}
-                >
-                  <img
-                    src={preset.url}
-                    alt={preset.label}
-                    className="size-8 rounded object-cover border shrink-0 bg-muted"
-                  />
-                  <div className="truncate flex-1">
-                    <p className="text-[11px] font-medium text-foreground truncate">{preset.label}</p>
-                    <p className="text-[9px] text-muted-foreground font-mono truncate">{preset.url}</p>
-                  </div>
-                  {isSelected && <CheckIcon className="size-3 text-primary shrink-0 mr-1" />}
-                </button>
-              )
-            })}
           </div>
         )}
       </div>

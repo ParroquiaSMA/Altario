@@ -261,10 +261,6 @@ export function SitioSettings() {
                   label="Escudo o logotipo oficial"
                   description="Subí el escudo oficial de la parroquia. Si no hay imagen, la web creará un monograma con las iniciales automáticamente."
                   aspectRatio="square"
-                  presets={[
-                    { label: "Imagen patrona", url: "/assets/img/patrona.jpg" },
-                    { label: "Rosetón histórico", url: "/assets/img/roseton.jpg" },
-                  ]}
                 />
               </CardContent>
             </Card>
@@ -324,10 +320,6 @@ export function SitioSettings() {
                   label="Foto oficial del sacerdote"
                   description="Fotografía oficial del párroco que se mostrará en la web."
                   aspectRatio="portrait"
-                  presets={[
-                    { label: "Foto Patrona", url: "/assets/img/patrona.jpg" },
-                    { label: "Fachada", url: "/assets/img/fachada.jpg" },
-                  ]}
                 />
               </div>
 
