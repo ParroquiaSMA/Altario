@@ -38,7 +38,7 @@ const NAV_SITIO_WEB = [
 
 const NAV_SECONDARY = [
   { title: "Ver web", url: "http://localhost:4321", icon: <ExternalLinkIcon />, target: "_blank" },
-  { title: "Ajustes del sistema", url: "/settings", icon: <SettingsIcon /> },
+  { title: "Ajustes", url: "/settings", icon: <SettingsIcon /> },
 ]
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
