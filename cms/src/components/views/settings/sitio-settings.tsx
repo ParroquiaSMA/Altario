@@ -111,7 +111,7 @@ export function SitioSettings() {
       </div>
 
       {/* ─── Tab Content Body ─── */}
-      <div className="space-y-6 max-w-3xl">
+      <div className="space-y-6 w-full">
         {/* TAB 1: IDENTIDAD Y LOGO */}
         {activeTab === "identidad" && (
           <div className="space-y-6">
