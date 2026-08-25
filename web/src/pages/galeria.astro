@@ -1,8 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getSiteConfig } from '../lib/supabase';
+
+const siteConfig = await getSiteConfig();
+const { parroquia } = siteConfig;
 ---
 
-<Layout title="Galería — Parroquia Santa María de la Ayuda" currentPage="galeria">
+<Layout title={`Galería — ${parroquia.nombre}`} currentPage="galeria">
   <section class="portada">
     <svg class="portada__fondo" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
       <g fill="none" stroke="#C9A96A">

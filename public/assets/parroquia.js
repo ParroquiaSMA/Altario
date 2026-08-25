@@ -13,7 +13,40 @@
   function applyLiveConfig(cfg) {
     if (!cfg) return;
     try {
-      // 1. Parroquia Info & Logo
+      var root = document.documentElement;
+
+      // 1. Apariencia & Colores
+      if (cfg.apariencia) {
+        var lapis = cfg.apariencia.color_fondo_hero || "#16244A";
+        var lapisClaro = cfg.apariencia.color_primario || "#22366B";
+        var oro = cfg.apariencia.color_acento || "#C9A96A";
+
+        root.style.setProperty("--lapis", lapis);
+        root.style.setProperty("--lapis-claro", lapisClaro);
+        root.style.setProperty("--oro", oro);
+        root.style.setProperty("--oro-texto", oro);
+
+        document.querySelectorAll(".cabecera, .hero, .portada, .seccion--oscura, .pie").forEach(function (el) {
+          el.style.backgroundColor = lapis;
+        });
+
+        document.querySelectorAll(".hero__fondo g, .portada__fondo g").forEach(function (el) {
+          el.style.stroke = oro;
+        });
+
+        document.querySelectorAll(".boton--oro, .pildora--oro").forEach(function (el) {
+          el.style.backgroundColor = oro;
+          el.style.color = lapis;
+          el.style.borderColor = oro;
+        });
+
+        document.querySelectorAll(".boton--linea").forEach(function (el) {
+          el.style.borderColor = oro;
+          el.style.color = "#FFFFFF";
+        });
+      }
+
+      // 2. Parroquia Info & Logo
       if (cfg.parroquia?.nombre) {
         document.querySelectorAll(".marca__nombre").forEach(function (el) {
           el.textContent = cfg.parroquia.nombre;
@@ -33,24 +66,24 @@
         });
       }
 
-      // 2. Contacto
+      // 3. Contacto
       if (cfg.contacto?.direccion) {
         var dirEl = document.querySelector(".contacto .datos li:nth-child(1) span");
         if (dirEl) dirEl.textContent = cfg.contacto.direccion;
+        var footerDir = document.querySelector(".pie .pie__grilla > div:first-child > p:first-of-type");
+        if (footerDir) footerDir.textContent = cfg.contacto.direccion;
       }
       if (cfg.contacto?.telefono) {
-        var telLink = document.querySelector('.contacto a[href^="tel:"]');
-        if (telLink) {
-          telLink.textContent = cfg.contacto.telefono;
-          telLink.setAttribute("href", "tel:" + cfg.contacto.telefono.replace(/[^0-9+]/g, ""));
-        }
+        document.querySelectorAll('a[href^="tel:"]').forEach(function (el) {
+          el.textContent = cfg.contacto.telefono;
+          el.setAttribute("href", "tel:" + cfg.contacto.telefono.replace(/[^0-9+]/g, ""));
+        });
       }
       if (cfg.contacto?.email) {
-        var mailLink = document.querySelector('.contacto a[href^="mailto:"]');
-        if (mailLink) {
-          mailLink.textContent = cfg.contacto.email;
-          mailLink.setAttribute("href", "mailto:" + cfg.contacto.email);
-        }
+        document.querySelectorAll('a[href^="mailto:"]').forEach(function (el) {
+          el.textContent = cfg.contacto.email;
+          el.setAttribute("href", "mailto:" + cfg.contacto.email);
+        });
       }
       if (cfg.parroco?.nombre) {
         var parrocoEl = document.querySelector(".contacto .datos li:nth-child(5) span");
@@ -59,6 +92,8 @@
       if (cfg.contacto?.horario_secretaria) {
         var secEl = document.querySelector(".contacto .datos li:nth-child(6) span");
         if (secEl) secEl.textContent = cfg.contacto.horario_secretaria;
+        var indexSec = document.querySelector(".horarios dl dd");
+        if (indexSec) indexSec.textContent = cfg.contacto.horario_secretaria;
       }
 
       // Save locally to this origin too

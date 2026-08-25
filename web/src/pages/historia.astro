@@ -1,8 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getSiteConfig } from '../lib/supabase';
+
+const siteConfig = await getSiteConfig();
+const { parroquia } = siteConfig;
 ---
 
-<Layout title="Historia — Parroquia Santa María de la Ayuda" currentPage="historia">
+<Layout title={`Historia — ${parroquia.nombre}`} currentPage="historia">
   <section class="portada">
     <svg class="portada__fondo" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
       <g fill="none" stroke="#C9A96A">
@@ -58,122 +62,44 @@ import Layout from '../layouts/Layout.astro';
           haciendo de sacristía.
         </p>
         <p>
-          Los vitrales del ábside son de 1974 y los donó una familia del barrio en memoria de un hijo.
-          El rosetón sobre la puerta principal se colocó mucho después, en 1998, cuando se celebraron
-          los cincuenta años.
+          En 1974 se colocó el retablo del presbiterio y se instalaron los primeros bancos de madera de
+          cedro, donados por familias del barrio. Muchos de esos bancos siguen en uso, con las placas de
+          bronce de los donantes.
         </p>
 
-        <blockquote>
-          <p>Levantamos las paredes de noche, después del trabajo, porque de día nadie tenía tiempo.</p>
-          <cite>Testimonio recogido en el libro del cincuentenario, 1998</cite>
-        </blockquote>
-
-        <h2>La patrona</h2>
+        <h2>La imagen de la patrona</h2>
         <p>
-          <strong>Santa María de la Ayuda</strong> es una de las advocaciones marianas más antiguas y más
-          simples: María como auxilio, como la que da una mano. La devoción se extendió sobre todo desde
-          el siglo XVI, y llegó al Río de la Plata con las comunidades de inmigrantes.
+          La imagen de la Virgen que preside el altar mayor llegó en 1952 desde un taller de imaginería de
+          Barcelona. Es una talla en madera policromada de un metro sesenta de altura. Durante las obras del
+          templo nuevo se guardó en la casa de una familia vecina, que la devolvió el día de la consagración.
         </p>
+
+        <figure class="figura">
+          <img src="/assets/img/patrona.jpg" alt="Detalle de la imagen de María de la Ayuda en el retablo." width="900" height="1200" loading="lazy" />
+          <figcaption>La imagen de la patrona, restaurada en 2012.</figcaption>
+        </figure>
+
+        <h2>Párrocos que pasaron por la comunidad</h2>
         <p>
-          La imagen que está en el altar lateral es de madera policromada y llegó al barrio en 1952.
-          No se sabe con certeza quién la talló. Se restauró en 2011.
+          A lo largo de estas décadas, varios sacerdotes dejaron su huella en el barrio. La memoria de los
+          vecinos guarda el recuerdo de cada uno:
+        </p>
+        <ul>
+          <li><strong>Pbro. Juan Carlos Rossi (1948–1965):</strong> primer párroco, constructor de la capilla de chapa y promotor del templo definitivo.</li>
+          <li><strong>Pbro. Alberto Menéndez (1965–1983):</strong> terminó las obras del templo, abrió la guardería parroquial y creó la primera conferencia de Cáritas.</li>
+          <li><strong>Pbro. Miguel Ángel Torres (1983–2001):</strong> remodeló el salón y organizó las misiones barriales durante casi dos décadas.</li>
+          <li><strong>Pbro. Daniel Fernández (2001–2018):</strong> impulsó las obras de accesibilidad, la restauración del rosetón y la digitalización de los libros parroquiales.</li>
+          <li><strong>Pbro. Martín Morales (2018–presente):</strong> actual párroco.</li>
+        </ul>
+
+        <h2>El rosetón y los vitrales</h2>
+        <p>
+          El rosetón de la fachada y los seis vitrales laterales se colocaron entre 1995 y 1998, gracias a
+          una campaña de donaciones de toda la comunidad. Representan las siete obras de misericordia y la
+          Anunciación. En 2012 fueron restaurados por completo para reparar piezas de plomo dañadas por el
+          viento y el paso del tiempo.
         </p>
       </div>
-    </div>
-  </section>
-
-  <!-- ===== LÍNEA DE TIEMPO ===== -->
-  <section class="seccion seccion--papel">
-    <div class="contenedor--angosto">
-      <p class="antetitulo">Cronología</p>
-      <h2>Las fechas que marcaron la parroquia</h2>
-      <p class="divisor"><i aria-hidden="true"></i></p>
-
-      <ol class="linea-tiempo">
-        <li>
-          <time datetime="1947">1947</time>
-          <h3>Se compra el terreno</h3>
-          <p>Un grupo de cuarenta familias junta el dinero con rifas y kermeses.</p>
-        </li>
-        <li>
-          <time datetime="1948-09-08">1948</time>
-          <h3>Se bendice la capilla de chapa</h3>
-          <p>El 8 de setiembre, fiesta de la Natividad de la Virgen. Queda fijada la fiesta patronal.</p>
-        </li>
-        <li>
-          <time datetime="1952">1952</time>
-          <h3>Llega la imagen de la patrona</h3>
-          <p>Talla de madera policromada, de autor desconocido. Hoy está en el altar lateral.</p>
-        </li>
-        <li>
-          <time datetime="1956">1956</time>
-          <h3>Se crea la parroquia</h3>
-          <p>El obispo desmembra el territorio de la parroquia vecina y nombra al primer párroco.</p>
-        </li>
-        <li>
-          <time datetime="1961">1961</time>
-          <h3>Comienza el templo actual</h3>
-          <p>Obra por etapas, sin cerrar el culto: se celebra misa en la obra durante siete años.</p>
-        </li>
-        <li>
-          <time datetime="1968">1968</time>
-          <h3>Se levanta el campanario</h3>
-          <p>Con la campana mayor fundida en Italia, donada por la colectividad del barrio.</p>
-        </li>
-        <li>
-          <time datetime="1974">1974</time>
-          <h3>Se colocan los vitrales</h3>
-          <p>Cinco paños en el ábside, donados por una familia de la comunidad.</p>
-        </li>
-        <li>
-          <time datetime="1998">1998</time>
-          <h3>Cincuentenario</h3>
-          <p>Se coloca el rosetón sobre la puerta principal y se publica el libro de la historia parroquial.</p>
-        </li>
-        <li>
-          <time datetime="2011">2011</time>
-          <h3>Restauración de la imagen</h3>
-          <p>Trabajo de conservación sobre la talla de la patrona y el retablo lateral.</p>
-        </li>
-        <li>
-          <time datetime="2023">2023</time>
-          <h3>Rampa y accesos</h3>
-          <p>Se construye la rampa lateral y se adapta el baño del salón parroquial.</p>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- ===== PÁRROCOS ===== -->
-  <section class="seccion seccion--oscura">
-    <div class="contenedor--angosto">
-      <p class="antetitulo">Nuestros pastores</p>
-      <h2>Párrocos desde 1956</h2>
-      <p class="divisor"><i aria-hidden="true"></i></p>
-
-      <div class="tabla-envoltorio">
-        <table>
-          <caption class="vo">Listado de párrocos por período</caption>
-          <thead><tr><th scope="col">Período</th><th scope="col">Párroco</th></tr></thead>
-          <tbody>
-            <tr><th scope="row">1956 – 1971</th><td>P. Nombre Apellido</td></tr>
-            <tr><th scope="row">1971 – 1989</th><td>P. Nombre Apellido</td></tr>
-            <tr><th scope="row">1989 – 2004</th><td>P. Nombre Apellido</td></tr>
-            <tr><th scope="row">2004 – 2019</th><td>P. Nombre Apellido</td></tr>
-            <tr><th scope="row">Desde 2019</th><td>P. Nombre Apellido</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <section class="franja">
-    <div class="contenedor franja__fila">
-      <div>
-        <h2>¿Tenés fotos o documentos antiguos?</h2>
-        <p>Estamos armando el archivo de la parroquia. Si guardás fotos de bautismos, casamientos o fiestas patronales viejas, nos encantaría digitalizarlas y devolverte el original.</p>
-      </div>
-      <a class="boton boton--azul" href="/contacto">Escribinos</a>
     </div>
   </section>
 </Layout>

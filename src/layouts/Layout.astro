@@ -10,7 +10,7 @@ interface Props {
 }
 
 const siteConfig = await getSiteConfig();
-const { parroquia, dominio } = siteConfig;
+const { parroquia, apariencia, dominio } = siteConfig;
 
 const {
   title = `${parroquia.nombre} — Horarios de misa y sacramentos`,
@@ -28,7 +28,7 @@ const canonicalUrl = dominio?.dominio_web ? `https://${dominio.dominio_web}${Ast
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#16244A" />
+    <meta name="theme-color" content={apariencia?.color_fondo_hero || "#16244A"} />
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 
     {dominio?.google_search_console_id && (
@@ -54,6 +54,47 @@ const canonicalUrl = dominio?.dominio_web ? `https://${dominio.dominio_web}${Ast
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/assets/estilos.css" />
+
+    {/* Dynamic theme colors configured from CMS */}
+    <style define:vars={{
+      colorLapis: apariencia?.color_fondo_hero || '#16244A',
+      colorLapisClaro: apariencia?.color_primario || '#22366B',
+      colorOro: apariencia?.color_acento || '#C9A96A',
+    }}>
+      :root {
+        --lapis: var(--colorLapis);
+        --lapis-claro: var(--colorLapisClaro);
+        --oro: var(--colorOro);
+        --oro-texto: var(--colorOro);
+      }
+      .cabecera {
+        background-color: var(--colorLapis) !important;
+      }
+      .hero, .portada, .seccion--oscura, .pie {
+        background-color: var(--colorLapis) !important;
+      }
+      .hero__fondo g, .portada__fondo g {
+        stroke: var(--colorOro) !important;
+      }
+      .boton--oro, .pildora--oro {
+        background-color: var(--colorOro) !important;
+        color: var(--colorLapis) !important;
+        border-color: var(--colorOro) !important;
+      }
+      .boton--linea {
+        border-color: var(--colorOro) !important;
+        color: #FFFFFF !important;
+      }
+      .horarios caption, .proxima__rotulo, .antetitulo {
+        color: var(--colorOro) !important;
+      }
+      .seccion--oscura .antetitulo {
+        color: var(--colorOro) !important;
+      }
+      a {
+        color: var(--colorLapisClaro);
+      }
+    </style>
   </head>
   <body>
     <a class="saltar" href="#principal">Ir al contenido</a>
