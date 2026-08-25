@@ -544,11 +544,36 @@ export function SitioSettings() {
             </Card>
 
             <Card className="p-0">
-              <CardContent className="p-5 space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">Registros DNS</h3>
-                <p className="text-xs text-muted-foreground">
-                  Configurá estos registros en tu proveedor de dominio:
-                </p>
+              <CardContent className="p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">Registros DNS</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Configurá estos registros en tu proveedor de dominio:
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {[
+                      { id: "vercel", label: "Vercel" },
+                      { id: "cloudflare", label: "Cloudflare" },
+                      { id: "netlify", label: "Netlify" },
+                      { id: "custom", label: "VPS / Servidor" },
+                    ].map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => updateSection("dominio", "proveedor_hosting", p.id)}
+                        className={`px-2.5 py-1 text-xs rounded-md border transition-colors cursor-pointer ${
+                          (config.dominio?.proveedor_hosting || "vercel") === p.id
+                            ? "bg-accent text-accent-foreground font-semibold border-foreground"
+                            : "text-muted-foreground hover:bg-muted"
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
                 <div className="rounded-md border overflow-hidden">
                   <Table>
@@ -561,24 +586,41 @@ export function SitioSettings() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      <TableRow>
-                        <TableCell className="font-semibold text-xs">A</TableCell>
-                        <TableCell className="text-xs">@</TableCell>
-                        <TableCell className="text-xs">76.76.21.21</TableCell>
-                        <TableCell className="text-right text-xs text-muted-foreground">Web principal</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-semibold text-xs">CNAME</TableCell>
-                        <TableCell className="text-xs">www</TableCell>
-                        <TableCell className="text-xs">cname.vercel-dns.com</TableCell>
-                        <TableCell className="text-right text-xs text-muted-foreground">Redirección www</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-semibold text-xs">CNAME</TableCell>
-                        <TableCell className="text-xs">admin</TableCell>
-                        <TableCell className="text-xs">cname.vercel-dns.com</TableCell>
-                        <TableCell className="text-right text-xs text-muted-foreground">Panel CMS</TableCell>
-                      </TableRow>
+                      {((currentProvider: string) => {
+                        const domain = config.dominio?.dominio_web || "parroquia.org"
+                        const prefix = domain.replace(/\./g, "-")
+                        const rows = {
+                          vercel: [
+                            { tipo: "A", nombre: "@", valor: "76.76.21.21", uso: "Web principal" },
+                            { tipo: "CNAME", nombre: "www", valor: "cname.vercel-dns.com", uso: "Redirección www" },
+                            { tipo: "CNAME", nombre: "admin", valor: "cname.vercel-dns.com", uso: "Panel CMS" },
+                          ],
+                          cloudflare: [
+                            { tipo: "CNAME", nombre: "@", valor: `${prefix}.pages.dev`, uso: "Web principal" },
+                            { tipo: "CNAME", nombre: "www", valor: `${prefix}.pages.dev`, uso: "Redirección www" },
+                            { tipo: "CNAME", nombre: "admin", valor: `${prefix}-cms.pages.dev`, uso: "Panel CMS" },
+                          ],
+                          netlify: [
+                            { tipo: "A", nombre: "@", valor: "75.2.60.5", uso: "Web principal" },
+                            { tipo: "CNAME", nombre: "www", valor: "altario-web.netlify.app", uso: "Redirección www" },
+                            { tipo: "CNAME", nombre: "admin", valor: "altario-cms.netlify.app", uso: "Panel CMS" },
+                          ],
+                          custom: [
+                            { tipo: "A", nombre: "@", valor: "IP_DE_TU_SERVIDOR", uso: "Web principal" },
+                            { tipo: "A", nombre: "www", valor: "IP_DE_TU_SERVIDOR", uso: "Redirección www" },
+                            { tipo: "A", nombre: "admin", valor: "IP_DE_TU_SERVIDOR", uso: "Panel CMS" },
+                          ],
+                        }[currentProvider] || []
+
+                        return rows.map((r, idx) => (
+                          <TableRow key={idx}>
+                            <TableCell className="font-semibold text-xs">{r.tipo}</TableCell>
+                            <TableCell className="text-xs">{r.nombre}</TableCell>
+                            <TableCell className="text-xs font-mono">{r.valor}</TableCell>
+                            <TableCell className="text-right text-xs text-muted-foreground">{r.uso}</TableCell>
+                          </TableRow>
+                        ))
+                      })(config.dominio?.proveedor_hosting || "vercel")}
                     </TableBody>
                   </Table>
                 </div>
