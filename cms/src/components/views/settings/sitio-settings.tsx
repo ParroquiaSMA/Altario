@@ -30,16 +30,61 @@ export function SitioSettings() {
   const [saving, setSaving] = React.useState(false)
   const [savedSuccess, setSavedSuccess] = React.useState(false)
 
+  // Sync tab with URL search params on mount
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      const tabParam = params.get("tab") as TabKey
+      if (tabParam && TABS.some((t) => t.id === tabParam)) {
+        setActiveTab(tabParam)
+      }
+    }
+  }, [])
+
+  // Listen for browser back/forward navigation
+  React.useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search)
+      const tabParam = params.get("tab") as TabKey
+      if (tabParam && TABS.some((t) => t.id === tabParam)) {
+        setActiveTab(tabParam)
+      }
+    }
+    window.addEventListener("popstate", handlePopState)
+    return () => window.removeEventListener("popstate", handlePopState)
+  }, [])
+
   React.useEffect(() => {
     fetchSiteConfigFromDb().then((data) => {
       setConfig(data)
     })
   }, [])
 
+  const handleTabChange = (tabId: TabKey) => {
+    setActiveTab(tabId)
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href)
+      url.searchParams.set("tab", tabId)
+      window.history.replaceState(null, "", url.toString())
+    }
+  }
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
     await saveFullSiteConfig(config)
+
+    // Broadcast change to other open tabs / Web via BroadcastChannel
+    try {
+      if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+        const bc = new BroadcastChannel("altario:site_config_sync")
+        bc.postMessage({ type: "CONFIG_UPDATED", config })
+        bc.close()
+      }
+    } catch {
+      // BroadcastChannel optional fallback
+    }
+
     setSaving(false)
     setSavedSuccess(true)
     setTimeout(() => setSavedSuccess(false), 3000)
@@ -71,7 +116,7 @@ export function SitioSettings() {
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
                   isActive
                     ? "bg-accent text-accent-foreground font-semibold"

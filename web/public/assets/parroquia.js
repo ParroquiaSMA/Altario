@@ -8,6 +8,89 @@
   "use strict";
 
   /* ==========================================================
+     0. LIVE CONFIG SYNC (BROADCAST CHANNEL & LOCALSTORAGE)
+     ========================================================== */
+  function applyLiveConfig(cfg) {
+    if (!cfg) return;
+    try {
+      // 1. Parroquia Info & Logo
+      if (cfg.parroquia?.nombre) {
+        document.querySelectorAll(".marca__nombre").forEach(function (el) {
+          el.textContent = cfg.parroquia.nombre;
+        });
+        var heroTitle = document.querySelector(".hero h1");
+        if (heroTitle) heroTitle.textContent = cfg.parroquia.nombre;
+        var footerTitle = document.querySelector(".pie h2");
+        if (footerTitle) footerTitle.textContent = cfg.parroquia.nombre;
+      }
+      if (cfg.parroquia?.lema) {
+        var heroLema = document.querySelector(".hero__lema");
+        if (heroLema) heroLema.textContent = cfg.parroquia.lema;
+      }
+      if (cfg.parroquia?.logo_iniciales) {
+        document.querySelectorAll(".marca text").forEach(function (el) {
+          el.textContent = cfg.parroquia.logo_iniciales;
+        });
+      }
+
+      // 2. Contacto
+      if (cfg.contacto?.direccion) {
+        var dirEl = document.querySelector(".contacto .datos li:nth-child(1) span");
+        if (dirEl) dirEl.textContent = cfg.contacto.direccion;
+      }
+      if (cfg.contacto?.telefono) {
+        var telLink = document.querySelector('.contacto a[href^="tel:"]');
+        if (telLink) {
+          telLink.textContent = cfg.contacto.telefono;
+          telLink.setAttribute("href", "tel:" + cfg.contacto.telefono.replace(/[^0-9+]/g, ""));
+        }
+      }
+      if (cfg.contacto?.email) {
+        var mailLink = document.querySelector('.contacto a[href^="mailto:"]');
+        if (mailLink) {
+          mailLink.textContent = cfg.contacto.email;
+          mailLink.setAttribute("href", "mailto:" + cfg.contacto.email);
+        }
+      }
+      if (cfg.parroco?.nombre) {
+        var parrocoEl = document.querySelector(".contacto .datos li:nth-child(5) span");
+        if (parrocoEl) parrocoEl.textContent = cfg.parroco.nombre;
+      }
+      if (cfg.contacto?.horario_secretaria) {
+        var secEl = document.querySelector(".contacto .datos li:nth-child(6) span");
+        if (secEl) secEl.textContent = cfg.contacto.horario_secretaria;
+      }
+
+      // Save locally to this origin too
+      try {
+        localStorage.setItem("altario:site_config_live", JSON.stringify(cfg));
+      } catch (e) {}
+    } catch (err) {
+      console.warn("Live config sync error:", err);
+    }
+  }
+
+  // Check saved live config on mount
+  try {
+    var savedLive = localStorage.getItem("altario:site_config_live");
+    if (savedLive) {
+      applyLiveConfig(JSON.parse(savedLive));
+    }
+  } catch (e) {}
+
+  // Listen to BroadcastChannel for real-time live sync across tabs
+  if (typeof BroadcastChannel !== "undefined") {
+    try {
+      var bc = new BroadcastChannel("altario:site_config_sync");
+      bc.onmessage = function (event) {
+        if (event.data && event.data.type === "CONFIG_UPDATED" && event.data.config) {
+          applyLiveConfig(event.data.config);
+        }
+      };
+    } catch (e) {}
+  }
+
+  /* ==========================================================
      1. MENÚ EN PANTALLAS CHICAS
      ========================================================== */
   var btn = document.querySelector(".menu-btn");
@@ -58,133 +141,93 @@
     for (var salto = 0; salto < 8; salto++) {
       var fecha = new Date(ahora.getTime());
       fecha.setDate(fecha.getDate() + salto);
+      var diaSemana = fecha.getDay();
 
-      var delDia = MISAS
-        .filter(function (m) { return m.dia === fecha.getDay(); })
-        .sort(function (a, b) { return a.hora.localeCompare(b.hora); });
+      var año = fecha.getFullYear();
+      var mes = String(fecha.getMonth() + 1).padStart(2, "0");
+      var dia = String(fecha.getDate()).padStart(2, "0");
+      var prefijo = año + "-" + mes + "-" + dia + "T";
 
-      for (var i = 0; i < delDia.length; i++) {
-        var p = delDia[i].hora.split(":");
-        var cuando = new Date(fecha.getTime());
-        cuando.setHours(+p[0], +p[1], 0, 0);
-        if (cuando > ahora) return { misa: delDia[i], cuando: cuando, salto: salto };
+      for (var i = 0; i < MISAS.length; i++) {
+        var m = MISAS[i];
+        if (m.dia !== diaSemana) continue;
+
+        var fechaMisa = new Date(prefijo + m.hora + ":00");
+        if (fechaMisa.getTime() > ahora.getTime()) {
+          return { fecha: fechaMisa, salto: salto, diaSemana: diaSemana, hora: m.hora, nota: m.nota };
+        }
       }
     }
     return null;
   }
 
-  var elDia = document.getElementById("proxima-dia");
-  if (elDia) {
-    var res = buscarProxima(new Date());
-    if (res) {
-      var etiqueta = res.salto === 0 ? "Hoy" : res.salto === 1 ? "Mañana" : "El " + DIAS[res.cuando.getDay()];
-      var hora = String(res.cuando.getHours()).padStart(2, "0") + ":" +
-                 String(res.cuando.getMinutes()).padStart(2, "0");
+  function actualizarProximaMisa() {
+    var nodoCuando = document.getElementById("proxima-cuando");
+    var nodoDia = document.getElementById("proxima-dia");
+    var nodoHora = document.getElementById("proxima-hora");
+    var nodoDetalle = document.getElementById("proxima-detalle");
 
-      elDia.textContent = etiqueta + " a las";
-      document.getElementById("proxima-hora").textContent = hora;
-      document.getElementById("proxima-detalle").textContent = res.misa.nota || "Iglesia principal";
-      document.getElementById("proxima-cuando").setAttribute(
-        "aria-label", "Próxima misa: " + etiqueta.toLowerCase() + " a las " + hora + " horas."
-      );
+    if (!nodoCuando || !nodoDia || !nodoHora) return;
+
+    var prox = buscarProxima(new Date());
+    if (!prox) {
+      nodoDia.textContent = "Consultá los horarios";
+      nodoHora.textContent = "—";
+      return;
+    }
+
+    var textoDia;
+    if (prox.salto === 0) textoDia = "Hoy";
+    else if (prox.salto === 1) textoDia = "Mañana";
+    else textoDia = DIAS[prox.diaSemana].charAt(0).toUpperCase() + DIAS[prox.diaSemana].slice(1);
+
+    nodoDia.textContent = textoDia;
+    nodoHora.textContent = prox.hora;
+    nodoCuando.setAttribute("datetime", prox.fecha.toISOString());
+
+    if (nodoDetalle) {
+      nodoDetalle.textContent = prox.nota ? "Iglesia principal · " + prox.nota : "Iglesia principal";
     }
   }
 
+  actualizarProximaMisa();
+  setInterval(actualizarProximaMisa, 60000);
+
   /* ==========================================================
-     3. GALERÍA: filtros y visor
+     3. FILTROS DE LA GALERÍA
      ========================================================== */
-  var galeria = document.getElementById("galeria");
+  var filtros = document.querySelectorAll(".filtros [data-filtro]");
+  var fotos = document.querySelectorAll(".galeria [data-categoria]");
 
-  if (galeria) {
-    var items = Array.prototype.slice.call(galeria.querySelectorAll("li"));
-    var conteo = document.getElementById("galeria-conteo");
-
-    /* --- Filtros por categoría --- */
-    var filtros = Array.prototype.slice.call(document.querySelectorAll(".filtro"));
-
-    filtros.forEach(function (f) {
-      f.addEventListener("click", function () {
-        var cat = f.dataset.filtro;
-        filtros.forEach(function (o) { o.setAttribute("aria-pressed", String(o === f)); });
-
-        var visibles = 0;
-        items.forEach(function (li) {
-          var mostrar = cat === "todas" || li.dataset.categoria === cat;
-          li.hidden = !mostrar;
-          if (mostrar) visibles++;
+  if (filtros.length && fotos.length) {
+    filtros.forEach(function (b) {
+      b.addEventListener("click", function () {
+        filtros.forEach(function (otro) {
+          otro.classList.remove("activo");
+          otro.removeAttribute("aria-current");
         });
+        b.classList.add("activo");
+        b.setAttribute("aria-current", "true");
 
-        if (conteo) {
-          conteo.textContent = visibles === 1 ? "1 foto" : visibles + " fotos";
-        }
+        var f = b.getAttribute("data-filtro");
+        fotos.forEach(function (fig) {
+          var coincide = f === "todas" || fig.getAttribute("data-categoria") === f;
+          fig.hidden = !coincide;
+        });
       });
     });
-
-    /* --- Visor a pantalla completa --- */
-    var visor = document.getElementById("visor");
-
-    if (visor && typeof visor.showModal === "function") {
-      var vImg = document.getElementById("visor-img");
-      var vTexto = document.getElementById("visor-texto");
-      var vPos = document.getElementById("visor-posicion");
-      var indice = 0;
-
-      function visibles() {
-        return items.filter(function (li) { return !li.hidden; });
-      }
-
-      function mostrar(i) {
-        var lista = visibles();
-        if (!lista.length) return;
-        indice = (i + lista.length) % lista.length;
-
-        var img = lista[indice].querySelector("img");
-        var pie = lista[indice].querySelector("figcaption");
-
-        vImg.src = img.dataset.grande || img.src;
-        vImg.alt = img.alt;
-        vTexto.textContent = pie ? pie.textContent : "";
-        vPos.textContent = "Foto " + (indice + 1) + " de " + lista.length;
-      }
-
-      galeria.addEventListener("click", function (e) {
-        var boton = e.target.closest(".foto");
-        if (!boton) return;
-        mostrar(visibles().indexOf(boton.closest("li")));
-        visor.showModal();
-      });
-
-      var btnAnt = document.getElementById("visor-anterior");
-      var btnSig = document.getElementById("visor-siguiente");
-      var btnCerrar = document.getElementById("visor-cerrar");
-
-      if (btnAnt) btnAnt.addEventListener("click", function () { mostrar(indice - 1); });
-      if (btnSig) btnSig.addEventListener("click", function () { mostrar(indice + 1); });
-      if (btnCerrar) btnCerrar.addEventListener("click", function () { visor.close(); });
-
-      visor.addEventListener("keydown", function (e) {
-        if (e.key === "ArrowLeft") { e.preventDefault(); mostrar(indice - 1); }
-        if (e.key === "ArrowRight") { e.preventDefault(); mostrar(indice + 1); }
-      });
-
-      /* Clic sobre el fondo oscuro cierra el visor */
-      visor.addEventListener("click", function (e) {
-        if (e.target === visor) visor.close();
-      });
-    }
   }
 
   /* ==========================================================
-     4. FORMULARIO DE CONTACTO
-     Valida en el navegador y muestra los errores en español.
+     4. VALIDACIÓN DEL FORMULARIO DE CONTACTO
      ========================================================== */
   var form = document.getElementById("form-contacto");
 
   if (form) {
     var MENSAJES = {
-      valueMissing: "Completá este dato para poder responderte.",
-      typeMismatch: "Revisá el formato. Un correo se escribe así: nombre@ejemplo.com",
-      tooShort: "Escribinos un poco más para entender de qué se trata."
+      valueMissing: "Por favor, completá este campo.",
+      typeMismatch: "Escribí un correo electrónico válido (ejemplo: nombre@dominio.com).",
+      tooShort: "El mensaje es un poco corto. Contanos algún detalle más para poder ayudarte."
     };
 
     function textoError(campo) {
