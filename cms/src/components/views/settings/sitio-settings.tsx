@@ -21,7 +21,8 @@ import {
   saveFullSiteConfig,
   type SiteConfig,
 } from "@/lib/config"
-import { CheckIcon } from "lucide-react"
+import { uploadMediaFile } from "@/lib/storage"
+import { CheckIcon, UploadIcon } from "lucide-react"
 
 type TabKey = "identidad" | "parroco" | "contacto" | "redes" | "apariencia" | "dominio"
 
@@ -42,6 +43,33 @@ export function SitioSettings() {
   const [savedSuccess, setSavedSuccess] = React.useState(false)
   const [linkingVercel, setLinkingVercel] = React.useState(false)
   const [vercelLinkedMessage, setVercelLinkedMessage] = React.useState<string | null>(null)
+  const [uploadingLogo, setUploadingLogo] = React.useState(false)
+  const [uploadingParroco, setUploadingParroco] = React.useState(false)
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingLogo(true)
+    try {
+      const url = await uploadMediaFile(file, "logos")
+      updateSection("parroquia", "logo_url", url)
+      updateSection("parroquia", "logo_tipo", "imagen")
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+
+  const handleParrocoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingParroco(true)
+    try {
+      const url = await uploadMediaFile(file, "parroco")
+      updateSection("parroco", "foto_url", url)
+    } finally {
+      setUploadingParroco(false)
+    }
+  }
 
   const handleLinkVercel = async () => {
     setLinkingVercel(true)
@@ -264,12 +292,33 @@ export function SitioSettings() {
                   </div>
 
                   <div className="grid gap-1.5">
-                    <Label className="text-xs">URL de imagen (opcional)</Label>
-                    <Input
-                      value={config.parroquia.logo_url}
-                      onChange={(e) => updateSection("parroquia", "logo_url", e.target.value)}
-                      placeholder="/assets/img/escudo.png o https://..."
-                    />
+                    <Label className="text-xs">Imagen del logo o escudo</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={config.parroquia.logo_url}
+                        onChange={(e) => updateSection("parroquia", "logo_url", e.target.value)}
+                        placeholder="https://... o subí un archivo"
+                      />
+                      <label className="shrink-0 cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleLogoUpload}
+                          disabled={uploadingLogo}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-9 pointer-events-none gap-1.5 cursor-pointer"
+                          disabled={uploadingLogo}
+                        >
+                          <UploadIcon className="size-3.5" />
+                          {uploadingLogo ? "Subiendo..." : "Subir"}
+                        </Button>
+                      </label>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -323,12 +372,33 @@ export function SitioSettings() {
               </div>
 
               <div className="grid gap-1.5">
-                <Label className="text-xs">Foto (URL o ruta)</Label>
-                <Input
-                  value={config.parroco.foto_url}
-                  onChange={(e) => updateSection("parroco", "foto_url", e.target.value)}
-                  placeholder="/assets/img/patrona.jpg"
-                />
+                <Label className="text-xs">Foto del párroco</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={config.parroco.foto_url}
+                    onChange={(e) => updateSection("parroco", "foto_url", e.target.value)}
+                    placeholder="https://... o subí una foto"
+                  />
+                  <label className="shrink-0 cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleParrocoUpload}
+                      disabled={uploadingParroco}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-9 pointer-events-none gap-1.5 cursor-pointer"
+                      disabled={uploadingParroco}
+                    >
+                      <UploadIcon className="size-3.5" />
+                      {uploadingParroco ? "Subiendo..." : "Subir"}
+                    </Button>
+                  </label>
+                </div>
               </div>
 
               <div className="grid gap-1.5">

@@ -18,9 +18,9 @@ import {
   MegaphoneIcon,
   ImagesIcon,
   MailIcon,
-  PaletteIcon,
   ExternalLinkIcon,
   SettingsIcon,
+  LayoutTemplate,
 } from "lucide-react"
 
 const NAV_MAIN = [
@@ -32,7 +32,7 @@ const NAV_SITIO_WEB = [
   { name: "Horarios", url: "/horarios", icon: <ClockIcon /> },
   { name: "Avisos", url: "/avisos", icon: <MegaphoneIcon /> },
   { name: "Galería", url: "/galeria", icon: <ImagesIcon /> },
-  { name: "Ajustes web", url: "/settings-web", icon: <PaletteIcon /> },
+  { name: "Ajustes web", url: "/settings-web", icon: <LayoutTemplate /> },
 ]
 
 const NAV_SECONDARY = [

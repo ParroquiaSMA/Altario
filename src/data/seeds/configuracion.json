@@ -5,8 +5,11 @@
     "lema": "Una comunidad de fe, esperanza y caridad al servicio de todos",
     "descripcion": "Parroquia Santa María de la Ayuda, al servicio de la comunidad desde 1892.",
     "logo_tipo": "monograma",
-    "logo_iniciales": "SMJ",
-    "logo_url": ""
+    "logo_iniciales": "AM",
+    "logo_url": "",
+    "email": "contacto@santamariadelaayuda.org",
+    "telefono": "+54 11 4000-0000",
+    "direccion": "Av. San Martín 1234, Buenos Aires"
   },
   "parroco": {
     "nombre": "Padre Martín Morales",
@@ -27,8 +30,8 @@
   "redes": {
     "facebook": "https://facebook.com/parroquiasantamaria",
     "instagram": "https://instagram.com/parroquiasantamaria",
-    "youtube": "https://youtube.com/@parroquiasantamaria",
-    "whatsapp": "https://wa.me/5491140000000",
+    "youtube": "",
+    "whatsapp": "+5491140000000",
     "twitter": "",
     "spotify": "https://spotify.com"
   },
