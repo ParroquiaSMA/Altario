@@ -13,9 +13,9 @@ import {
   saveFullSiteConfig,
   type SiteConfig,
 } from "@/lib/config"
-import { CheckIcon } from "lucide-react"
+import { CheckIcon, CopyIcon, ExternalLinkIcon, GlobeIcon, ShieldCheckIcon } from "lucide-react"
 
-type TabKey = "identidad" | "parroco" | "contacto" | "redes" | "apariencia"
+type TabKey = "identidad" | "parroco" | "contacto" | "redes" | "apariencia" | "dominio"
 
 const TABS: { id: TabKey; label: string }[] = [
   { id: "identidad", label: "Identidad y logo" },
@@ -23,15 +23,17 @@ const TABS: { id: TabKey; label: string }[] = [
   { id: "contacto", label: "Contacto y ubicación" },
   { id: "redes", label: "Redes sociales" },
   { id: "apariencia", label: "Diseño y colores" },
+  { id: "dominio", label: "Dominio y publicación" },
 ]
 
 export function SitioSettings() {
   const [activeTab, setActiveTab] = React.useState<TabKey>("identidad")
   // Initialize with seedConfig so SSR and client initial render match 100%
-  const [config, setConfig] = React.useState<SiteConfig>(seedConfig as SiteConfig)
+  const [config, setConfig] = React.useState<SiteConfig>(seedConfig as unknown as SiteConfig)
   const [mounted, setMounted] = React.useState(false)
   const [saving, setSaving] = React.useState(false)
   const [savedSuccess, setSavedSuccess] = React.useState(false)
+  const [copiedField, setCopiedField] = React.useState<string | null>(null)
 
   // On mount: load local storage, URL params, and DB
   React.useEffect(() => {
@@ -93,6 +95,12 @@ export function SitioSettings() {
     setTimeout(() => setSavedSuccess(false), 3000)
   }
 
+  const copyToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text)
+    setCopiedField(id)
+    setTimeout(() => setCopiedField(null), 2000)
+  }
+
   const updateSection = <K extends keyof SiteConfig>(
     section: K,
     key: keyof SiteConfig[K],
@@ -108,7 +116,6 @@ export function SitioSettings() {
   }
 
   if (!mounted) {
-    // Show clean SSR skeleton or seed match until hydrated
     return (
       <div className="flex flex-col gap-6 py-4 md:py-6 px-4 lg:px-6 opacity-60">
         <div className="flex items-center justify-between border-b pb-4">
@@ -123,6 +130,30 @@ export function SitioSettings() {
       </div>
     )
   }
+
+  const currentProvider = config.dominio?.proveedor_hosting || "vercel"
+  const webDomain = config.dominio?.dominio_web || "santamariadelaayuda.org"
+  const cmsSubdomain = config.dominio?.subdominio_cms || `admin.${webDomain}`
+
+  const dnsRecords = {
+    vercel: [
+      { type: "A", host: "@", value: "76.76.21.21", note: "Apunta el dominio web principal a Vercel" },
+      { type: "CNAME", host: "www", value: "cname.vercel-dns.com", note: "Redirección www" },
+      { type: "CNAME", host: "admin", value: "cname.vercel-dns.com", note: "Apunta el panel CMS a Vercel" },
+    ],
+    cloudflare: [
+      { type: "CNAME", host: "@", value: `${webDomain.replace(/\./g, "-")}.pages.dev`, note: "Páginas Cloudflare Web" },
+      { type: "CNAME", host: "admin", value: `${webDomain.replace(/\./g, "-")}-cms.pages.dev`, note: "Páginas Cloudflare CMS" },
+    ],
+    netlify: [
+      { type: "A", host: "@", value: "75.2.60.5", note: "Apunta a Netlify" },
+      { type: "CNAME", host: "admin", value: "altario-cms.netlify.app", note: "Panel CMS en Netlify" },
+    ],
+    custom: [
+      { type: "A", host: "@", value: "IP_DE_TU_SERVIDOR", note: "IP de tu servidor VPS / Nginx" },
+      { type: "A", host: "admin", value: "IP_DE_TU_SERVIDOR", note: "IP de tu servidor para el CMS" },
+    ],
+  }[currentProvider] || []
 
   return (
     <form onSubmit={handleSave} className="flex flex-col gap-6 py-4 md:py-6 px-4 lg:px-6">
@@ -611,6 +642,173 @@ export function SitioSettings() {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* TAB 6: DOMINIO Y PUBLICACIÓN */}
+        {activeTab === "dominio" && (
+          <div className="space-y-6">
+            <Card className="p-0">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <GlobeIcon className="size-4 text-primary" />
+                      Dominios de publicación
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Configurá los dominios con los que los fieles y la administración accederán al sistema.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 text-[11px] font-medium border border-emerald-200/60 dark:border-emerald-800/60">
+                    <ShieldCheckIcon className="size-3.5" />
+                    SSL / HTTPS Automático
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div className="grid gap-1.5">
+                    <Label className="text-xs font-medium">Dominio de la Web Pública</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={config.dominio?.dominio_web || ""}
+                        onChange={(e) => updateSection("dominio", "dominio_web", e.target.value.toLowerCase().trim())}
+                        placeholder="santamariadelaayuda.org"
+                        className="font-mono text-xs"
+                      />
+                    </div>
+                    <span className="text-[11px] text-muted-foreground">
+                      Dirección principal donde los fieles consultarán misas y sacramentos.
+                    </span>
+                  </div>
+
+                  <div className="grid gap-1.5">
+                    <Label className="text-xs font-medium">Subdominio del Panel CMS</Label>
+                    <Input
+                      value={config.dominio?.subdominio_cms || ""}
+                      onChange={(e) => updateSection("dominio", "subdominio_cms", e.target.value.toLowerCase().trim())}
+                      placeholder="admin.santamariadelaayuda.org"
+                      className="font-mono text-xs"
+                    />
+                    <span className="text-[11px] text-muted-foreground">
+                      Acceso exclusivo para el párroco y la secretaría parroquial.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid gap-1.5 pt-2">
+                  <Label className="text-xs font-medium">Proveedor de Alojamiento (Hosting)</Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { id: "vercel", label: "Vercel (Recomendado)", desc: "Serverless & Edge" },
+                      { id: "cloudflare", label: "Cloudflare Pages", desc: "CDN Global" },
+                      { id: "netlify", label: "Netlify", desc: "JAMstack" },
+                      { id: "custom", label: "VPS Propio", desc: "Docker / Nginx" },
+                    ].map((prov) => (
+                      <button
+                        key={prov.id}
+                        type="button"
+                        onClick={() => updateSection("dominio", "proveedor_hosting", prov.id)}
+                        className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
+                          currentProvider === prov.id
+                            ? "border-primary bg-primary/5 ring-1 ring-primary font-medium text-foreground"
+                            : "border-border hover:bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        <p className="text-xs font-medium text-foreground">{prov.label}</p>
+                        <p className="text-[10px] text-muted-foreground">{prov.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* DNS Records Card */}
+            <Card className="p-0">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">
+                      Registros DNS Requeridos ({currentProvider.toUpperCase()})
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Copiá y pegá estos registros en tu registrador de dominio (Cloudflare, GoDaddy, DonWeb, Namecheap, etc.).
+                    </p>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border overflow-hidden">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-muted/50 border-b text-muted-foreground font-medium">
+                      <tr>
+                        <th className="py-2.5 px-3">Tipo</th>
+                        <th className="py-2.5 px-3">Nombre / Host</th>
+                        <th className="py-2.5 px-3">Valor / Destino</th>
+                        <th className="py-2.5 px-3 text-right">Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border font-mono">
+                      {dnsRecords.map((rec, i) => (
+                        <tr key={i} className="hover:bg-muted/30 transition-colors">
+                          <td className="py-2.5 px-3 font-semibold text-primary">{rec.type}</td>
+                          <td className="py-2.5 px-3 text-foreground">{rec.host}</td>
+                          <td className="py-2.5 px-3 text-muted-foreground select-all">{rec.value}</td>
+                          <td className="py-2.5 px-3 text-right">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => copyToClipboard(rec.value, `dns-${i}`)}
+                              className="h-7 px-2 text-[11px] font-sans gap-1 cursor-pointer"
+                            >
+                              {copiedField === `dns-${i}` ? (
+                                <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-medium">
+                                  <CheckIcon className="size-3" /> Copiado
+                                </span>
+                              ) : (
+                                <>
+                                  <CopyIcon className="size-3" /> Copiar
+                                </>
+                              )}
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* SEO & Verificación */}
+            <Card className="p-0">
+              <CardContent className="p-5 space-y-4">
+                <h3 className="text-sm font-semibold text-foreground">SEO y Google Search Console</h3>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid gap-1.5">
+                    <Label className="text-xs">Código de verificación Google Search Console</Label>
+                    <Input
+                      value={config.dominio?.google_search_console_id || ""}
+                      onChange={(e) => updateSection("dominio", "google_search_console_id", e.target.value)}
+                      placeholder="google-site-verification=..."
+                      className="font-mono text-xs"
+                    />
+                  </div>
+
+                  <div className="grid gap-1.5">
+                    <Label className="text-xs">ID de Google Analytics 4 (opcional)</Label>
+                    <Input
+                      value={config.dominio?.google_analytics_id || ""}
+                      onChange={(e) => updateSection("dominio", "google_analytics_id", e.target.value)}
+                      placeholder="G-XXXXXXXXXX"
+                      className="font-mono text-xs"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
     </form>

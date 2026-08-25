@@ -45,23 +45,33 @@ export interface AparienciaConfig {
   mostrar_banner_anuncio: boolean
 }
 
+export interface DominioConfig {
+  dominio_web: string
+  subdominio_cms: string
+  forzar_https: boolean
+  proveedor_hosting: "vercel" | "cloudflare" | "netlify" | "custom"
+  google_analytics_id: string
+  google_search_console_id: string
+}
+
 export interface SiteConfig {
   parroquia: ParroquiaConfig
   parroco: ParrocoConfig
   contacto: ContactoConfig
   redes: RedesConfig
   apariencia: AparienciaConfig
+  dominio: DominioConfig
 }
 
 const CONFIG_STORAGE_KEY = "altario:cms:site_config:v1"
 
 export function getLocalConfig(): SiteConfig {
-  if (typeof window === "undefined") return seedConfig as SiteConfig
+  if (typeof window === "undefined") return seedConfig as unknown as SiteConfig
   try {
     const stored = localStorage.getItem(CONFIG_STORAGE_KEY)
     if (!stored) {
       localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(seedConfig))
-      return seedConfig as SiteConfig
+      return seedConfig as unknown as SiteConfig
     }
     const parsed = JSON.parse(stored) as Partial<SiteConfig>
     return {
@@ -70,9 +80,10 @@ export function getLocalConfig(): SiteConfig {
       contacto: { ...seedConfig.contacto, ...(parsed.contacto || {}) },
       redes: { ...seedConfig.redes, ...(parsed.redes || {}) },
       apariencia: { ...seedConfig.apariencia, ...(parsed.apariencia || {}) },
+      dominio: { ...seedConfig.dominio, ...(parsed.dominio || {}) },
     } as SiteConfig
   } catch {
-    return seedConfig as SiteConfig
+    return seedConfig as unknown as SiteConfig
   }
 }
 
@@ -90,7 +101,7 @@ export async function fetchSiteConfigFromDb(): Promise<SiteConfig> {
     if (error || !data || data.length === 0) return local
 
     const configMap: Record<string, any> = {}
-    data.forEach((row) => {
+    data.forEach((row: any) => {
       configMap[row.clave] = row.valor
     })
 
@@ -100,6 +111,7 @@ export async function fetchSiteConfigFromDb(): Promise<SiteConfig> {
       contacto: { ...local.contacto, ...(configMap["contacto"] || {}) },
       redes: { ...local.redes, ...(configMap["redes"] || {}) },
       apariencia: { ...local.apariencia, ...(configMap["apariencia"] || {}) },
+      dominio: { ...local.dominio, ...(configMap["dominio"] || {}) },
     }
 
     saveLocalConfig(merged)
@@ -140,7 +152,7 @@ export async function saveFullSiteConfig(config: SiteConfig): Promise<void> {
 
   // 2. Sync to Supabase if connected
   if (supabase) {
-    const sections: (keyof SiteConfig)[] = ["parroquia", "parroco", "contacto", "redes", "apariencia"]
+    const sections: (keyof SiteConfig)[] = ["parroquia", "parroco", "contacto", "redes", "apariencia", "dominio"]
     try {
       const updates = sections.map((sec) => ({
         clave: sec,

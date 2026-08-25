@@ -10,13 +10,15 @@ interface Props {
 }
 
 const siteConfig = await getSiteConfig();
-const { parroquia } = siteConfig;
+const { parroquia, dominio } = siteConfig;
 
 const {
   title = `${parroquia.nombre} — Horarios de misa y sacramentos`,
   description = `Horarios de misa y confesión, sacramentos, grupos, historia y contacto de la ${parroquia.nombre}.`,
   currentPage = '',
 } = Astro.props;
+
+const canonicalUrl = dominio?.dominio_web ? `https://${dominio.dominio_web}${Astro.url.pathname}` : undefined;
 ---
 
 <!doctype html>
@@ -27,6 +29,23 @@ const {
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#16244A" />
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+
+    {dominio?.google_search_console_id && (
+      <meta name="google-site-verification" content={dominio.google_search_console_id} />
+    )}
+
+    {dominio?.google_analytics_id && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${dominio.google_analytics_id}`}></script>
+        <script is:inline define:vars={{ gaId: dominio.google_analytics_id }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaId);
+        </script>
+      </>
+    )}
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

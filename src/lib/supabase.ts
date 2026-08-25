@@ -62,10 +62,18 @@ export interface SiteConfig {
     color_fondo_hero: string;
     mostrar_banner_anuncio: boolean;
   };
+  dominio?: {
+    dominio_web: string;
+    subdominio_cms: string;
+    forzar_https: boolean;
+    proveedor_hosting: string;
+    google_analytics_id: string;
+    google_search_console_id: string;
+  };
 }
 
 export async function getSiteConfig(): Promise<SiteConfig> {
-  const fallback = seedConfig as SiteConfig;
+  const fallback = seedConfig as unknown as SiteConfig;
   if (!supabase) return fallback;
   try {
     const { data, error } = await supabase.from('configuracion').select('clave, valor');
@@ -78,6 +86,7 @@ export async function getSiteConfig(): Promise<SiteConfig> {
       contacto: { ...fallback.contacto, ...(configMap['contacto'] || {}) },
       redes: { ...fallback.redes, ...(configMap['redes'] || {}) },
       apariencia: { ...fallback.apariencia, ...(configMap['apariencia'] || {}) },
+      dominio: { ...(fallback.dominio || {}), ...(configMap['dominio'] || {}) },
     };
   } catch {
     return fallback;
