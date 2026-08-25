@@ -6,7 +6,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { CirclePlusIcon } from "lucide-react"
 
 export function NavMain({
   items,

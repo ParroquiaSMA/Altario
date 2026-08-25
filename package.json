@@ -12,6 +12,8 @@
     "build": "npm --prefix web run build && npm --prefix cms run build",
     "build:web": "npm --prefix web run build",
     "build:cms": "npm --prefix cms run build",
+    "check": "npm --prefix web run check && npm --prefix cms run check",
+    "typecheck": "npm --prefix web run typecheck && npm --prefix cms run typecheck",
     "preview": "astro preview",
     "astro": "astro"
   },

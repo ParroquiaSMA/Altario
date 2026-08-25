@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select"
 import { PlusIcon, SearchIcon, Trash2Icon, Edit3Icon, EllipsisVerticalIcon } from "lucide-react"
 import { getHorarios, addHorario, updateHorario, deleteHorario, type HorarioItem } from "@/lib/data-store"
-import { fetchCatalogFromDb, getActiveCatalogOptions, type CatalogOption } from "@/lib/catalog"
+import { fetchCatalogFromDb, type CatalogOption } from "@/lib/catalog"
 
 const DIAS = [
   { value: "0", label: "Domingo" },

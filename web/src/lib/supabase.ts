@@ -65,29 +65,13 @@ export interface SiteConfig {
 }
 
 export async function getSiteConfig(): Promise<SiteConfig> {
-  let fallback = seedConfig as SiteConfig;
-  
-  // In server runtime (Node/SSR/dev), read fresh file from disk if available
-  if (typeof process !== 'undefined' && process.versions?.node) {
-    try {
-      const fs = await import('node:fs');
-      const path = await import('node:path');
-      const seedPath = path.resolve(process.cwd(), 'src/data/seeds/configuracion.json');
-      if (fs.existsSync(seedPath)) {
-        const raw = fs.readFileSync(seedPath, 'utf-8');
-        fallback = JSON.parse(raw) as SiteConfig;
-      }
-    } catch {
-      // Use imported seedConfig fallback
-    }
-  }
-
+  const fallback = seedConfig as SiteConfig;
   if (!supabase) return fallback;
   try {
     const { data, error } = await supabase.from('configuracion').select('clave, valor');
     if (error || !data || data.length === 0) return fallback;
     const configMap: Record<string, any> = {};
-    data.forEach((row) => { configMap[row.clave] = row.valor; });
+    data.forEach((row: any) => { configMap[row.clave] = row.valor; });
     return {
       parroquia: { ...fallback.parroquia, ...(configMap['parroquia'] || {}) },
       parroco: { ...fallback.parroco, ...(configMap['parroco'] || {}) },

@@ -18,7 +18,6 @@ import {
   MegaphoneIcon,
   ImagesIcon,
   MailIcon,
-  GlobeIcon,
   PaletteIcon,
   ExternalLinkIcon,
   SettingsIcon,
