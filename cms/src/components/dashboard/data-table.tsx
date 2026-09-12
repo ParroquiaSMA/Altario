@@ -107,13 +107,40 @@ const features = tableFeatures({
   sortedRowModel: createSortedRowModel(),
 })
 
+import {
+  getMensajes,
+  fetchMensajesFromDb,
+  updateMensaje,
+  deleteMensaje,
+  type MensajeItem,
+} from "@/lib/data-store"
+
+function formatFecha(fechaStr?: string): string {
+  if (!fechaStr) return "Reciente"
+  try {
+    const d = new Date(fechaStr)
+    if (isNaN(d.getTime())) return fechaStr
+    return d.toLocaleDateString("es-UY", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  } catch {
+    return fechaStr
+  }
+}
+
 export const schema = z.object({
-  id: z.number(),
+  id: z.union([z.number(), z.string()]),
   nombre: z.string(),
   motivo: z.string(),
   status: z.string(),
-  fecha: z.string(),
+  fecha: z.string().optional(),
   correo: z.string(),
+  telefono: z.string().optional(),
+  mensaje: z.string().optional(),
 })
 
 const columnHelper = createColumnHelper<
@@ -121,7 +148,7 @@ const columnHelper = createColumnHelper<
   z.infer<typeof schema>
 >()
 
-function DragHandle({ id }: { id: number }) {
+function DragHandle({ id }: { id: number | string }) {
   const { attributes, listeners } = useSortable({ id })
   return (
     <Button
@@ -276,6 +303,31 @@ export function DataTable({
     pageSize: 10,
   })
 
+  React.useEffect(() => {
+    const mapItems = (items: MensajeItem[]) =>
+      items.map((m) => ({
+        id: m.id,
+        nombre: m.nombre,
+        motivo: m.motivo,
+        status: m.respondido ? "Atendido" : "Pendiente",
+        fecha: formatFecha(m.created_at),
+        correo: m.correo,
+        telefono: m.telefono,
+        mensaje: m.mensaje,
+      }))
+
+    const local = getMensajes()
+    if (local && local.length > 0) {
+      setData(mapItems(local))
+    }
+
+    fetchMensajesFromDb().then((dbItems) => {
+      if (dbItems && dbItems.length > 0) {
+        setData(mapItems(dbItems))
+      }
+    })
+  }, [])
+
   const filteredData = React.useMemo(() => {
     if (activeTab === "pending") return data.filter((item) => item.status === "Pendiente")
     if (activeTab === "attended") return data.filter((item) => item.status === "Atendido")
@@ -328,53 +380,45 @@ export function DataTable({
     <Tabs
       value={activeTab}
       onValueChange={setActiveTab}
-      className="w-full flex-col justify-start gap-6"
+      className="flex w-full flex-col justify-start gap-4"
     >
-      <div className="flex items-center justify-between px-4 lg:px-6">
-        <TabsList className="flex">
-          <TabsTrigger value="all">Todos</TabsTrigger>
-          <TabsTrigger value="pending">Pendientes</TabsTrigger>
-          <TabsTrigger value="attended">Atendidos</TabsTrigger>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 lg:px-6">
+        <TabsList className="**:data-[slot=tabs-trigger]:px-3">
+          <TabsTrigger value="all">Todos ({data.length})</TabsTrigger>
+          <TabsTrigger value="pending">
+            Pendientes ({data.filter((i) => i.status === "Pendiente").length})
+          </TabsTrigger>
+          <TabsTrigger value="attended">
+            Atendidos ({data.filter((i) => i.status === "Atendido").length})
+          </TabsTrigger>
         </TabsList>
 
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger
-              render={<Button variant="outline" size="sm" />}
-            >
-              <Columns3Icon data-icon="inline-start" />
-              Columnas
-              <ChevronDownIcon data-icon="inline-end" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-36">
+              render={
+                <Button variant="outline" size="sm">
+                  <Columns3Icon />
+                  <span className="hidden lg:inline">Columnas</span>
+                  <ChevronDownIcon />
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end" className="w-56">
               {table
                 .getAllColumns()
-                .filter(
-                  (column) =>
-                    typeof column.accessorFn !== "undefined" &&
-                    column.getCanHide()
-                )
+                .filter((column) => column.getCanHide())
                 .map((column) => {
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
-                      className="capitalize text-xs"
+                      className="capitalize"
                       checked={column.getIsVisible()}
                       onCheckedChange={(value) =>
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id === "nombre"
-                        ? "Remitente"
-                        : column.id === "motivo"
-                          ? "Motivo"
-                          : column.id === "status"
-                            ? "Estado"
-                            : column.id === "fecha"
-                              ? "Hora"
-                              : column.id === "correo"
-                                ? "Correo"
-                                : column.id}
+                      {column.id}
                     </DropdownMenuCheckboxItem>
                   )
                 })}
@@ -448,7 +492,7 @@ export function DataTable({
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
-              <Label htmlFor="rows-per-page" className="text-xs font-medium text-muted-foreground">
+              <Label htmlFor="rows-per-page" className="text-sm font-medium">
                 Filas por página
               </Label>
               <Select
@@ -456,33 +500,28 @@ export function DataTable({
                 onValueChange={(value) => {
                   table.setPageSize(Number(value))
                 }}
-                items={[10, 20, 30, 40, 50].map((pageSize) => ({
-                  label: `${pageSize}`,
-                  value: `${pageSize}`,
-                }))}
               >
-                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
+                <SelectTrigger id="rows-per-page" className="w-20">
                   <SelectValue placeholder={table.state.pagination.pageSize} />
                 </SelectTrigger>
                 <SelectContent side="top">
-                  <SelectGroup>
-                    {[10, 20, 30, 40, 50].map((pageSize) => (
-                      <SelectItem key={pageSize} value={`${pageSize}`}>
-                        {pageSize}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
+                  {[10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex w-fit items-center justify-center text-xs font-medium text-muted-foreground">
+            <div className="flex w-fit items-center justify-center text-sm font-medium">
               Página {table.state.pagination.pageIndex + 1} de{" "}
-              {table.getPageCount()}
+              {table.getPageCount() || 1}
             </div>
-            <div className="ms-auto flex items-center gap-2 lg:ms-0">
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
+                className="hidden size-8 lg:flex"
+                size="icon"
                 onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
               >
@@ -529,6 +568,18 @@ export function DataTable({
 
 function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
   const isMobile = useIsMobile()
+  const [status, setStatus] = React.useState(item.status)
+  const [saved, setSaved] = React.useState(false)
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (typeof item.id === "string") {
+      updateMensaje(item.id, { respondido: status === "Atendido" })
+    }
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
+
   return (
     <Drawer swipeDirection={isMobile ? "down" : "right"}>
       <DrawerTrigger
@@ -556,8 +607,8 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
               <p className="font-medium text-foreground">{item.motivo}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Hora</p>
-              <p className="font-medium text-foreground">{item.fecha}</p>
+              <p className="text-muted-foreground">Fecha / Hora</p>
+              <p className="font-medium text-foreground">{item.fecha || "Reciente"}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Correo</p>
@@ -565,24 +616,23 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
             </div>
             <div>
               <p className="text-muted-foreground">Estado</p>
-              <p className="font-medium text-foreground">{item.status}</p>
+              <p className="font-medium text-foreground">{status}</p>
             </div>
           </div>
 
-          <form className="flex flex-col gap-4 pb-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="nombre">Nombre</Label>
-              <Input id="nombre" defaultValue={item.nombre} />
+          {item.mensaje && (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs text-muted-foreground font-medium">Mensaje:</span>
+              <div className="p-3 rounded-md bg-muted/20 border text-xs leading-relaxed whitespace-pre-wrap">
+                {item.mensaje}
+              </div>
             </div>
+          )}
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="correo">Correo</Label>
-              <Input id="correo" defaultValue={item.correo} />
-            </div>
-
+          <form onSubmit={handleSave} className="flex flex-col gap-4 pb-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="estado">Estado</Label>
-              <Select defaultValue={item.status}>
+              <Select value={status} onValueChange={(val) => setStatus(val || "Pendiente")}>
                 <SelectTrigger id="estado" className="w-full">
                   <SelectValue placeholder="Seleccionar estado" />
                 </SelectTrigger>
@@ -595,7 +645,9 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
               </Select>
             </div>
 
-            <Button className="mt-2 w-full">Guardar Cambios</Button>
+            <Button type="submit" className="mt-2 w-full cursor-pointer">
+              {saved ? "¡Cambios guardados!" : "Guardar Cambios"}
+            </Button>
           </form>
         </div>
       </DrawerContent>

@@ -46,8 +46,8 @@ export function DashboardShell({
       <AppSidebar variant="inset" currentPath={currentPath} user={user} />
       <SidebarInset className="h-[calc(100vh-1rem)] my-2 mr-2 overflow-hidden flex flex-col rounded-lg border bg-background">
         <SiteHeader title={title} actions={actions} />
-        <div className="flex-1 overflow-y-auto min-h-0">
-          <div className="@container/main flex flex-1 flex-col gap-2">
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          <div className="@container/main flex flex-1 flex-col h-full min-h-full min-w-0 overflow-hidden">
             {children}
           </div>
         </div>

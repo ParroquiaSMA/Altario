@@ -36,16 +36,50 @@ import {
   Trash2Icon,
   DownloadIcon,
   EllipsisVerticalIcon,
+  RefreshCwIcon,
 } from "lucide-react"
-import { getMensajes, updateMensaje, deleteMensaje, type MensajeItem } from "@/lib/data-store"
+import {
+  getMensajes,
+  fetchMensajesFromDb,
+  updateMensaje,
+  deleteMensaje,
+  type MensajeItem,
+} from "@/lib/data-store"
+
+function formatFecha(fechaStr?: string): string {
+  if (!fechaStr) return "Reciente"
+  try {
+    const d = new Date(fechaStr)
+    if (isNaN(d.getTime())) return fechaStr
+    return d.toLocaleDateString("es-UY", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  } catch {
+    return fechaStr
+  }
+}
 
 export function MensajesView() {
   const [mensajes, setMensajes] = React.useState<MensajeItem[]>([])
+  const [loading, setLoading] = React.useState(false)
   const [searchTerm, setSearchTerm] = React.useState("")
   const [selectedMessage, setSelectedMessage] = React.useState<MensajeItem | null>(null)
 
-  const refresh = React.useCallback(() => {
+  const refresh = React.useCallback(async () => {
     setMensajes(getMensajes())
+    setLoading(true)
+    try {
+      const dbItems = await fetchMensajesFromDb()
+      if (dbItems && dbItems.length > 0) {
+        setMensajes(dbItems)
+      }
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   React.useEffect(() => {
@@ -59,14 +93,30 @@ export function MensajesView() {
     m.mensaje?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  const handleOpenDetail = (m: MensajeItem) => {
+    setSelectedMessage(m)
+    if (!m.leido) {
+      updateMensaje(m.id, { leido: true })
+      setMensajes((prev) =>
+        prev.map((item) => (item.id === m.id ? { ...item, leido: true } : item))
+      )
+    }
+  }
+
   const handleToggleRespondido = (id: string) => {
     const target = mensajes.find((m) => m.id === id)
     if (!target) return
     const nextState = !target.respondido
     updateMensaje(id, { respondido: nextState, leido: true })
-    setMensajes((prev) => prev.map((m) => m.id === id ? { ...m, respondido: nextState, leido: true } : m))
+    setMensajes((prev) =>
+      prev.map((m) =>
+        m.id === id ? { ...m, respondido: nextState, leido: true } : m
+      )
+    )
     if (selectedMessage?.id === id) {
-      setSelectedMessage((prev) => prev ? { ...prev, respondido: nextState, leido: true } : null)
+      setSelectedMessage((prev) =>
+        prev ? { ...prev, respondido: nextState, leido: true } : null
+      )
     }
   }
 
@@ -77,8 +127,15 @@ export function MensajesView() {
   }
 
   const handleExport = () => {
-    const csv = mensajes.map((m) => `"${m.nombre}","${m.correo}","${m.motivo}","${m.created_at || ""}"`).join("\n")
-    const blob = new Blob(["Nombre,Correo,Motivo,Fecha\n" + csv], { type: "text/csv" })
+    const csv = mensajes
+      .map(
+        (m) =>
+          `"${m.nombre}","${m.correo}","${m.telefono || ""}","${m.motivo}","${formatFecha(m.created_at)}"`
+      )
+      .join("\n")
+    const blob = new Blob(["Nombre,Correo,Telefono,Motivo,Fecha\n" + csv], {
+      type: "text/csv",
+    })
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
@@ -99,10 +156,23 @@ export function MensajesView() {
             className="pl-8"
           />
         </div>
-        <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5 cursor-pointer">
-          <DownloadIcon className="size-4" />
-          Exportar CSV
-        </Button>
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refresh()}
+            disabled={loading}
+            className="gap-1.5 cursor-pointer"
+            title="Recargar mensajes"
+          >
+            <RefreshCwIcon className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
+            <span>Actualizar</span>
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5 cursor-pointer">
+            <DownloadIcon className="size-4" />
+            Exportar CSV
+          </Button>
+        </div>
       </div>
 
       {/* Table Card */}
@@ -129,13 +199,18 @@ export function MensajesView() {
                   {filtered.map((m) => (
                     <TableRow
                       key={m.id}
-                      className="cursor-pointer"
-                      onClick={() => setSelectedMessage(m)}
+                      className={`cursor-pointer transition-colors ${!m.leido ? "bg-muted/20 font-medium" : ""}`}
+                      onClick={() => handleOpenDetail(m)}
                     >
                       <TableCell className="px-4 py-3">
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium">{m.nombre}</span>
-                          <span className="text-xs text-muted-foreground">{m.correo}</span>
+                        <div className="flex items-center gap-2">
+                          {!m.leido && (
+                            <span className="size-2 rounded-full bg-blue-600 shrink-0" title="Mensaje no leído" />
+                          )}
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium">{m.nombre}</span>
+                            <span className="text-xs text-muted-foreground">{m.correo}</span>
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="px-4 py-3 text-sm">{m.motivo}</TableCell>
@@ -143,7 +218,7 @@ export function MensajesView() {
                         {m.mensaje}
                       </TableCell>
                       <TableCell className="px-4 py-3 hidden sm:table-cell text-sm text-muted-foreground whitespace-nowrap">
-                        {m.created_at || "Reciente"}
+                        {formatFecha(m.created_at)}
                       </TableCell>
                       <TableCell className="px-4 py-3">
                         {m.respondido ? (
@@ -152,7 +227,7 @@ export function MensajesView() {
                             Atendido
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="gap-1.5">
+                          <Badge variant="outline" className="gap-1.5 text-amber-600 border-amber-300">
                             <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
                             Pendiente
                           </Badge>
@@ -168,7 +243,7 @@ export function MensajesView() {
                             <EllipsisVerticalIcon className="size-4" />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-44">
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => setSelectedMessage(m)}>
+                            <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenDetail(m)}>
                               <MailIcon />
                               Ver detalle
                             </DropdownMenuItem>
@@ -203,7 +278,9 @@ export function MensajesView() {
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Detalle de Consulta</DialogTitle>
-              <DialogDescription>Información enviada a través de la web pública.</DialogDescription>
+              <DialogDescription>
+                Recibido el {formatFecha(selectedMessage.created_at)} a través del formulario web.
+              </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-4 py-3 text-sm">
               <div className="grid grid-cols-2 gap-3 p-3 rounded-md bg-muted/40 border">
@@ -224,11 +301,16 @@ export function MensajesView() {
                       {selectedMessage.telefono}
                     </span>
                   )}
+                  {selectedMessage.canal_preferido && (
+                    <span className="text-[11px] text-muted-foreground mt-0.5">
+                      Prefiere: {selectedMessage.canal_preferido === "telefono" ? "Teléfono / WhatsApp" : selectedMessage.canal_preferido === "presencial" ? "Presencial en secretaría" : "Correo electrónico"}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex flex-col gap-1.5">
                 <span className="text-xs text-muted-foreground">Mensaje</span>
-                <div className="p-3 rounded-md bg-background border leading-relaxed text-sm">
+                <div className="p-3.5 rounded-md bg-background border leading-relaxed text-sm whitespace-pre-wrap">
                   {selectedMessage.mensaje}
                 </div>
               </div>

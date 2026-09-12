@@ -1,25 +1,25 @@
 [
   {
-    "id": "a1",
-    "fecha": "2026-09-08",
-    "titulo": "Fiesta patronal",
-    "descripcion": "Misa solemne a las 19:00 y procesión con la imagen de Santa María de la Ayuda. Después, chocolatada en el salón.",
+    "id": "a-patronal",
+    "fecha": "2026-05-17",
+    "titulo": "Gran Fiesta Patronal de Santa María de la Ayuda",
+    "descripcion": "El tercer domingo de mayo celebramos la solemne Misa y procesión por las calles del Cerro con la venerada imagen tallada por Ferdinando Stufleser.",
     "activo": true,
     "orden": 1
   },
   {
-    "id": "a2",
-    "fecha": "2026-09-20",
-    "titulo": "Retiro para adultos",
-    "descripcion": "De 9:00 a 16:00 en la casa de retiros. Inscripción en secretaría hasta el día 15.",
+    "id": "a-horarios",
+    "fecha": "2026-08-26",
+    "titulo": "Horarios de apertura y secretaría",
+    "descripcion": "El templo abre de martes a viernes de 16:00 a 18:00 hs, sábados de 17:00 a 18:30 hs y domingos de 10:00 a 10:45 hs y 17:00 a 18:30 hs.",
     "activo": true,
     "orden": 2
   },
   {
-    "id": "a3",
-    "fecha": "2026-10-04",
-    "titulo": "Bendición de animales",
-    "descripcion": "En el atrio, a las 11:00, en la memoria de san Francisco de Asís. Traelos con correa o transportadora.",
+    "id": "a-misericordia",
+    "fecha": "2026-09-04",
+    "titulo": "Pequeña Obra de la Divina Misericordia",
+    "descripcion": "Primer viernes de mes a las 16:00 hs en el templo: coronilla cantada, adoración y oración por las familias.",
     "activo": true,
     "orden": 3
   }

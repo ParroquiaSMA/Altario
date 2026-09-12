@@ -40,6 +40,10 @@ function devConfigApiPlugin() {
                 try {
                   const dir = path.dirname(p);
                   if (fs.existsSync(dir)) {
+                    if (fs.existsSync(p)) {
+                      const current = fs.readFileSync(p, 'utf-8');
+                      if (current === jsonStr) continue;
+                    }
                     fs.writeFileSync(p, jsonStr, 'utf-8');
                   }
                 } catch (e) {}
@@ -55,7 +59,48 @@ function devConfigApiPlugin() {
           return;
         }
 
-        // 2. Link Domains automatically to Vercel
+        // 2. Sync Store JSON (galeria, horarios, avisos, etc.)
+        if (req.url === '/api/sync-store' && req.method === 'POST') {
+          let body = '';
+          req.on('data', (/** @type {any} */ chunk) => (body += chunk));
+          req.on('end', () => {
+            try {
+              const { store, data } = JSON.parse(body);
+              if (store && data) {
+                const jsonStr = JSON.stringify(data, null, 2) + '\n';
+                const baseDir = process.cwd();
+                const targetPaths = [
+                  path.resolve(baseDir, `src/data/seeds/${store}.json`),
+                  path.resolve(baseDir, `../web/src/data/seeds/${store}.json`),
+                  path.resolve(baseDir, `../src/data/seeds/${store}.json`),
+                  path.resolve(baseDir, `web/src/data/seeds/${store}.json`),
+                ];
+                for (const p of targetPaths) {
+                  try {
+                    const dir = path.dirname(p);
+                    if (fs.existsSync(dir)) {
+                      if (fs.existsSync(p)) {
+                        const current = fs.readFileSync(p, 'utf-8');
+                        if (current === jsonStr) continue;
+                      }
+                      fs.writeFileSync(p, jsonStr, 'utf-8');
+                    }
+                  } catch (e) {}
+                }
+              }
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true }));
+            } catch (err) {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: String(err) }));
+            }
+          });
+          return;
+        }
+
+        // 3. Link Domains automatically to Vercel
         if (req.url === '/api/vercel/link-domain' && req.method === 'POST') {
           let body = '';
           req.on('data', (/** @type {any} */ chunk) => (body += chunk));

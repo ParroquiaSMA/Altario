@@ -1,0 +1,11 @@
+---
+import RootLayout from '../layouts/RootLayout.astro';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { SacramentosView } from '@/components/views/sacramentos-view';
+---
+
+<RootLayout title="Sacramentos — Altario CMS">
+  <DashboardShell client:load title="Sacramentos y Trámites" currentPath="/sacramentos">
+    <SacramentosView client:load />
+  </DashboardShell>
+</RootLayout>

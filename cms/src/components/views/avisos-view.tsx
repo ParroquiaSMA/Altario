@@ -35,7 +35,14 @@ import {
   Edit3Icon,
   EllipsisVerticalIcon,
 } from "lucide-react"
-import { getAvisos, addAviso, updateAviso, deleteAviso, type AvisoItem } from "@/lib/data-store"
+import {
+  getAvisos,
+  fetchAvisosFromDb,
+  addAviso,
+  updateAviso,
+  deleteAviso,
+  type AvisoItem,
+} from "@/lib/data-store"
 
 export function AvisosView() {
   const [avisos, setAvisos] = React.useState<AvisoItem[]>([])
@@ -47,8 +54,12 @@ export function AvisosView() {
   const [titulo, setTitulo] = React.useState("")
   const [descripcion, setDescripcion] = React.useState("")
 
-  const refresh = React.useCallback(() => {
+  const refresh = React.useCallback(async () => {
     setAvisos(getAvisos())
+    const dbItems = await fetchAvisosFromDb()
+    if (dbItems && dbItems.length > 0) {
+      setAvisos(dbItems)
+    }
   }, [])
 
   React.useEffect(() => {

@@ -21,6 +21,8 @@ import {
   ExternalLinkIcon,
   SettingsIcon,
   LayoutTemplate,
+  BookOpenIcon,
+  UsersIcon,
 } from "lucide-react"
 
 const NAV_MAIN = [
@@ -32,6 +34,8 @@ const NAV_SITIO_WEB = [
   { name: "Horarios", url: "/horarios", icon: <ClockIcon /> },
   { name: "Avisos", url: "/avisos", icon: <MegaphoneIcon /> },
   { name: "Galería", url: "/galeria", icon: <ImagesIcon /> },
+  { name: "Sacramentos", url: "/sacramentos", icon: <BookOpenIcon /> },
+  { name: "Comunidad", url: "/comunidad", icon: <UsersIcon /> },
   { name: "Ajustes web", url: "/settings-web", icon: <LayoutTemplate /> },
 ]
 

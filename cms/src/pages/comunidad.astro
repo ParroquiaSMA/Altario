@@ -1,0 +1,11 @@
+---
+import RootLayout from '../layouts/RootLayout.astro';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { ComunidadView } from '@/components/views/comunidad-view';
+---
+
+<RootLayout title="Comunidad — Altario CMS">
+  <DashboardShell client:load title="Comunidad y Grupos" currentPath="/comunidad">
+    <ComunidadView client:load />
+  </DashboardShell>
+</RootLayout>

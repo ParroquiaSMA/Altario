@@ -54,11 +54,55 @@ export interface DominioConfig {
   google_search_console_id: string
 }
 
+export interface CuentaBancariaItem {
+  id: string
+  banco: string
+  titular: string
+  numero_cuenta: string
+  tipo_cuenta: string
+  identificacion_fiscal?: string
+  referencia?: string
+  activo?: boolean
+}
+
+export interface MedioDonacionItem {
+  id: string
+  titulo: string
+  descripcion: string
+  enlace?: string
+  etiqueta_boton?: string
+  activo?: boolean
+}
+
+export interface DonacionesConfig {
+  titulo_seccion?: string
+  mensaje?: string
+  cuentas_bancarias: CuentaBancariaItem[]
+  medios_donacion: MedioDonacionItem[]
+}
+
+export interface HistoriaConfig {
+  titulo: string
+  bajada?: string
+  contenido_markdown: string
+}
+
+export interface SeoConfig {
+  titulo_sitio?: string
+  descripcion?: string
+  og_image_url?: string
+  favicon_url?: string
+  palabras_clave?: string
+}
+
 export interface SiteConfig {
   parroquia: ParroquiaConfig
   parroco: ParrocoConfig
   contacto: ContactoConfig
+  donaciones: DonacionesConfig
   redes: RedesConfig
+  historia: HistoriaConfig
+  seo: SeoConfig
   apariencia: AparienciaConfig
   dominio: DominioConfig
 }
@@ -78,7 +122,10 @@ export function getLocalConfig(): SiteConfig {
       parroquia: { ...seedConfig.parroquia, ...(parsed.parroquia || {}) },
       parroco: { ...seedConfig.parroco, ...(parsed.parroco || {}) },
       contacto: { ...seedConfig.contacto, ...(parsed.contacto || {}) },
+      donaciones: { ...seedConfig.donaciones, ...(parsed.donaciones || {}) },
       redes: { ...seedConfig.redes, ...(parsed.redes || {}) },
+      historia: { ...seedConfig.historia, ...(parsed.historia || {}) },
+      seo: { ...seedConfig.seo, ...(parsed.seo || {}) },
       apariencia: { ...seedConfig.apariencia, ...(parsed.apariencia || {}) },
       dominio: { ...seedConfig.dominio, ...(parsed.dominio || {}) },
     } as SiteConfig
@@ -109,7 +156,10 @@ export async function fetchSiteConfigFromDb(): Promise<SiteConfig> {
       parroquia: { ...local.parroquia, ...(configMap["parroquia"] || {}) },
       parroco: { ...local.parroco, ...(configMap["parroco"] || {}) },
       contacto: { ...local.contacto, ...(configMap["contacto"] || {}) },
+      donaciones: { ...local.donaciones, ...(configMap["donaciones"] || {}) },
       redes: { ...local.redes, ...(configMap["redes"] || {}) },
+      historia: { ...local.historia, ...(configMap["historia"] || {}) },
+      seo: { ...local.seo, ...(configMap["seo"] || {}) },
       apariencia: { ...local.apariencia, ...(configMap["apariencia"] || {}) },
       dominio: { ...local.dominio, ...(configMap["dominio"] || {}) },
     }
@@ -150,14 +200,33 @@ export async function saveFullSiteConfig(config: SiteConfig): Promise<void> {
     console.warn("No se pudo persistir en API local:", err)
   }
 
-  // 2. Sync to Supabase if connected
+  // 2. Broadcast live event to open web pages
+  try {
+    if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+      const bc = new BroadcastChannel("altario:site_config_sync")
+      bc.postMessage({ type: "CONFIG_UPDATED", config })
+      bc.close()
+    }
+  } catch {}
+
+  // 3. Sync to Supabase if connected
   if (supabase) {
-    const sections: (keyof SiteConfig)[] = ["parroquia", "parroco", "contacto", "redes", "apariencia", "dominio"]
+    const sections: (keyof SiteConfig)[] = [
+      "parroquia",
+      "parroco",
+      "contacto",
+      "donaciones",
+      "redes",
+      "historia",
+      "seo",
+      "apariencia",
+      "dominio",
+    ]
     try {
       const updates = sections.map((sec) => ({
         clave: sec,
         valor: config[sec],
-        actualizado_en: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       }))
       await supabase.from("configuracion").upsert(updates, { onConflict: "clave" })
     } catch (err) {

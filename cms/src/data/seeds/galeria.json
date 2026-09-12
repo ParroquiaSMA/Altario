@@ -1,11 +1,32 @@
 [
-  { "id": "f1", "titulo": "Campanario", "descripcion": "El campanario visto desde la vereda de enfrente, a media tarde.", "categoria": "templo", "imagen_url": "/assets/img/fachada.jpg", "es_destacado": true, "activo": true, "orden": 1 },
-  { "id": "f2", "titulo": "Nave central", "descripcion": "La nave central con los bancos alineados hacia el altar.", "categoria": "templo", "imagen_url": "/assets/img/nave.jpg", "es_destacado": false, "activo": true, "orden": 2 },
-  { "id": "f3", "titulo": "Rosetón, 1998", "descripcion": "El rosetón sobre la puerta principal, visto desde adentro.", "categoria": "templo", "imagen_url": "/assets/img/roseton.jpg", "es_destacado": true, "activo": true, "orden": 3 },
-  { "id": "f4", "titulo": "Vitrales del ábside, 1974", "descripcion": "Detalle de uno de los cinco paños de vitral del ábside.", "categoria": "templo", "imagen_url": "/assets/img/vitral.jpg", "es_destacado": false, "activo": true, "orden": 4 },
-  { "id": "f5", "titulo": "Portal de acceso", "descripcion": "El portal de acceso con sus tres arcos concéntricos.", "categoria": "templo", "imagen_url": "/assets/img/portal.jpg", "es_destacado": false, "activo": true, "orden": 5 },
-  { "id": "f6", "titulo": "La patrona", "descripcion": "La imagen de Santa María de la Ayuda en su altar lateral, con velas encendidas.", "categoria": "celebraciones", "imagen_url": "/assets/img/patrona.jpg", "es_destacado": false, "activo": true, "orden": 6 },
-  { "id": "f7", "titulo": "Velas del altar lateral", "descripcion": "Velas encendidas por los fieles en el altar lateral.", "categoria": "celebraciones", "imagen_url": "/assets/img/velas.jpg", "es_destacado": true, "activo": true, "orden": 7 },
-  { "id": "f8", "titulo": "Café después de misa", "descripcion": "Encuentro en el salón parroquial después de la misa del domingo.", "categoria": "comunidad", "imagen_url": "/assets/img/comunidad.jpg", "es_destacado": false, "activo": true, "orden": 8 },
-  { "id": "f9", "titulo": "Leccionario y candelabros", "descripcion": "El leccionario abierto sobre el ambón, entre dos candelabros de bronce.", "categoria": "celebraciones", "imagen_url": "/assets/img/detalle.jpg", "es_destacado": false, "activo": true, "orden": 9 }
+  {
+    "titulo": "Aereo",
+    "categoria": "templo",
+    "descripcion": "Foto aerea",
+    "imagen_url": "https://eucgxnnnmheqhptcxldp.supabase.co/storage/v1/object/public/media/galeria/1787699676681-wazghq.jpeg",
+    "es_destacado": false,
+    "activo": true,
+    "orden": 3,
+    "id": "d9b8d023-19b2-4448-a42f-f33f6277940c"
+  },
+  {
+    "id": "5e33d9a8-34de-414d-b702-870aa1d0dc5c",
+    "titulo": "Fachada",
+    "categoria": "templo",
+    "imagen_url": "https://eucgxnnnmheqhptcxldp.supabase.co/storage/v1/object/public/media/galeria/1787693691125-7qt02w.jpg",
+    "descripcion": "Parroquia",
+    "es_destacado": false,
+    "activo": true,
+    "orden": 1
+  },
+  {
+    "id": "68dc53cc-403e-4c5a-a841-c8f600d09dcb",
+    "titulo": "Parroquia",
+    "categoria": "templo",
+    "imagen_url": "https://eucgxnnnmheqhptcxldp.supabase.co/storage/v1/object/public/media/galeria/1787699652053-9bsudq.jpeg",
+    "descripcion": "Frente",
+    "es_destacado": false,
+    "activo": true,
+    "orden": 2
+  }
 ]

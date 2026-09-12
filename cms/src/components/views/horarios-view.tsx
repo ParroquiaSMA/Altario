@@ -17,7 +17,14 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
 import { PlusIcon, SearchIcon, Trash2Icon, Edit3Icon, EllipsisVerticalIcon } from "lucide-react"
-import { getHorarios, addHorario, updateHorario, deleteHorario, type HorarioItem } from "@/lib/data-store"
+import {
+  getHorarios,
+  fetchHorariosFromDb,
+  addHorario,
+  updateHorario,
+  deleteHorario,
+  type HorarioItem,
+} from "@/lib/data-store"
 import { fetchCatalogFromDb, type CatalogOption } from "@/lib/catalog"
 
 const DIAS = [
@@ -49,12 +56,16 @@ export function HorariosView() {
   const refresh = React.useCallback(async () => {
     setHorarios(getHorarios())
     // Fetch directly from backend DB tables
-    const [tipos, lugares] = await Promise.all([
+    const [tipos, lugares, dbHorarios] = await Promise.all([
       fetchCatalogFromDb("tipos_horario"),
       fetchCatalogFromDb("lugares"),
+      fetchHorariosFromDb(),
     ])
     setTiposCatalogo(tipos.filter((t) => t.activo))
     setLugaresCatalogo(lugares.filter((l) => l.activo))
+    if (dbHorarios && dbHorarios.length > 0) {
+      setHorarios(dbHorarios)
+    }
   }, [])
 
   React.useEffect(() => {
@@ -221,7 +232,11 @@ export function HorariosView() {
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-2">
                 <Label>Día</Label>
-                <Select value={diaSemana} onValueChange={(v) => { if (v !== null && v !== undefined) setDiaSemana(v) }}>
+                <Select
+                  items={DIAS}
+                  value={diaSemana}
+                  onValueChange={(v) => { if (v !== null && v !== undefined) setDiaSemana(v) }}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Día" />
                   </SelectTrigger>
@@ -238,7 +253,15 @@ export function HorariosView() {
               {/* Dynamic Select from 'tipos_horario' catalog table */}
               <div className="grid gap-2">
                 <Label>Tipo</Label>
-                <Select value={categoria} onValueChange={(v) => { if (v) setCategoria(v) }}>
+                <Select
+                  items={
+                    tiposCatalogo.length === 0
+                      ? [{ value: "misa", label: "Misa" }]
+                      : tiposCatalogo.map((t) => ({ value: t.codigo, label: t.nombre }))
+                  }
+                  value={categoria}
+                  onValueChange={(v) => { if (v) setCategoria(v) }}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Tipo" />
                   </SelectTrigger>
@@ -276,7 +299,15 @@ export function HorariosView() {
             {/* Dynamic Select from 'lugares' catalog table */}
             <div className="grid gap-2">
               <Label>Lugar</Label>
-              <Select value={lugar} onValueChange={(v) => { if (v) setLugar(v) }}>
+              <Select
+                items={
+                  lugaresCatalogo.length === 0
+                    ? [{ value: "Iglesia Principal", label: "Iglesia Principal" }]
+                    : lugaresCatalogo.map((l) => ({ value: l.nombre, label: l.nombre }))
+                }
+                value={lugar}
+                onValueChange={(v) => { if (v) setLugar(v) }}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Lugar" />
                 </SelectTrigger>

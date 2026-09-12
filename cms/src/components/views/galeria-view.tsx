@@ -29,7 +29,7 @@ import {
   Trash2Icon,
   EllipsisVerticalIcon,
 } from "lucide-react"
-import { getFotos, addFoto, deleteFoto, type FotoItem } from "@/lib/data-store"
+import { getFotos, fetchFotosFromDb, addFoto, deleteFoto, type FotoItem } from "@/lib/data-store"
 import { fetchCatalogFromDb, type CatalogOption } from "@/lib/catalog"
 import { ImageUpload } from "@/components/ui/image-upload"
 
@@ -42,10 +42,11 @@ export function GaleriaView() {
   const [titulo, setTitulo] = React.useState("")
   const [categoria, setCategoria] = React.useState("templo")
   const [descripcion, setDescripcion] = React.useState("")
-  const [imagenUrl, setImagenUrl] = React.useState("/assets/img/fachada.jpg")
+  const [imagenUrl, setImagenUrl] = React.useState("")
 
   const refresh = React.useCallback(async () => {
     setFotos(getFotos())
+    fetchFotosFromDb().then((data) => setFotos(data))
     const cats = await fetchCatalogFromDb("categorias_galeria")
     setCategoriasCatalogo(cats.filter((c) => c.activo))
   }, [])
@@ -67,19 +68,19 @@ export function GaleriaView() {
     setTitulo("")
     setCategoria(activeCats[0]?.codigo || "templo")
     setDescripcion("")
-    setImagenUrl("/assets/img/fachada.jpg")
+    setImagenUrl("")
     setIsDialogOpen(true)
   }
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!titulo.trim()) return
+    if (!titulo.trim() || !imagenUrl.trim()) return
 
     const nueva = {
       titulo: titulo.trim(),
       categoria,
       descripcion: descripcion.trim(),
-      imagen_url: imagenUrl.trim() || "/assets/img/fachada.jpg",
+      imagen_url: imagenUrl.trim(),
       es_destacado: false,
       activo: true,
       orden: fotos.length + 1,
@@ -133,7 +134,7 @@ export function GaleriaView() {
             >
               <div className="relative aspect-[4/3] bg-muted overflow-hidden">
                 <img
-                  src={f.imagen_url || "/assets/img/fachada.jpg"}
+                  src={f.imagen_url}
                   alt={f.titulo}
                   className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200"
                 />
@@ -196,7 +197,15 @@ export function GaleriaView() {
             {/* Dynamic Select from 'categorias_galeria' catalog table */}
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs font-medium">Categoría</Label>
-              <Select value={categoria} onValueChange={(val) => { if (val) setCategoria(val) }}>
+              <Select
+                items={
+                  categoriasCatalogo.length === 0
+                    ? [{ value: "templo", label: "El Templo" }]
+                    : categoriasCatalogo.map((c) => ({ value: c.codigo, label: c.nombre }))
+                }
+                value={categoria}
+                onValueChange={(val) => { if (val) setCategoria(val) }}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Categoría" />
                 </SelectTrigger>
@@ -239,7 +248,12 @@ export function GaleriaView() {
               <Button type="button" variant="outline" size="sm" className="text-xs cursor-pointer" onClick={() => setIsDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" size="sm" className="text-xs bg-foreground text-background hover:bg-foreground/90 cursor-pointer">
+              <Button
+                type="submit"
+                size="sm"
+                disabled={!titulo.trim() || !imagenUrl.trim()}
+                className="text-xs bg-foreground text-background hover:bg-foreground/90 cursor-pointer"
+              >
                 Guardar
               </Button>
             </DialogFooter>

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "g-legion",
+    "nombre": "Legión de María",
+    "descripcion": "Comunidad de oración mariana, devoción a la Virgen de la Ayuda y visita pastoral a enfermos y familias del Cerro.",
+    "horario_encuentro": "Martes, 16:30 hs",
+    "orden": 1
+  },
+  {
+    "id": "g-misericordia",
+    "nombre": "Pequeña Obra de la Divina Misericordia",
+    "descripcion": "Espacio de oración comunitaria, rezo de la Coronilla de la Divina Misericordia y acompañamiento espiritual.",
+    "horario_encuentro": "Viernes, 16:00 hs",
+    "orden": 2
+  },
+  {
+    "id": "g-solidaridad",
+    "nombre": "Pastoral Social y Solidaridad (Cáritas Cerro)",
+    "descripcion": "Ropero comunitario, recepción y entrega de alimentos y asistencia fraterna a vecinos en situación de vulnerabilidad.",
+    "horario_encuentro": "Jueves, 16:00 – 18:00 hs",
+    "orden": 3
+  },
+  {
+    "id": "g-liturgia",
+    "nombre": "Grupo de Liturgia y Coro",
+    "descripcion": "Preparación de las celebraciones, lecturas, cantos y ornamentación del templo para las misas y fiestas patronales.",
+    "horario_encuentro": "Sábados, 16:30 hs",
+    "orden": 4
+  },
+  {
+    "id": "g-ignaciana",
+    "nombre": "Comunidad de Oración Ignaciana (Jesuitas)",
+    "descripcion": "Talleres de oración y discernimiento a la luz de los Ejercicios Espirituales de San Ignacio de Loyola.",
+    "horario_encuentro": "Miércoles, 17:00 hs",
+    "orden": 5
+  },
+  {
+    "id": "g-catequesis",
+    "nombre": "Catequesis de Niños y Jóvenes",
+    "descripcion": "Iniciación cristiana y preparación para la Primera Comunión y la Confirmación en comunidad.",
+    "horario_encuentro": "Sábados, 10:30 – 12:00 hs",
+    "orden": 6
+  }
+]
