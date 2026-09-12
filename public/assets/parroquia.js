@@ -65,8 +65,6 @@
       if (cfg.parroquia) {
         var marcaAnchor = document.querySelector(".marca");
         if (marcaAnchor) {
-          var currentImg = marcaAnchor.querySelector("img");
-          var currentSvg = marcaAnchor.querySelector("svg");
           var oroCol = (cfg.apariencia && cfg.apariencia.color_acento) || "#C9A96A";
           var lapisCol = (cfg.apariencia && cfg.apariencia.color_primario) || "#22366B";
           function getAutoInitials(name) {
@@ -80,31 +78,12 @@
           }
           var logoInit = cfg.parroquia.logo_iniciales || getAutoInitials(cfg.parroquia.nombre);
           var logoUrl = cfg.parroquia.logo_url;
+          var nombreParroquia = cfg.parroquia.nombre || "la Parroquia";
 
           if (logoUrl) {
-            if (currentImg) {
-              currentImg.src = logoUrl;
-              currentImg.alt = "Escudo de " + (cfg.parroquia.nombre || "la Parroquia");
-            } else if (currentSvg) {
-              var newImg = document.createElement("img");
-              newImg.src = logoUrl;
-              newImg.alt = "Escudo de " + (cfg.parroquia.nombre || "la Parroquia");
-              newImg.className = "size-11 object-contain rounded-full border border-[#C9A96A]/40 bg-white/10";
-              newImg.width = 44;
-              newImg.height = 44;
-              marcaAnchor.replaceChild(newImg, currentSvg);
-            }
+            marcaAnchor.innerHTML = '<img src="' + logoUrl + '" alt="' + nombreParroquia + '" class="marca__logo" loading="eager" />';
           } else {
-            if (currentImg) {
-              var svgWrapper = document.createElement("div");
-              svgWrapper.innerHTML = '<svg width="44" height="44" viewBox="0 0 44 44" role="img" aria-label="Escudo de ' + (cfg.parroquia.nombre || "la Parroquia") + '"><circle cx="22" cy="22" r="20.5" fill="none" stroke="' + oroCol + '"></circle><circle cx="22" cy="22" r="17" fill="' + lapisCol + '"></circle><text x="22" y="28.5" text-anchor="middle" fill="' + oroCol + '" font-family="Marcellus, Georgia, serif" font-size="16">' + logoInit + '</text></svg>';
-              if (svgWrapper.firstElementChild) {
-                marcaAnchor.replaceChild(svgWrapper.firstElementChild, currentImg);
-              }
-            } else if (currentSvg) {
-              var textEl = currentSvg.querySelector("text");
-              if (textEl) textEl.textContent = logoInit;
-            }
+            marcaAnchor.innerHTML = '<svg width="44" height="44" viewBox="0 0 44 44" role="img" aria-label="Escudo de ' + nombreParroquia + '"><circle cx="22" cy="22" r="20.5" fill="none" stroke="' + oroCol + '"></circle><circle cx="22" cy="22" r="17" fill="' + lapisCol + '"></circle><text x="22" y="28.5" text-anchor="middle" fill="' + oroCol + '" font-family="Marcellus, Georgia, serif" font-size="16">' + logoInit + '</text></svg><span class="marca__texto"><strong class="marca__nombre">' + nombreParroquia + '</strong><span class="marca__bajada">Parroquia</span></span>';
           }
         }
       }
@@ -201,17 +180,13 @@
      2. PRÓXIMA MISA
      dia: 0 = domingo … 6 = sábado.
      ========================================================== */
-  var MISAS = [
-    { dia: 1, hora: "08:00" }, { dia: 1, hora: "19:00" },
-    { dia: 2, hora: "08:00" }, { dia: 2, hora: "19:00" },
-    { dia: 3, hora: "08:00" }, { dia: 3, hora: "19:00" },
-    { dia: 4, hora: "08:00" }, { dia: 4, hora: "19:00" },
-    { dia: 5, hora: "08:00" }, { dia: 5, hora: "19:00" },
-    { dia: 6, hora: "19:00", nota: "Misa de vigilia del domingo" },
-    { dia: 0, hora: "09:00" },
-    { dia: 0, hora: "11:00", nota: "Misa con las familias y el coro" },
-    { dia: 0, hora: "19:30" }
-  ];
+  var MISAS = (window.__HORARIOS_MISA__ && window.__HORARIOS_MISA__.length > 0)
+    ? window.__HORARIOS_MISA__
+    : [
+        { dia: 6, hora: "17:00", nota: "Misa de vísperas y confesiones" },
+        { dia: 0, hora: "10:00", nota: "Misa dominical comunitaria" },
+        { dia: 0, hora: "17:00", nota: "Misa vespertina de la tarde" }
+      ];
 
   var DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
@@ -282,10 +257,10 @@
       b.addEventListener("click", function () {
         filtros.forEach(function (otro) {
           otro.classList.remove("activo");
-          otro.removeAttribute("aria-current");
+          otro.setAttribute("aria-pressed", "false");
         });
         b.classList.add("activo");
-        b.setAttribute("aria-current", "true");
+        b.setAttribute("aria-pressed", "true");
 
         var f = b.getAttribute("data-filtro");
         fotos.forEach(function (fig) {
@@ -338,7 +313,7 @@
       });
     });
 
-    form.addEventListener("submit", function (e) {
+    form.addEventListener("submit", async function (e) {
       var primerError = null;
       campos.forEach(function (c) {
         if (!revisar(c) && !primerError) primerError = c;
@@ -352,6 +327,59 @@
 
       if (!form.getAttribute("action")) {
         e.preventDefault();
+        var submitBtn = form.querySelector('button[type="submit"]');
+        var originalBtnText = submitBtn ? submitBtn.textContent : "Enviar mensaje";
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Enviando...";
+        }
+
+        var nombreInput = document.getElementById("nombre");
+        var correoInput = document.getElementById("correo");
+        var telefonoInput = document.getElementById("telefono");
+        var motivoInput = document.getElementById("motivo");
+        var mensajeInput = document.getElementById("mensaje");
+        var canalRadio = form.querySelector('input[name="respuesta"]:checked');
+
+        var payload = {
+          nombre: nombreInput ? nombreInput.value.trim() : "",
+          correo: correoInput ? correoInput.value.trim() : "",
+          telefono: telefonoInput && telefonoInput.value.trim() ? telefonoInput.value.trim() : null,
+          motivo: motivoInput ? motivoInput.value : "Consulta general",
+          mensaje: mensajeInput ? mensajeInput.value.trim() : "",
+          canal_preferido: canalRadio ? canalRadio.value : "correo",
+          leido: false,
+          respondido: false
+        };
+
+        var supabaseUrl = "https://eucgxnnnmheqhptcxldp.supabase.co/rest/v1/mensajes_contacto";
+        var supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1Y2d4bm5ubWhlcWhwdGN4bGRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjc1MjAsImV4cCI6MjEwMzIwMzUyMH0.Mf-7XI5ZMlnPYj3LGE2_HqiNcKFGHSunPnCDgnWTFqw";
+
+        try {
+          await fetch(supabaseUrl, {
+            method: "POST",
+            headers: {
+              "apikey": supabaseAnonKey,
+              "Authorization": "Bearer " + supabaseAnonKey,
+              "Content-Type": "application/json",
+              "Prefer": "return=minimal"
+            },
+            body: JSON.stringify(payload)
+          });
+        } catch (err) {
+          console.warn("[Contacto] Fallback offline:", err);
+        }
+
+        try {
+          var localKey = "altario:db:mensajes";
+          var existing = JSON.parse(localStorage.getItem(localKey) || "[]");
+          existing.unshift(Object.assign({}, payload, {
+            id: "m-" + Date.now(),
+            created_at: new Date().toISOString()
+          }));
+          localStorage.setItem(localKey, JSON.stringify(existing));
+        } catch (e) {}
+
         var ok = document.getElementById("form-ok");
         if (ok) {
           ok.hidden = false;
@@ -359,6 +387,10 @@
           ok.focus();
         }
         form.reset();
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+        }
       }
     });
   }

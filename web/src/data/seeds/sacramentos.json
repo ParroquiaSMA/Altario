@@ -1,0 +1,56 @@
+[
+  {
+    "id": "s1",
+    "slug": "bautismo",
+    "titulo": "Bautismo",
+    "descripcion": "Para bebés y niños hasta 6 años. Los papás y padrinos hacen un encuentro de preparación antes.",
+    "requisitos": "2.º y 4.º sábado de cada mes, a las 16:00. Partida de nacimiento del niño y datos de los padrinos.",
+    "categoria": "sacramento",
+    "orden": 1
+  },
+  {
+    "id": "s2",
+    "slug": "primera-comunion",
+    "titulo": "Primera Comunión",
+    "descripcion": "Preparación de dos años para chicos a partir de 4.º grado de primaria (9 años cumplidos).",
+    "requisitos": "Sábados de 10:00 a 11:30, de marzo a noviembre. Inscripción durante todo febrero en secretaría.",
+    "categoria": "sacramento",
+    "orden": 2
+  },
+  {
+    "id": "s3",
+    "slug": "confirmacion",
+    "titulo": "Confirmación",
+    "descripcion": "Para jóvenes a partir de 15 años y también para adultos que no la hayan recibido.",
+    "requisitos": "Jóvenes: un año de preparación, viernes de 18:30 a 20:00. Adultos: curso intensivo de agosto a noviembre.",
+    "categoria": "sacramento",
+    "orden": 3
+  },
+  {
+    "id": "s4",
+    "slug": "matrimonio",
+    "titulo": "Matrimonio",
+    "descripcion": "Conviene reservar la fecha con al menos seis meses de anticipación para armar el expediente sin apuros.",
+    "requisitos": "Cuatro encuentros con matrimonios guías. Certificados de bautismo actualizados y DNI de ambos novios.",
+    "categoria": "sacramento",
+    "orden": 4
+  },
+  {
+    "id": "s5",
+    "slug": "reconciliacion",
+    "titulo": "Reconciliación (Confesión)",
+    "descripcion": "Media hora antes de cada misa y los sábados de 17:00 a 18:30. También se puede coordinar con el sacerdote.",
+    "requisitos": "En el confesionario del templo o en secretaría si preferís una charla con más tiempo.",
+    "categoria": "sacramento",
+    "orden": 5
+  },
+  {
+    "id": "s6",
+    "slug": "uncion-de-enfermos",
+    "titulo": "Unción de los Enfermos",
+    "descripcion": "Para personas enfermas, adultos mayores o antes de una intervención quirúrgica. El sacerdote puede ir a domicilio o al hospital.",
+    "requisitos": "Avisar en secretaría o llamar al teléfono de emergencias de la parroquia en cualquier momento.",
+    "categoria": "acompanamiento",
+    "orden": 6
+  }
+]

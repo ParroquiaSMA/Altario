@@ -1,9 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getSiteConfig } from '../lib/supabase';
+import { getSiteConfig, getSacramentos } from '../lib/supabase';
 
 const siteConfig = await getSiteConfig();
 const { parroquia } = siteConfig;
+const sacramentos = await getSacramentos();
 ---
 
 <Layout title={`Sacramentos — ${parroquia.nombre}`} currentPage="sacramentos">
@@ -31,55 +32,25 @@ const { parroquia } = siteConfig;
   <section class="seccion">
     <div class="contenedor">
       <div class="rejilla">
-        <article class="tarjeta" data-tipo="sacramento">
-          <h3>Bautismo</h3>
-          <p>Para bebés y niños hasta 6 años. Los papás y padrinos hacen un encuentro de preparación antes.</p>
-          <p class="tarjeta__requisito"><strong>Cuándo:</strong> 2.º y 4.º sábado de cada mes, a las 16:00.</p>
-          <p class="tarjeta__requisito"><strong>Papeles:</strong> partida de nacimiento del niño y datos de los padrinos.</p>
-        </article>
-
-        <article class="tarjeta" data-tipo="sacramento">
-          <h3>Primera Comunión</h3>
-          <p>Preparación de dos años para chicos a partir de 4.º grado de primaria (9 años cumplidos).</p>
-          <p class="tarjeta__requisito"><strong>Encuentros:</strong> sábados de 10:00 a 11:30, de marzo a noviembre.</p>
-          <p class="tarjeta__requisito"><strong>Inscripción:</strong> durante todo febrero en la secretaría.</p>
-        </article>
-
-        <article class="tarjeta" data-tipo="sacramento">
-          <h3>Confirmación</h3>
-          <p>Para jóvenes a partir de 15 años y también para adultos que no la hayan recibido.</p>
-          <p class="tarjeta__requisito"><strong>Jóvenes:</strong> un año de preparación, viernes de 18:30 a 20:00.</p>
-          <p class="tarjeta__requisito"><strong>Adultos:</strong> curso intensivo de cuatro meses, de agosto a noviembre.</p>
-        </article>
-
-        <article class="tarjeta" data-tipo="sacramento">
-          <h3>Matrimonio</h3>
-          <p>Conviene reservar la fecha con al menos seis meses de anticipación para armar el expediente sin apuros.</p>
-          <p class="tarjeta__requisito"><strong>Preparación:</strong> cuatro encuentros con matrimonios guías.</p>
-          <p class="tarjeta__requisito"><strong>Papeles:</strong> certificados de bautismo actualizados y DNI de ambos novios.</p>
-        </article>
-
-        <article class="tarjeta" data-tipo="sacramento">
-          <h3>Unción de los enfermos</h3>
-          <p>El sacerdote va a domicilio, sanatorio u hospital. Para una urgencia, llamá por teléfono directo.</p>
-          <p class="tarjeta__requisito"><strong>Comunitaria:</strong> se celebra en el templo dos veces al año, en mayo y octubre.</p>
-          <p class="tarjeta__requisito"><strong>Urgencias:</strong> atendemos el teléfono las 24 horas.</p>
-        </article>
-
-        <article class="tarjeta" data-tipo="sacramento">
-          <h3>Exequias y responsos</h3>
-          <p>Acompañamos a las familias en el velatorio o en el templo antes de la sepultura o cremación.</p>
-          <p class="tarjeta__requisito"><strong>Coordinación:</strong> a través de la cochería o llamando a la secretaría.</p>
-          <p class="tarjeta__requisito"><strong>Misas de difuntos:</strong> se anotan intenciones en cada misa.</p>
-        </article>
+        {sacramentos.map((s) => (
+          <article class="tarjeta" data-tipo={s.categoria || "sacramento"}>
+            <h3>{s.titulo}</h3>
+            <p>{s.descripcion}</p>
+            {s.requisitos && (
+              <p class="tarjeta__requisito">
+                <strong>Detalles y requisitos:</strong> {s.requisitos}
+              </p>
+            )}
+          </article>
+        ))}
       </div>
 
       <div class="ficha" style="margin-top:2.5rem">
         <h3>¿Buscás una partida o certificado de años anteriores?</h3>
         <p>
-          Los libros parroquiales de bautismos, matrimonios y defunciones están completos desde 1948.
-          Para pedir una copia legalizada para otro trámite o diócesis, vení con la fecha aproximada y el
-          nombre completo. El trámite demora unos tres días hábiles.
+          Los libros parroquiales de bautismos, matrimonios y confirmaciones se conservan en nuestra secretaría.
+          Para solicitar una copia o constancia para otro trámite o diócesis, acercate en los horarios de atención (martes a viernes de 16:00 a 18:00 hs)
+          con la fecha aproximada y el nombre completo.
         </p>
       </div>
     </div>

@@ -10,15 +10,17 @@ interface Props {
 }
 
 const siteConfig = await getSiteConfig();
-const { parroquia, apariencia, dominio } = siteConfig;
+const { parroquia, apariencia, dominio, seo } = siteConfig;
 
 const {
-  title = `${parroquia.nombre} — Horarios de misa y sacramentos`,
-  description = `Horarios de misa y confesión, sacramentos, grupos, historia y contacto de la ${parroquia.nombre}.`,
+  title = seo?.titulo_sitio || `${parroquia.nombre} — Horarios de misa y sacramentos`,
+  description = seo?.descripcion || `Horarios de misa y confesión, sacramentos, grupos, historia y contacto de la ${parroquia.nombre}.`,
   currentPage = '',
 } = Astro.props;
 
 const canonicalUrl = dominio?.dominio_web ? `https://${dominio.dominio_web}${Astro.url.pathname}` : undefined;
+const faviconUrl = seo?.favicon_url || parroquia.logo_url || '/favicon.ico';
+const ogImageUrl = seo?.og_image_url || parroquia.logo_url || undefined;
 ---
 
 <!doctype html>
@@ -28,8 +30,27 @@ const canonicalUrl = dominio?.dominio_web ? `https://${dominio.dominio_web}${Ast
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {seo?.palabras_clave && <meta name="keywords" content={seo.palabras_clave} />}
     <meta name="theme-color" content={apariencia?.color_fondo_hero || "#16244A"} />
+    
+    <!-- Favicon dinámico -->
+    <link rel="icon" href={faviconUrl} />
+    <link rel="apple-touch-icon" href={faviconUrl} />
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+
+    <!-- Open Graph / Redes Sociales (WhatsApp, Facebook) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={parroquia.nombre} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl || Astro.url.href} />
+    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
 
     {dominio?.google_search_console_id && (
       <meta name="google-site-verification" content={dominio.google_search_console_id} />
@@ -57,9 +78,9 @@ const canonicalUrl = dominio?.dominio_web ? `https://${dominio.dominio_web}${Ast
 
     {/* Dynamic theme colors configured from CMS */}
     <style define:vars={{
-      colorLapis: apariencia?.color_fondo_hero || '#16244A',
-      colorLapisClaro: apariencia?.color_primario || '#22366B',
-      colorOro: apariencia?.color_acento || '#C9A96A',
+      colorLapis: apariencia?.color_fondo_hero || '#111111',
+      colorLapisClaro: apariencia?.color_primario || '#229ED9',
+      colorOro: apariencia?.color_acento || '#746141',
     }}>
       :root {
         --lapis: var(--colorLapis);
@@ -93,6 +114,14 @@ const canonicalUrl = dominio?.dominio_web ? `https://${dominio.dominio_web}${Ast
       }
       a {
         color: var(--colorLapisClaro);
+      }
+      .proxima__pie a {
+        color: #FFFFFF !important;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .proxima__pie a:hover {
+        color: var(--colorOro) !important;
       }
     </style>
   </head>

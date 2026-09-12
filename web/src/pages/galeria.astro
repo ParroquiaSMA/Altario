@@ -1,9 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getSiteConfig } from '../lib/supabase';
+import { getSiteConfig, getGaleria } from '../lib/supabase';
 
 const siteConfig = await getSiteConfig();
 const { parroquia } = siteConfig;
+const fotos = await getGaleria();
 ---
 
 <Layout title={`Galería — ${parroquia.nombre}`} currentPage="galeria">
@@ -36,88 +37,39 @@ const { parroquia } = siteConfig;
         <button class="filtro" type="button" data-filtro="comunidad" aria-pressed="false">Comunidad</button>
       </div>
 
-      <p id="galeria-conteo" aria-live="polite" style="color:var(--gris);font-size:1rem">9 fotos</p>
+      <p id="galeria-conteo" aria-live="polite" style="color:var(--gris);font-size:1rem">{fotos.length} fotos</p>
 
-      <ul class="galeria" id="galeria">
-        <li data-categoria="templo">
-          <figure class="foto">
-            <button class="foto__btn" type="button" aria-label="Ver en grande: Campanario">
-              <img src="/assets/img/fachada.jpg" data-grande="/assets/img/fachada.jpg" alt="El campanario visto desde la vereda de enfrente, a media tarde." loading="lazy" />
-            </button>
-            <figcaption>Campanario</figcaption>
-          </figure>
-        </li>
-        <li data-categoria="templo">
-          <figure class="foto">
-            <button class="foto__btn" type="button" aria-label="Ver en grande: Nave central">
-              <img src="/assets/img/nave.jpg" data-grande="/assets/img/nave.jpg" alt="La nave central con los bancos alineados hacia el altar." loading="lazy" />
-            </button>
-            <figcaption>Nave central</figcaption>
-          </figure>
-        </li>
-        <li data-categoria="templo">
-          <figure class="foto">
-            <button class="foto__btn" type="button" aria-label="Ver en grande: Rosetón, 1998">
-              <img src="/assets/img/roseton.jpg" data-grande="/assets/img/roseton.jpg" alt="El rosetón sobre la puerta principal, visto desde adentro." loading="lazy" />
-            </button>
-            <figcaption>Rosetón, 1998</figcaption>
-          </figure>
-        </li>
-        <li data-categoria="templo">
-          <figure class="foto">
-            <button class="foto__btn" type="button" aria-label="Ver en grande: Vitrales del ábside, 1974">
-              <img src="/assets/img/vitral.jpg" data-grande="/assets/img/vitral.jpg" alt="Detalle de uno de los cinco paños de vitral del ábside." loading="lazy" />
-            </button>
-            <figcaption>Vitrales del ábside, 1974</figcaption>
-          </figure>
-        </li>
-        <li data-categoria="templo">
-          <figure class="foto">
-            <button class="foto__btn" type="button" aria-label="Ver en grande: Portal de acceso">
-              <img src="/assets/img/portal.jpg" data-grande="/assets/img/portal.jpg" alt="El portal de acceso con sus tres arcos concéntricos." loading="lazy" />
-            </button>
-            <figcaption>Portal de acceso</figcaption>
-          </figure>
-        </li>
-        <li data-categoria="celebraciones">
-          <figure class="foto">
-            <button class="foto__btn" type="button" aria-label="Ver en grande: La patrona">
-              <img src="/assets/img/patrona.jpg" data-grande="/assets/img/patrona.jpg" alt="La imagen de Santa María de la Ayuda en su altar lateral, con velas encendidas." loading="lazy" />
-            </button>
-            <figcaption>La patrona</figcaption>
-          </figure>
-        </li>
-        <li data-categoria="celebraciones">
-          <figure class="foto">
-            <button class="foto__btn" type="button" aria-label="Ver en grande: Velas del altar lateral">
-              <img src="/assets/img/velas.jpg" data-grande="/assets/img/velas.jpg" alt="Velas encendidas por los fieles en el altar lateral." loading="lazy" />
-            </button>
-            <figcaption>Velas del altar lateral</figcaption>
-          </figure>
-        </li>
-        <li data-categoria="comunidad">
-          <figure class="foto">
-            <button class="foto__btn" type="button" aria-label="Ver en grande: Café después de misa">
-              <img src="/assets/img/comunidad.jpg" data-grande="/assets/img/comunidad.jpg" alt="Encuentro en el salón parroquial después de la misa del domingo." loading="lazy" />
-            </button>
-            <figcaption>Café después de misa</figcaption>
-          </figure>
-        </li>
-        <li data-categoria="celebraciones">
-          <figure class="foto">
-            <button class="foto__btn" type="button" aria-label="Ver en grande: Leccionario y candelabros">
-              <img src="/assets/img/detalle.jpg" data-grande="/assets/img/detalle.jpg" alt="El leccionario abierto sobre el ambón, entre dos candelabros de bronce." loading="lazy" />
-            </button>
-            <figcaption>Leccionario y candelabros</figcaption>
-          </figure>
-        </li>
-      </ul>
+      {fotos.length === 0 ? (
+        <div style="text-align: center; padding: 4rem 1rem; color: var(--gris);">
+          <p style="font-size: 1.1rem; font-weight: 500;">No hay fotografías publicadas en la galería por el momento.</p>
+        </div>
+      ) : (
+        <ul class="galeria" id="galeria">
+          {fotos.map((foto) => (
+            <li data-categoria={foto.categoria || 'templo'}>
+              <figure class="foto">
+                <button class="foto__btn" type="button" aria-label={`Ver en grande: ${foto.titulo}`}>
+                  <img
+                    src={foto.imagen_url}
+                    data-grande={foto.imagen_url}
+                    alt={foto.descripcion || foto.titulo}
+                    loading="lazy"
+                  />
+                </button>
+                <figcaption>{foto.titulo}</figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   </section>
 
   <!-- Visor a pantalla completa -->
   <dialog class="visor" id="visor" aria-label="Foto ampliada">
-    <img id="visor-img" src="" alt="" />
+    <div class="visor__marco">
+      <img id="visor-img" src="" alt="" />
+    </div>
     <div class="visor__pie">
       <p class="visor__texto"><span id="visor-texto"></span> · <span id="visor-posicion"></span></p>
       <div class="visor__controles">
@@ -137,4 +89,145 @@ const { parroquia } = siteConfig;
       <a class="boton boton--azul" href="/contacto">Mandar fotos</a>
     </div>
   </section>
+
+  <script>
+    function initGaleria() {
+      const filtros = document.querySelectorAll<HTMLButtonElement>('.filtros [data-filtro]');
+      const fotosLi = document.querySelectorAll<HTMLLIElement>('.galeria > li');
+      const conteoEl = document.getElementById('galeria-conteo');
+      const visor = document.getElementById('visor') as HTMLDialogElement | null;
+      const visorImg = document.getElementById('visor-img') as HTMLImageElement | null;
+      const visorTexto = document.getElementById('visor-texto');
+      const visorPosicion = document.getElementById('visor-posicion');
+      const visorAnt = document.getElementById('visor-anterior');
+      const visorSig = document.getElementById('visor-siguiente');
+      const visorCerrar = document.getElementById('visor-cerrar');
+
+      let currentVisibleFotos: { btn: HTMLButtonElement; img: HTMLImageElement; title: string }[] = [];
+      let currentIndex = 0;
+
+      function updateVisibleList() {
+        currentVisibleFotos = [];
+        fotosLi.forEach((li) => {
+          if (!li.hidden) {
+            const btn = li.querySelector<HTMLButtonElement>('.foto__btn');
+            const img = li.querySelector<HTMLImageElement>('.foto__btn img');
+            const cap = li.querySelector('figcaption');
+            if (btn && img) {
+              currentVisibleFotos.push({
+                btn,
+                img,
+                title: cap?.textContent?.trim() || img.alt || 'Fotografía',
+              });
+            }
+          }
+        });
+
+        if (conteoEl) {
+          const total = currentVisibleFotos.length;
+          conteoEl.textContent = `${total} foto${total === 1 ? '' : 's'}`;
+        }
+      }
+
+      // 1. Filtrado interactivo
+      filtros.forEach((b) => {
+        b.addEventListener('click', () => {
+          filtros.forEach((otro) => {
+            otro.classList.remove('activo');
+            otro.setAttribute('aria-pressed', 'false');
+          });
+          b.classList.add('activo');
+          b.setAttribute('aria-pressed', 'true');
+
+          const f = b.getAttribute('data-filtro');
+          fotosLi.forEach((li) => {
+            const cat = li.getAttribute('data-categoria');
+            const coincide = f === 'todas' || cat === f;
+            li.hidden = !coincide;
+          });
+
+          updateVisibleList();
+        });
+      });
+
+      // 2. Visor / Zoom modal
+      function showPhoto(index: number) {
+        if (!visor || !visorImg || currentVisibleFotos.length === 0) return;
+        if (index < 0) index = currentVisibleFotos.length - 1;
+        if (index >= currentVisibleFotos.length) index = 0;
+        currentIndex = index;
+
+        const current = currentVisibleFotos[currentIndex];
+        const srcGrande = current.img.getAttribute('data-grande') || current.img.src;
+        visorImg.src = srcGrande;
+        visorImg.alt = current.title;
+        if (visorTexto) visorTexto.textContent = current.title;
+        if (visorPosicion) visorPosicion.textContent = `${currentIndex + 1} de ${currentVisibleFotos.length}`;
+      }
+
+      fotosLi.forEach((li) => {
+        const btn = li.querySelector<HTMLButtonElement>('.foto__btn');
+        if (btn) {
+          btn.addEventListener('click', () => {
+            updateVisibleList();
+            const img = btn.querySelector<HTMLImageElement>('img');
+            const foundIdx = currentVisibleFotos.findIndex((item) => item.img === img);
+            if (foundIdx !== -1) {
+              showPhoto(foundIdx);
+              if (visor && !visor.open) visor.showModal();
+            }
+          });
+        }
+      });
+
+      if (visorAnt) {
+        visorAnt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showPhoto(currentIndex - 1);
+        });
+      }
+
+      if (visorSig) {
+        visorSig.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showPhoto(currentIndex + 1);
+        });
+      }
+
+      if (visorCerrar) {
+        visorCerrar.addEventListener('click', () => {
+          visor?.close();
+        });
+      }
+
+      // Cerrar al hacer clic en el backdrop fuera de la imagen/controles
+      if (visor) {
+        visor.addEventListener('click', (e) => {
+          if (e.target === visor) {
+            visor.close();
+          }
+        });
+      }
+
+      // Atajos de teclado
+      document.addEventListener('keydown', (e) => {
+        if (!visor || !visor.open) return;
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          showPhoto(currentIndex - 1);
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          showPhoto(currentIndex + 1);
+        }
+      });
+
+      updateVisibleList();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initGaleria);
+    } else {
+      initGaleria();
+    }
+  </script>
 </Layout>

@@ -1,9 +1,43 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getSiteConfig } from '../lib/supabase';
+import {
+  getSiteConfig,
+  getGaleria,
+  getAvisos,
+  getHorarios,
+  getSacramentos,
+  getGrupos,
+} from '../lib/supabase';
 
 const siteConfig = await getSiteConfig();
-const { parroquia, contacto } = siteConfig;
+const { parroquia, contacto, historia, donaciones } = siteConfig;
+
+const [avisos, horarios, fotos, sacramentos, grupos] = await Promise.all([
+  getAvisos(),
+  getHorarios(),
+  getGaleria(),
+  getSacramentos(),
+  getGrupos(),
+]);
+
+const previewFotos = fotos.slice(0, 3);
+
+// Clasificación de horarios
+const misas = horarios.filter(
+  (h) => h.categoria === 'misa' || h.categoria === 'adoracion' || !h.categoria
+);
+const atencion = horarios.filter(
+  (h) => h.categoria === 'secretaria' || h.categoria === 'confesion'
+);
+
+const DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+const DIAS_CORTOS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+const misasScriptData = misas.map((m) => ({
+  dia: m.dia_semana,
+  hora: m.hora_inicio.slice(0, 5),
+  nota: m.titulo || m.descripcion || 'Misa',
+}));
 ---
 
 <Layout title={`${parroquia.nombre} — Horarios de misa y sacramentos`} currentPage="inicio">
@@ -54,6 +88,11 @@ const { parroquia, contacto } = siteConfig;
     </div>
   </section>
 
+  <!-- Inyección de horarios dinámicos para el script del cliente -->
+  <script is:inline define:vars={{ misasScriptData }}>
+    window.__HORARIOS_MISA__ = misasScriptData;
+  </script>
+
   <!-- ===== HORARIOS ===== -->
   <section class="seccion" id="horarios">
     <div class="contenedor">
@@ -62,35 +101,64 @@ const { parroquia, contacto } = siteConfig;
       <p class="divisor"><i aria-hidden="true"></i></p>
 
       <div class="horarios">
-        <div class="tabla-envoltorio">
-          <table>
-            <caption>Misas</caption>
-            <thead><tr><th scope="col">Día</th><th scope="col">Horario</th></tr></thead>
-            <tbody>
-              <tr><th scope="row">Lunes a viernes</th><td>8:00 y 19:00</td></tr>
-              <tr><th scope="row">Sábado</th><td>19:00 <span class="nota">Misa de vigilia del domingo</span></td></tr>
-              <tr><th scope="row">Domingo</th><td>9:00 · 11:00 · 19:30 <span class="nota">La de 11:00 es la misa con las familias y el coro</span></td></tr>
-              <tr><th scope="row">Feriados</th><td>10:00 <span class="nota">Horario único</span></td></tr>
-            </tbody>
-          </table>
+        <div class="ficha ficha--misas">
+          <h3 class="ficha__titulo-seccion">Celebraciones y Misas</h3>
+          <div class="misas-lista">
+            {misas.length > 0 ? (
+              misas.map((h) => {
+                const hora = `${h.hora_inicio.slice(0, 5)}${h.hora_fin ? ` a ${h.hora_fin.slice(0, 5)} hs` : ' hs'}`;
+                const dia = DIAS_SEMANA[h.dia_semana] || 'Día a coordinar';
+                let subtitulo = h.titulo ? h.titulo.replace(/^Misa(\s+(de\s+|y\s+|dominical\s+))?/i, '').trim() : '';
+                subtitulo = subtitulo.replace(/^\((.+)\)$/, '$1');
+                return (
+                  <div class="misa-item">
+                    <div class="misa-item__cabecera">
+                      <strong class="misa-item__dia">
+                        {dia}
+                        {subtitulo && subtitulo.toLowerCase() !== dia.toLowerCase() ? (
+                          <span class="misa-item__subtitulo">({subtitulo})</span>
+                        ) : null}
+                      </strong>
+                      <span class="misa-item__hora">{hora}</span>
+                    </div>
+                    {h.descripcion && <p class="misa-item__nota">{h.descripcion}</p>}
+                  </div>
+                );
+              })
+            ) : (
+              <div class="misa-item">
+                <div class="misa-item__cabecera">
+                  <strong class="misa-item__dia">Domingo</strong>
+                  <span class="misa-item__hora">10:00 a 10:45 hs</span>
+                </div>
+                <p class="misa-item__nota">Misa comunitaria</p>
+              </div>
+            )}
+          </div>
         </div>
 
         <div>
           <div class="ficha">
-            <h3>Confesiones</h3>
-            <p>Media hora antes de cada misa, y los sábados de 17:00 a 18:30 sin necesidad de pedir hora.</p>
+            <h3>Confesiones y atención sacerdotal</h3>
+            <p>Sábados de 17:00 a 18:30 hs y antes de cada celebración, o coordinando con el sacerdote en secretaría.</p>
           </div>
           <div class="ficha">
-            <h3>Adoración eucarística</h3>
-            <p>Jueves de 18:00 a 19:00, en la capilla del Santísimo.</p>
-          </div>
-          <div class="ficha">
-            <h3>Secretaría parroquial</h3>
-            <dl>
-              <dt>Lun a vie</dt><dd>{contacto.horario_secretaria || '9:00 – 12:00 y 16:00 – 19:00'}</dd>
-              <dt>Sábado</dt><dd>9:00 – 12:00</dd>
-              <dt>Domingo</dt><dd>Cerrada</dd>
-            </dl>
+            <h3>Secretaría y templo abierto</h3>
+            {atencion.length > 0 ? (
+              <dl>
+                {atencion.map((a) => (
+                  <>
+                    <dt>{DIAS_CORTOS[a.dia_semana] || DIAS_SEMANA[a.dia_semana]}</dt>
+                    <dd>{a.hora_inicio.slice(0, 5)}{a.hora_fin ? ` – ${a.hora_fin.slice(0, 5)}` : ''}</dd>
+                  </>
+                ))}
+              </dl>
+            ) : (
+              <p>{contacto.horario_secretaria || 'Consultar en secretaría.'}</p>
+            )}
+            {contacto.horario_secretaria && atencion.length > 0 && (
+              <p class="nota" style="margin-top:.75rem;font-size:.875rem;color:var(--gris);">{contacto.horario_secretaria}</p>
+            )}
           </div>
         </div>
       </div>
@@ -108,16 +176,20 @@ const { parroquia, contacto } = siteConfig;
         <a class="tarjeta tarjeta-enlace" href="/sacramentos">
           <h3>Sacramentos</h3>
           <p>Bautismo, primera comunión, confirmación, matrimonio, unción de enfermos y exequias: fechas, requisitos y qué papeles traer.</p>
-          <span class="flecha" aria-hidden="true">Ver los seis →</span>
+          <span class="flecha" aria-hidden="true">Ver los {sacramentos.length || ''} sacramentos →</span>
         </a>
         <a class="tarjeta tarjeta-enlace" href="/comunidad">
           <h3>Comunidad</h3>
-          <p>Cáritas, catequesis, coro, grupo de jóvenes y adultos mayores. Cuándo se reúnen y cómo sumarse.</p>
+          <p>
+            {grupos.length > 0
+              ? grupos.map((g) => g.nombre).slice(0, 5).join(', ') + '.'
+              : 'Legión de María, Divina Misericordia, Pastoral Social, Liturgia, Catequesis y Espiritualidad Ignaciana.'}
+          </p>
           <span class="flecha" aria-hidden="true">Ver los grupos →</span>
         </a>
         <a class="tarjeta tarjeta-enlace" href="/historia">
           <h3>Historia</h3>
-          <p>Desde la capilla de chapa de 1948 hasta el templo de hoy, y por qué la patrona se llama María de la Ayuda.</p>
+          <p>{historia?.bajada || 'Desde la capilla de chapas en el siglo XIX hasta el templo actual y la llegada de la Virgen desde Busto Arsizio.'}</p>
           <span class="flecha" aria-hidden="true">Leer la historia →</span>
         </a>
         <a class="tarjeta tarjeta-enlace" href="/galeria">
@@ -130,61 +202,72 @@ const { parroquia, contacto } = siteConfig;
   </section>
 
   <!-- ===== AVISOS ===== -->
-  <section class="seccion seccion--papel" id="avisos">
-    <div class="contenedor">
-      <p class="antetitulo">Próximas fechas</p>
-      <h2>Avisos de la comunidad</h2>
-      <p class="divisor"><i aria-hidden="true"></i></p>
+  {avisos.length > 0 && (
+    <section class="seccion seccion--papel" id="avisos">
+      <div class="contenedor">
+        <p class="antetitulo">Próximas fechas</p>
+        <h2>Avisos de la comunidad</h2>
+        <p class="divisor"><i aria-hidden="true"></i></p>
 
-      <ol class="avisos">
-        <li>
-          <time datetime="2026-09-08">8 de setiembre</time>
-          <div>
-            <h3>Fiesta patronal</h3>
-            <p>Misa solemne a las 19:00 y procesión con la imagen de Santa María de la Ayuda. Después, chocolatada en el salón.</p>
-          </div>
-        </li>
-        <li>
-          <time datetime="2026-09-20">20 de setiembre</time>
-          <div>
-            <h3>Retiro para adultos</h3>
-            <p>De 9:00 a 16:00 en la casa de retiros. Inscripción en secretaría hasta el día 15.</p>
-          </div>
-        </li>
-        <li>
-          <time datetime="2026-10-04">4 de octubre</time>
-          <div>
-            <h3>Bendición de animales</h3>
-            <p>En el atrio, a las 11:00, en la memoria de san Francisco de Asís. Traelos con correa o transportadora.</p>
-          </div>
-        </li>
-      </ol>
-    </div>
-  </section>
+        <ol class="avisos">
+          {avisos.map((aviso) => {
+            let fechaTexto = aviso.fecha;
+            try {
+              const parts = aviso.fecha.split('-');
+              if (parts.length === 3) {
+                const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                fechaTexto = d.toLocaleDateString('es-UY', { day: 'numeric', month: 'long' });
+              }
+            } catch (e) {}
+            return (
+              <li>
+                <time datetime={aviso.fecha}>{fechaTexto}</time>
+                <div>
+                  <h3>{aviso.titulo}</h3>
+                  <p>{aviso.descripcion}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    </section>
+  )}
 
   <!-- ===== GALERÍA: ADELANTO ===== -->
-  <section class="seccion">
-    <div class="contenedor">
-      <p class="antetitulo">Galería</p>
-      <h2>La parroquia por dentro</h2>
-      <p class="divisor"><i aria-hidden="true"></i></p>
+  {previewFotos.length > 0 && (
+    <section class="seccion">
+      <div class="contenedor">
+        <p class="antetitulo">Galería</p>
+        <h2>La parroquia por dentro</h2>
+        <p class="divisor"><i aria-hidden="true"></i></p>
 
-      <div class="rejilla-fotos">
-        <img src="/assets/img/mini-fachada.jpg" alt="El campanario de la parroquia recortado contra el cielo." width="900" height="600" loading="lazy" />
-        <img src="/assets/img/mini-roseton.jpg" alt="El rosetón sobre la puerta principal, visto desde adentro." width="900" height="900" loading="lazy" />
-        <img src="/assets/img/mini-velas.jpg" alt="Velas encendidas en el altar lateral de la Virgen." width="900" height="600" loading="lazy" />
+        <div class="rejilla-fotos">
+          {previewFotos.map((foto) => (
+            <a href="/galeria" style="display:block; overflow:hidden; border-radius:var(--radio, 8px);">
+              <img
+                src={foto.imagen_url}
+                alt={foto.descripcion || foto.titulo}
+                width="900"
+                height="600"
+                loading="lazy"
+                style="width:100%; height:100%; object-fit:cover; aspect-ratio:3/2; transition: transform 0.3s ease;"
+              />
+            </a>
+          ))}
+        </div>
+
+        <p style="margin-top:1.75rem"><a class="boton boton--azul" href="/galeria">Ver la galería completa</a></p>
       </div>
-
-      <p style="margin-top:1.75rem"><a class="boton boton--azul" href="/galeria">Ver la galería completa</a></p>
-    </div>
-  </section>
+    </section>
+  )}
 
   <!-- ===== FRANJA: COLABORAR ===== -->
   <section class="franja">
     <div class="contenedor franja__fila">
       <div>
-        <h2>La parroquia se sostiene entre todos</h2>
-        <p>La colecta del domingo y el aporte de los socios pagan la luz, los materiales de catequesis y la ayuda a las familias del barrio.</p>
+        <h2>{donaciones?.titulo_seccion || 'La parroquia se sostiene entre todos'}</h2>
+        <p>{donaciones?.mensaje || 'La colecta del domingo y el aporte de los socios pagan la luz, los materiales de catequesis y la ayuda a las familias del barrio.'}</p>
       </div>
       <a class="boton boton--azul" href="/contacto#colaborar">Quiero colaborar</a>
     </div>

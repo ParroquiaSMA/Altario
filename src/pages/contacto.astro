@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { getSiteConfig } from '../lib/supabase';
 
 const siteConfig = await getSiteConfig();
-const { parroquia, contacto, parroco, redes } = siteConfig;
+const { parroquia, contacto, parroco, redes, donaciones } = siteConfig;
 ---
 
 <Layout title={`Contacto — ${parroquia.nombre}`} currentPage="contacto">
@@ -80,9 +80,21 @@ const { parroquia, contacto, parroco, redes } = siteConfig;
 
           <div class="ficha" style="margin-top:2rem">
             <h3>Cómo llegar</h3>
-            <p>{contacto.como_llegar || 'Líneas de ómnibus y transporte público a media cuadra.'}</p>
+            <p>{contacto.como_llegar || 'Líneas de transporte público sobre la avenida principal.'}</p>
             <p style="margin-bottom:0"><strong>Accesibilidad:</strong> rampa por la puerta lateral, baño accesible en el salón y lugares reservados para sillas de ruedas en la nave central.</p>
           </div>
+
+          {donaciones && ((donaciones.cuentas_bancarias && donaciones.cuentas_bancarias.length > 0) || (donaciones.medios_donacion && donaciones.medios_donacion.length > 0)) && (
+            <div class="ficha" id="colaborar" style="margin-top:2rem">
+              <h3>{donaciones.titulo_seccion || 'Colaborar con la parroquia'}</h3>
+              <p>{donaciones.mensaje || 'Tu aporte sostiene el templo, las actividades y la ayuda social a las familias de la comunidad.'}</p>
+              <p style="margin-top:1.25rem;margin-bottom:0">
+                <button type="button" class="boton boton--azul" id="btn-abrir-donar">
+                  Ver cuentas y formas de donar
+                </button>
+              </p>
+            </div>
+          )}
         </div>
 
         <div>
@@ -157,4 +169,105 @@ const { parroquia, contacto, parroco, redes } = siteConfig;
       </div>
     </div>
   </section>
+
+  {donaciones && ((donaciones.cuentas_bancarias && donaciones.cuentas_bancarias.length > 0) || (donaciones.medios_donacion && donaciones.medios_donacion.length > 0)) && (
+    <dialog id="modal-donar" class="modal-donar" aria-labelledby="modal-donar-titulo">
+      <div class="modal-donar__cabecera">
+        <div>
+          <h2 id="modal-donar-titulo">{donaciones.titulo_seccion || 'Colaborar con la parroquia'}</h2>
+          <p>{donaciones.mensaje || 'Tu aporte sostiene las actividades parroquiales, el templo y la ayuda social.'}</p>
+        </div>
+        <button type="button" class="modal-donar__cerrar" id="btn-cerrar-donar" aria-label="Cerrar ventana">×</button>
+      </div>
+
+      <div class="modal-donar__cuerpo">
+        {donaciones.cuentas_bancarias && donaciones.cuentas_bancarias.length > 0 && (
+          <div class="modal-donar__seccion">
+            <h3 class="modal-donar__subtitulo">Transferencias bancarias</h3>
+            {donaciones.cuentas_bancarias.map((c) => (
+              <div class="modal-donar__cuenta">
+                <div class="modal-donar__cuenta-cabecera">
+                  <span>{c.banco}</span>
+                  <span class="modal-donar__cuenta-tipo">{c.tipo_cuenta}</span>
+                </div>
+                <ul class="datos">
+                  <li><strong>N.º de cuenta</strong> <span>{c.numero_cuenta}</span></li>
+                  {c.titular && <li><strong>Titular</strong> <span>{c.titular}</span></li>}
+                  {c.identificacion_fiscal && <li><strong>RUT / Doc</strong> <span>{c.identificacion_fiscal}</span></li>}
+                  {c.referencia && <li><strong>Referencia</strong> <span>{c.referencia}</span></li>}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {donaciones.medios_donacion && donaciones.medios_donacion.length > 0 && (
+          <div class="modal-donar__seccion">
+            <h3 class="modal-donar__subtitulo">Otras formas de colaborar</h3>
+            {donaciones.medios_donacion.map((m) => (
+              <div class="modal-donar__medio">
+                <h4>{m.titulo}</h4>
+                <p>{m.descripcion}</p>
+                {m.enlace && (
+                  <p style="margin-top:.75rem">
+                    <a class="boton boton--linea" href={m.enlace} target="_blank" rel="noopener">
+                      {m.etiqueta_boton || 'Donar en línea'}
+                    </a>
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div class="modal-donar__pie">
+        <p>Muchas gracias por tu colaboración.</p>
+        <button type="button" class="boton boton--linea" id="btn-pie-cerrar-donar">
+          Cerrar
+        </button>
+      </div>
+    </dialog>
+  )}
+
+  <script is:inline>
+    document.addEventListener("DOMContentLoaded", () => {
+      const modal = document.getElementById("modal-donar");
+      const btnAbrir = document.getElementById("btn-abrir-donar");
+      const btnCerrar = document.getElementById("btn-cerrar-donar");
+      const btnPieCerrar = document.getElementById("btn-pie-cerrar-donar");
+
+      if (btnAbrir && modal) {
+        btnAbrir.addEventListener("click", () => {
+          modal.showModal();
+        });
+      }
+
+      const cerrarModal = () => {
+        if (modal) modal.close();
+      };
+
+      if (btnCerrar) btnCerrar.addEventListener("click", cerrarModal);
+      if (btnPieCerrar) btnPieCerrar.addEventListener("click", cerrarModal);
+
+      if (modal) {
+        modal.addEventListener("click", (e) => {
+          const rect = modal.getBoundingClientRect();
+          const isInDialog = (
+            rect.top <= e.clientY &&
+            e.clientY <= rect.top + rect.height &&
+            rect.left <= e.clientX &&
+            e.clientX <= rect.left + rect.width
+          );
+          if (!isInDialog) {
+            modal.close();
+          }
+        });
+      }
+
+      if (window.location.hash === "#colaborar" && modal) {
+        setTimeout(() => modal.showModal(), 300);
+      }
+    });
+  </script>
 </Layout>

@@ -1,52 +1,142 @@
 {
   "parroquia": {
-    "nombre": "Santa María de la Ayuda",
-    "diocesis": "Diócesis de Buenos Aires",
-    "lema": "Una comunidad de fe, esperanza y caridad al servicio de todos",
-    "descripcion": "Parroquia Santa María de la Ayuda, al servicio de la comunidad desde 1892.",
-    "logo_tipo": "monograma",
-    "logo_iniciales": "AM",
-    "logo_url": "",
+    "nombre": "Parroquia Santa María de la Ayuda",
+    "diocesis": "Arquidiócesis de Montevideo",
+    "lema": "Un faro de fe y solidaridad en el Cerro de Montevideo",
+    "descripcion": "Templo histórico y centro de devoción mariana en el barrio del Cerro, confiado al cuidado pastoral de la Compañía de Jesús (Jesuitas).",
+    "logo_tipo": "imagen",
+    "logo_iniciales": "SMA",
+    "logo_url": "https://eucgxnnnmheqhptcxldp.supabase.co/storage/v1/object/public/media/logos/1789243236273-95u3w1.webp",
     "email": "contacto@santamariadelaayuda.org",
-    "telefono": "+54 11 4000-0000",
-    "direccion": "Av. San Martín 1234, Buenos Aires"
+    "telefono": "+598 2311 0540",
+    "direccion": "Bogotá 3585 (esquina Prusia), Cerro, Montevideo, Uruguay"
   },
   "parroco": {
-    "nombre": "Padre Martín Morales",
-    "titulo": "Párroco",
-    "email": "martin@santamariadelaayuda.org",
-    "telefono": "+54 11 4000-0001",
-    "biografia": "Al servicio de la comunidad parroquial desde 2018. Acompañando a familias, jóvenes y enfermos.",
-    "foto_url": "/assets/img/patrona.jpg"
+    "nombre": "Padre Raúl González SJ",
+    "titulo": "Párroco (Compañía de Jesús)",
+    "email": "parroco@santamariadelaayuda.org",
+    "telefono": "+598 2311 0540",
+    "biografia": "Sacerdote jesuita al frente de la comunidad parroquial del Cerro. Guía la vida pastoral, las obras solidarias y el caminar de las familias desde la espiritualidad de San Ignacio de Loyola.",
+    "foto_url": ""
   },
   "contacto": {
-    "direccion": "Av. San Martín 1234, esquina Avenida Principal, Buenos Aires",
-    "telefono": "+54 11 4000-0001",
-    "whatsapp": "+5491140000000",
+    "direccion": "Bogotá 3585 (esquina Prusia), C.P. 12800, Barrio del Cerro, Montevideo, Uruguay",
+    "telefono": "+598 2311 0540",
+    "whatsapp": "+59899123456",
     "email": "contacto@santamariadelaayuda.org",
-    "horario_secretaria": "Lun a vie 9:00 – 12:00 y 16:00 – 19:00 | Sábados 9:00 – 12:01",
-    "como_llegar": "Líneas de colectivo 24, 37, 105, 146. Subte Línea B (Estación Dorrego, 4 cuadras)."
+    "horario_secretaria": "Martes a viernes: 16:00 – 18:00 hs | Sábados: 17:00 – 18:30 hs | Domingos: 10:00 – 10:45 hs y 17:00 – 18:30 hs",
+    "como_llegar": "Ubicada en el emblemático barrio del Cerro de Montevideo. Líneas de ómnibus 125, 137, 370, 76, L12 y 195 hasta Prusia y Bogotá."
+  },
+  "donaciones": {
+    "titulo_seccion": "Sostenimiento y obras comunitarias",
+    "mensaje": "El templo y las obras comunitarias de solidaridad en el Cerro se sostienen con la generosa colaboración de vecinos y peregrinos.",
+    "cuentas_bancarias": [
+      {
+        "id": "cb-1",
+        "banco": "Banco República (BROU)",
+        "activo": true,
+        "titular": "Parroquia Santa María de la Ayuda (Jesuitas)",
+        "referencia": "DONACION CERRO",
+        "tipo_cuenta": "Caja de Ahorro en Pesos (UYU)",
+        "numero_cuenta": "001558921-00001",
+        "identificacion_fiscal": "RUT 212345670018"
+      },
+      {
+        "id": "cb-2",
+        "banco": "Santander",
+        "activo": true,
+        "titular": "Parroquia Santa María de la Ayuda",
+        "referencia": "OBRAS TEMPLO",
+        "tipo_cuenta": "Cuenta Corriente en Dólares (USD)",
+        "numero_cuenta": "5100123456",
+        "identificacion_fiscal": "RUT 212345670018"
+      }
+    ],
+    "medios_donacion": [
+      {
+        "id": "md-1",
+        "activo": true,
+        "enlace": "",
+        "titulo": "Socio colaborador mensual",
+        "descripcion": "Podés asociarte con un aporte mensual voluntario para las obras comunitarias y el mantenimiento del templo en secretaría.",
+        "etiqueta_boton": ""
+      },
+      {
+        "id": "md-2",
+        "activo": true,
+        "enlace": "",
+        "titulo": "Colecta en celebraciones",
+        "descripcion": "En cada misa podés dejar tu contribución en las canastas o en las alcancías del templo.",
+        "etiqueta_boton": ""
+      },
+      {
+        "id": "md-3",
+        "activo": true,
+        "enlace": "",
+        "titulo": "Ropero y solidaridad",
+        "descripcion": "Recepción de alimentos no perecederos y ropa en buen estado para las familias del barrio.",
+        "etiqueta_boton": ""
+      }
+    ],
+    "banco": "Banco Santander",
+    "titular": "Parroquia Santa María de la Ayuda",
+    "numero_cuenta": "001234567-00001",
+    "tipo_cuenta": "Cuenta Corriente en Pesos",
+    "identificacion_fiscal": "RUT 212345670018",
+    "referencia_transferencia": "DONACION PARROQUIA",
+    "enlace_donacion": "",
+    "cbu": "0720123920000001234567",
+    "alias": "SANTA.MARIA.AYUDA",
+    "cuit": "30-12345678-9"
   },
   "redes": {
-    "facebook": "https://facebook.com/parroquiasantamaria",
-    "instagram": "https://instagram.com/parroquiasantamaria",
+    "facebook": "https://facebook.com/santamariadelaayudacerro",
+    "instagram": "https://instagram.com/santamariadelaayudacerro",
     "youtube": "",
-    "whatsapp": "+5491140000000",
+    "whatsapp": "+59899123456",
     "twitter": "",
-    "spotify": "https://spotify.com"
+    "spotify": ""
+  },
+  "historia": {
+    "titulo": "Historia y devoción en el Cerro de Montevideo",
+    "bajada": "Desde una modesta capilla de chapas a mediados del siglo XIX hasta el imponente templo actual y centro de peregrinación mariana en la bahía.",
+    "contenido_markdown": "<h2>Los orígenes: la capilla de chapas en la bahía</h2>\n<p>A mediados del siglo XIX, en los primeros tiempos del floreciente barrio del Cerro frente a la bahía de Montevideo, la comunidad cristiana no disponía de un edificio formal. Los vecinos se congregaban en una modesta capilla de chapas sin ventanas ni bancos, donde la fe se vivía con profunda sencillez y sacrificio.</p>\n<p>A medida que la población del Cerro crecía con familias criollas e inmigrantes trabajadores del puerto y la industria saladeril, nació el anhelo comunitario de erigir un templo definitivo.</p>\n<h2>La piedra fundamental (17 de diciembre de 1867)</h2>\n<p>El <strong>17 de diciembre de 1867</strong> se colocó solemnemente la piedra fundamental del actual edificio en la emblemática esquina de Bogotá y Prusia. La edificación avanzó con el esfuerzo solidario de toda la vecindad, convirtiéndose con el paso de las décadas en un centro de devoción popular insustituible.</p>\n<p>A lo largo de su rica historia, la sede parroquial llevó sucesivamente distintos nombres que reflejan su evolución:</p>\n<ul>\n<li><strong>Dulce Nombre de María</strong></li>\n<li><strong>Santa María del Cerro</strong></li>\n<li><strong>Nuestra Señora de Aránzazu</strong></li>\n<li><strong>Nuestra Señora del Rosario del Cerro</strong></li>\n<li><strong>Santa María de la Ayuda</strong> (advocación definitiva)</li>\n</ul>\n<h2>La llegada de la Virgen de la Ayuda (1893)</h2>\n<p>En el año <strong>1893</strong>, el inmigrante italiano <strong>Marco Stoppa</strong> trajo consigo desde Busto Arsizio (Lombardía, Italia) un cuadro con la imagen de la <em>Madonna dell'Aiuto</em> (Nuestra Señora de la Ayuda). La devoción se extendió rápidamente entre los vecinos del Cerro debido a los testimonios de consuelo espiritual y gracias recibidas.</p>\n<p>La piedad popular creció con tal fuerza que don <strong>Manuel Diz</strong>, en acción de gracias por la salud de su esposa, donó los recursos para encargar la talla definitiva. La imagen fue esculpida en madera policromada en los afamados talleres de <strong>Ferdinando Stufleser</strong> en Ortisei (Val Gardena, Tirol), constituyendo la venerada imagen patronal que hoy preside el presbiterio.</p>\n<h2>Sacerdotes históricos</h2>\n<p>La memoria viva del Cerro guarda el recuerdo de insignes pastores:</p>\n<ul>\n<li><strong>P. Gerardo Benincasa:</strong> oficializó e introdujo el cuadro de la Virgen de la Ayuda en la parroquia.</li>\n<li><strong>P. Querubín de Ceriana:</strong> artífice clave de la reparación y consolidación edilicia del templo.</li>\n<li><strong>P. Juan Silveira:</strong> pastor de recordada cercanía y entrega barrial.</li>\n</ul>\n<h2>La gran fiesta patronal y procesión</h2>\n<p>Las fiestas patronales de Santa María de la Ayuda llegaron a congregar procesiones multitudinarias de hasta <strong>10.000 peregrinos</strong> por las calles y pendientes del Cerro. Si bien inicialmente se celebraba en octubre y luego el segundo domingo de mayo, por decreto del Arzobispo de Montevideo la fiesta principal se celebra formalmente cada <strong>tercer domingo de mayo</strong> para evitar la coincidencia con el Día de la Madre.</p>\n<h2>La Compañía de Jesús en el Cerro</h2>\n<p>En la actualidad, la parroquia es guiada por la orden de los <strong>Jesuitas (Compañía de Jesús)</strong>, destacándose la labor pastoral del <strong>Padre Raúl González SJ</strong> junto a la Legión de María, la Pequeña Obra de la Divina Misericordia y los equipos de solidaridad social.</p>\n"
+  },
+  "seo": {
+    "titulo_sitio": "Parroquia Santa María de la Ayuda — El Cerro, Montevideo",
+    "descripcion": "Templo histórico y centro de devoción mariana en el barrio del Cerro de Montevideo. Comunidad guiada por la Compañía de Jesús (Jesuitas).",
+    "og_image_url": "https://eucgxnnnmheqhptcxldp.supabase.co/storage/v1/object/public/media/galeria/1787693691125-7qt02w.jpg",
+    "favicon_url": "https://eucgxnnnmheqhptcxldp.supabase.co/storage/v1/object/public/media/logos/1787691829249-1l1br5.svg",
+    "palabras_clave": "Santa María de la Ayuda, Parroquia del Cerro, Montevideo, Jesuitas Uruguay, Padre Raúl González SJ, Virgen de la Ayuda, Horarios de Misa Cerro, Bogotá y Prusia"
   },
   "apariencia": {
-    "color_primario": "#22366B",
+    "color_primario": "#16244A",
     "color_acento": "#C9A96A",
-    "color_fondo_hero": "#1B2A52",
+    "color_fondo_hero": "#16244A",
+    "color_superficie": "#F9F8F5",
+    "color_texto": "#1A1D20",
+    "color_muted": "#5A626A",
+    "color_borde": "#E2DFD8",
+    "hero_titulo": "Santa María de la Ayuda",
+    "hero_bajada": "Templo centenario y centro de devoción en el histórico barrio del Cerro de Montevideo. Una comunidad viva guiada por la Compañía de Jesús.",
+    "hero_imagen_url": "https://eucgxnnnmheqhptcxldp.supabase.co/storage/v1/object/public/media/galeria/1787693691125-7qt02w.jpg",
+    "hero_tipo": "ilustracion",
+    "hero_alineacion": "izquierda",
+    "hero_boton_primario_texto": "Horarios de misa",
+    "hero_boton_primario_enlace": "#horarios",
+    "hero_boton_secundario_texto": "Nuestra historia",
+    "hero_boton_secundario_enlace": "/historia",
+    "mostrar_aviso_destacado": true,
+    "aviso_destacado_texto": "Fiesta Patronal: Cada tercer domingo de mayo celebramos a Santa María de la Ayuda en el Cerro.",
     "mostrar_banner_anuncio": true
   },
   "dominio": {
     "dominio_web": "santamariadelaayuda.org",
+    "dominio_cms": "admin.santamariadelaayuda.org",
+    "google_analytics_id": "",
     "subdominio_cms": "admin.santamariadelaayuda.org",
     "forzar_https": true,
     "proveedor_hosting": "vercel",
-    "google_analytics_id": "",
     "google_search_console_id": ""
   }
 }
