@@ -273,16 +273,18 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
 
         <!-- RECUADRO IMAGEN A LA DERECHA: VIRGEN DE LA AYUDA -->
         <div class="columna-lateral">
-          <div class="marcador-foto marcador-foto--editorial">
-            <span class="marcador-foto__badge">Espacio para fotografía destacada</span>
-            <svg class="marcador-foto__svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-              <circle cx="12" cy="13" r="4"></circle>
-            </svg>
-            <p class="marcador-foto__titulo">Buscar: Talla de Santa María de la Ayuda (Ferdinando Stuflesser, 1930)</p>
-            <p class="marcador-foto__detalle">Fotografía en alta definición de la imagen titular en el presbiterio o del cuadro primitivo traído de Busto Arsizio en 1893.</p>
-            <span class="marcador-foto__sugerencia">Archivos de referencia: <code>folleto de la historia de la virgen de la ayuda.docx</code> y <code>ALTAR COMPARACIÓN.docx</code></span>
-          </div>
+          <figure class="foto-editorial">
+            <img
+              src="/assets/img/historia/talla-santa-maria-de-la-ayuda.jpg"
+              alt="Venerada talla de Santa María de la Ayuda"
+              class="foto-editorial__img"
+              loading="lazy"
+            />
+            <figcaption class="foto-editorial__pie">
+              <strong>Talla de Santa María de la Ayuda</strong>
+              <span>Obra en madera policromada encargada a Ferdinando Stuflesser (Ortisei, 1930) y donada por Manuel Diz.</span>
+            </figcaption>
+          </figure>
         </div>
       </div>
 
@@ -328,64 +330,83 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
 
         <!-- RECUADRO IMAGEN A LA DERECHA: CAPUCHINOS -->
         <div class="columna-lateral">
-          <div class="marcador-foto marcador-foto--editorial">
-            <span class="marcador-foto__badge">Espacio para fotografía</span>
-            <svg class="marcador-foto__svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-              <circle cx="12" cy="13" r="4"></circle>
-            </svg>
-            <p class="marcador-foto__titulo">Buscar: Frailes Capuchinos en el Cerro (P. Querubín de Ceriana)</p>
-            <p class="marcador-foto__detalle">Comunidad capuchina, casa parroquial, comedores barriales o consagración del altar mayor de 1935.</p>
-          </div>
+          <figure class="foto-editorial">
+            <img
+              src="/assets/img/historia/padre-querubin-de-ceriana.webp"
+              alt="Pbro. Querubín de Ceriana"
+              class="foto-editorial__img"
+              loading="lazy"
+            />
+            <figcaption class="foto-editorial__pie">
+              <strong>Pbro. Querubín de Ceriana</strong>
+              <span>Alma de la etapa capuchina, impulsó la reconstrucción del templo, la casa parroquial y las obras sociales.</span>
+            </figcaption>
+          </figure>
         </div>
       </div>
 
-      <div class="rejilla" style="margin-top:2.5rem">
-        <article class="tarjeta">
-          <div class="marcador-foto marcador-foto--tarjeta">
-            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-              <circle cx="12" cy="13" r="4"></circle>
-            </svg>
-            <span class="marcador-foto__titulo">Buscar: Colegio Santa Clara</span>
-            <span class="marcador-foto__detalle">Fachada histórica de 1896 o grupos escolares de época</span>
-          </div>
-          <h3>Colegio Santa Clara</h3>
-          <p>Abierto en 1896 con la colaboración de las Religiosas de San José y el apoyo benefector de doña Clara Jackson de Heber.</p>
-        </article>
+      <div style="margin-top:3rem">
+        <h3 style="font-family:var(--display, Marcellus); font-size:1.35rem; color:var(--lapis, #16244A); margin-bottom:1.25rem;">
+          Colegios históricos de la parroquia
+        </h3>
+        <div class="grilla-colegios">
+          <article class="tarjeta-colegio">
+            <div class="tarjeta-colegio__marco">
+              <img
+                src="/assets/img/historia/colegio-santa-clara.jpg"
+                alt="Colegio Santa Clara"
+                class="tarjeta-colegio__img"
+                loading="lazy"
+              />
+            </div>
+            <div class="tarjeta-colegio__cuerpo">
+              <h4>Colegio Santa Clara</h4>
+              <p>Abierto en 1896 con la colaboración de las Religiosas de San José y el apoyo benefector de doña Clara Jackson de Heber.</p>
+            </div>
+          </article>
 
-        <article class="tarjeta">
-          <div class="marcador-foto marcador-foto--tarjeta">
-            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-              <circle cx="12" cy="13" r="4"></circle>
-            </svg>
-            <span class="marcador-foto__titulo">Buscar: Colegio Santa María de la Ayuda</span>
-            <span class="marcador-foto__detalle">Patios o aulas históricas de la década de 1920-1940</span>
-          </div>
-          <h3>Colegio Santa María de la Ayuda</h3>
-          <p>Fundado en 1922 como institución educativa parroquial, pilar pedagógico y espiritual del Cerro durante generaciones.</p>
-        </article>
+          <article class="tarjeta-colegio">
+            <div class="tarjeta-colegio__marco">
+              <img
+                src="/assets/img/historia/colegio-santa-maria-de-la-ayuda.jpg"
+                alt="Colegio Santa María de la Ayuda"
+                class="tarjeta-colegio__img"
+                loading="lazy"
+              />
+            </div>
+            <div class="tarjeta-colegio__cuerpo">
+              <h4>Colegio Santa María de la Ayuda</h4>
+              <p>Fundado en 1922 como institución educativa parroquial, pilar pedagógico y espiritual del Cerro durante generaciones.</p>
+            </div>
+          </article>
+        </div>
+      </div>
 
-        <article class="tarjeta">
-          <h3>PAS — Promoción de Acción Social</h3>
-          <p>Fundada en 1967 por el Pbro. Martín Lagos para asistir, educar y promover integralmente a la infancia desvalida del barrio.</p>
-        </article>
+      <div style="margin-top:2.5rem">
+        <h3 style="font-family:var(--display, Marcellus); font-size:1.35rem; color:var(--lapis, #16244A); margin-bottom:1.25rem;">
+          Obras comunitarias y patrimonio
+        </h3>
+        <div class="rejilla">
+          <article class="tarjeta">
+            <h3>PAS — Promoción de Acción Social</h3>
+            <p>Fundada en 1967 por el Pbro. Martín Lagos para asistir, educar y promover integralmente a la infancia desvalida del barrio.</p>
+          </article>
 
-        <article class="tarjeta">
-          <h3>La Marlesita</h3>
-          <p>Obra del Pbro. Ignacio Marlés (Ignacio de Elías) en la zona del cementerio. Sostuvo policlínica y comedor en tiempos de huelgas y crisis frigorífica.</p>
-        </article>
+          <article class="tarjeta">
+            <h3>La Marlesita</h3>
+            <p>Obra del Pbro. Ignacio Marlés (Ignacio de Elías) en la zona del cementerio. Sostuvo policlínica y comedor en tiempos de huelgas y crisis frigorífica.</p>
+          </article>
 
-        <article class="tarjeta">
-          <h3>Mural del “Juicio Final” y Mosaico</h3>
-          <p>Inaugurado en 1957 por el centenario, obra magistral del maestro Lino Dinetto declarada Monumento Histórico Nacional, junto al mosaico del atrio.</p>
-        </article>
+          <article class="tarjeta">
+            <h3>Mural del “Juicio Final” y Mosaico</h3>
+            <p>Inaugurado en 1957 por el centenario, obra magistral del maestro Lino Dinetto declarada Monumento Histórico Nacional, junto al mosaico del atrio.</p>
+          </article>
 
-        <article class="tarjeta">
-          <h3>Intento de Santuario de Aránzazu (1968)</h3>
-          <p>En 1957 el P. Marlés impulsó la Confraternidad Vasco-Americana. El 21 de abril de 1968 se colocó la piedra del nuevo santuario (Arq. Vaia) con procesión en carreta de bueyes, coros vascos y el Nuncio Bruñera.</p>
-        </article>
+          <article class="tarjeta">
+            <h3>Intento de Santuario de Aránzazu (1968)</h3>
+            <p>En 1957 el P. Marlés impulsó la Confraternidad Vasco-Americana. El 21 de abril de 1968 se colocó la piedra del nuevo santuario (Arq. Vaia) con procesión en carreta de bueyes, coros vascos y el Nuncio Bruñera.</p>
+          </article>
+        </div>
       </div>
     </div>
   </section>
@@ -685,17 +706,20 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
           <p>Desde entonces la parroquia santuario permanece con sus puertas abiertas de par en par en la emblemática esquina de Bogotá y Prusia, acogiendo la oración de peregrinos y vecinos tal como lo soñaron las familias que la fundaron.</p>
         </div>
 
-        <!-- RECUADRO IMAGEN A LA DERECHA -->
+        <!-- RECUADRO IMAGEN A LA DERECHA: 150 AÑOS -->
         <div class="columna-lateral">
-          <div class="marcador-foto marcador-foto--editorial">
-            <span class="marcador-foto__badge">Espacio para fotografía conmemorativa</span>
-            <svg class="marcador-foto__svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-              <circle cx="12" cy="13" r="4"></circle>
-            </svg>
-            <p class="marcador-foto__titulo">Buscar: Procesión Jubilar de 15 cuadras o placa de mármol (2007)</p>
-            <p class="marcador-foto__detalle">Fotografía de la multitudinaria procesión por las calles del Cerro o de la placa bendecida por el Sesquicentenario.</p>
-          </div>
+          <figure class="foto-editorial">
+            <img
+              src="/assets/img/historia/150-anos-procesion.jpg"
+              alt="Procesión del Sesquicentenario de la Parroquia (150 años)"
+              class="foto-editorial__img"
+              loading="lazy"
+            />
+            <figcaption class="foto-editorial__pie">
+              <strong>Festejos del Sesquicentenario (2007)</strong>
+              <span>Celebración comunitaria de los 150 años de historia y devoción mariana en la Villa del Cerro.</span>
+            </figcaption>
+          </figure>
         </div>
       </div>
     </div>
@@ -746,11 +770,12 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
   .foto-panoramica {
     margin: 2.25rem 0 0 0;
     width: 100%;
+    position: relative;
     border-radius: 8px;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.04);
+    background: rgba(16, 24, 48, 0.08);
     border: 1px solid rgba(201, 169, 106, 0.3);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
   }
   .foto-panoramica__img {
     width: 100%;
@@ -764,20 +789,26 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     transform: scale(1.01);
   }
   .foto-panoramica__pie {
-    padding: 0.9rem 1.25rem;
-    font-size: 0.85rem;
-    background: #fff;
-    border-top: 1px solid rgba(201, 169, 106, 0.2);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2.25rem 1.35rem 1rem;
+    background: linear-gradient(to top, rgba(16, 24, 48, 0.92) 0%, rgba(16, 24, 48, 0.5) 60%, transparent 100%);
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 0.5rem 1rem;
+    gap: 0.4rem 1rem;
   }
   .foto-panoramica__pie strong {
-    color: var(--lapis, #16244A);
+    color: #C9A96A;
+    font-size: 0.95rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
   }
   .foto-panoramica__pie span {
-    color: #666;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.82rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   }
 
   .cronologia {
@@ -1013,43 +1044,113 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     background: rgba(255, 255, 255, 0.1);
   }
 
-  /* ---------- Foto Editorial ---------- */
+  /* ---------- Foto Editorial (ocupa todo el div, sin recuadro blanco) ---------- */
   .foto-editorial {
     margin: 0;
+    width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
+    position: relative;
     border-radius: 8px;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.04);
+    background: rgba(16, 24, 48, 0.08);
     border: 1px solid rgba(201, 169, 106, 0.3);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+    display: flex;
   }
   .foto-editorial__img {
     width: 100%;
-    height: 270px;
+    height: 100%;
+    min-height: 420px;
     object-fit: cover;
     display: block;
-    transition: transform 0.4s ease;
+    transition: transform 0.5s ease;
   }
   .foto-editorial:hover .foto-editorial__img {
     transform: scale(1.02);
   }
   .foto-editorial__pie {
-    padding: 0.9rem 1.1rem;
-    font-size: 0.82rem;
-    background: #fff;
-    border-top: 1px solid rgba(201, 169, 106, 0.2);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2.75rem 1.35rem 1.15rem;
+    background: linear-gradient(to top, rgba(16, 24, 48, 0.92) 0%, rgba(16, 24, 48, 0.55) 55%, transparent 100%);
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 0.25rem;
+    border-top: none !important;
   }
   .foto-editorial__pie strong {
-    color: var(--lapis, #16244A);
+    color: #C9A96A;
+    font-size: 0.98rem;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
   }
   .foto-editorial__pie span {
-    color: #666;
-    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.82rem;
+    line-height: 1.4;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+
+  /* ---------- Grilla Colegios (fotos a sangre completa) ---------- */
+  .grilla-colegios {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.75rem;
+  }
+  @media (max-width: 768px) {
+    .grilla-colegios {
+      grid-template-columns: 1fr;
+    }
+  }
+  .tarjeta-colegio {
+    background: var(--superficie, #fff);
+    border: 1px solid var(--linea, rgba(201, 169, 106, 0.25));
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .tarjeta-colegio:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.09);
+    border-color: var(--colorOro, #C9A96A);
+  }
+  .tarjeta-colegio__marco {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.05);
+  }
+  .tarjeta-colegio__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+  .tarjeta-colegio:hover .tarjeta-colegio__img {
+    transform: scale(1.04);
+  }
+  .tarjeta-colegio__cuerpo {
+    padding: 1.5rem 1.75rem 1.75rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .tarjeta-colegio__cuerpo h4 {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+    font-family: var(--display, Marcellus);
+    color: var(--lapis, #16244A);
+  }
+  .tarjeta-colegio__cuerpo p {
+    margin: 0;
+    color: var(--tinta, #333);
+    font-size: 0.95rem;
+    line-height: 1.5;
   }
 
   /* Distintivo de Época / Tarjeta */
