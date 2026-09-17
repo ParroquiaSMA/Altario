@@ -285,7 +285,7 @@ export function DonacionesView() {
         <div className="flex items-center gap-3.5">
           <div className="size-11 rounded-full bg-muted/60 dark:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
             {verArchivadas ? (
-              <ArchiveIcon className="size-5 text-amber-500/80" />
+              <ArchiveIcon className="size-5" />
             ) : (
               <CreditCardIcon className="size-5" />
             )}
@@ -591,12 +591,12 @@ export function DonacionesView() {
                               >
                                 {d.archivada ? (
                                   <>
-                                    <ArchiveRestoreIcon className="size-4 mr-2 text-primary" />
+                                    <ArchiveRestoreIcon className="size-4 mr-2" />
                                     Desarchivar donación
                                   </>
                                 ) : (
                                   <>
-                                    <ArchiveIcon className="size-4 mr-2 text-amber-500" />
+                                    <ArchiveIcon className="size-4 mr-2" />
                                     Archivar donación
                                   </>
                                 )}
@@ -762,12 +762,12 @@ export function DonacionesView() {
                   >
                     {selectedDonacion.archivada ? (
                       <>
-                        <ArchiveRestoreIcon className="size-3.5 text-primary" />
+                        <ArchiveRestoreIcon className="size-3.5" />
                         <span>Restaurar a activas</span>
                       </>
                     ) : (
                       <>
-                        <ArchiveIcon className="size-3.5 text-amber-500" />
+                        <ArchiveIcon className="size-3.5" />
                         <span>Archivar donación</span>
                       </>
                     )}
