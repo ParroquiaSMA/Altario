@@ -44,12 +44,16 @@ import {
   ExternalLinkIcon,
   CalendarIcon,
   XIcon,
+  ArchiveIcon,
+  ArchiveRestoreIcon,
 } from "lucide-react"
 import {
   getDonaciones,
   fetchDonacionesFromDb,
+  toggleArchivarDonacion,
   type DonacionItem,
 } from "@/lib/data-store"
+import { cn } from "@/lib/utils"
 
 function formatMonto(monto: number, moneda = "UYU"): string {
   try {
@@ -155,6 +159,7 @@ function isWithinDateRange(
 
 export function DonacionesView() {
   const [donaciones, setDonaciones] = React.useState<DonacionItem[]>([])
+  const [verArchivadas, setVerArchivadas] = React.useState(false)
   const [searchTerm, setSearchTerm] = React.useState("")
   const [activeFilter, setActiveFilter] = React.useState<string>("todos")
   const [dateFilter, setDateFilter] = React.useState<string>("todas")
@@ -179,7 +184,12 @@ export function DonacionesView() {
     refresh()
   }, [refresh])
 
+  const donacionesActivas = donaciones.filter((d) => !d.archivada)
+  const donacionesArchivadas = donaciones.filter((d) => d.archivada)
+
   const filtered = donaciones.filter((d) => {
+    if (verArchivadas ? !d.archivada : d.archivada) return false
+
     const matchesSearch =
       !searchTerm ||
       (d.nombre_donante && d.nombre_donante.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -201,15 +211,14 @@ export function DonacionesView() {
     return true
   })
 
-  // Estadísticas rápidas estilo de la referencia visual
-  const totalRecaudado = donaciones
+  // Estadísticas de donaciones activas
+  const totalRecaudado = donacionesActivas
     .filter((d) => d.estado === "approved" || d.estado === "authorized")
     .reduce((acc, curr) => acc + (Number(curr.monto) || 0), 0)
 
-  const totalMensuales = donaciones.filter(
+  const totalMensuales = donacionesActivas.filter(
     (d) => d.tipo === "mensual" && (d.estado === "approved" || d.estado === "authorized")
   ).length
-
 
   const handleExport = () => {
     const csv = filtered
@@ -228,7 +237,7 @@ export function DonacionesView() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = `donaciones_${new Date().toISOString().split("T")[0]}.csv`
+    a.download = `donaciones_${verArchivadas ? "archivadas" : "activas"}_${new Date().toISOString().split("T")[0]}.csv`
     a.click()
   }
 
@@ -248,7 +257,7 @@ export function DonacionesView() {
             <HeartHandshakeIcon className="size-5" />
           </div>
           <div>
-            <p className="text-xs text-muted-foreground font-medium">Recaudación</p>
+            <p className="text-xs text-muted-foreground font-medium">Recaudación activa</p>
             <p className="text-xl font-bold tracking-tight text-foreground mt-0.5">
               {formatMonto(totalRecaudado)}
             </p>
@@ -272,15 +281,21 @@ export function DonacionesView() {
 
         <div className="h-8 w-px bg-border/60 hidden sm:block" />
 
-        {/* Métrica 3: Total de donaciones */}
+        {/* Métrica 3: Estado de lista */}
         <div className="flex items-center gap-3.5">
           <div className="size-11 rounded-full bg-muted/60 dark:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
-            <CreditCardIcon className="size-5" />
+            {verArchivadas ? (
+              <ArchiveIcon className="size-5 text-amber-500/80" />
+            ) : (
+              <CreditCardIcon className="size-5" />
+            )}
           </div>
           <div>
-            <p className="text-xs text-muted-foreground font-medium">Total donaciones</p>
+            <p className="text-xs text-muted-foreground font-medium">
+              {verArchivadas ? "Donaciones archivadas" : "Donaciones activas"}
+            </p>
             <p className="text-xl font-bold tracking-tight text-foreground mt-0.5">
-              {donaciones.length}
+              {verArchivadas ? donacionesArchivadas.length : donacionesActivas.length}
             </p>
           </div>
         </div>
@@ -290,7 +305,44 @@ export function DonacionesView() {
       <div className="flex flex-col gap-3 px-4 lg:px-6">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex flex-1 flex-wrap items-center gap-2.5">
-            <div className="relative w-full sm:w-72">
+            {/* Switcher Activas / Archivadas */}
+            <div className="flex items-center rounded-lg border border-border/70 p-0.5 bg-muted/40">
+              <button
+                type="button"
+                onClick={() => setVerArchivadas(false)}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer flex items-center gap-1.5",
+                  !verArchivadas
+                    ? "bg-background text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <span>Activas</span>
+                <span className="rounded-full bg-primary/10 text-primary px-1.5 py-0.2 text-[10px] font-semibold">
+                  {donacionesActivas.length}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setVerArchivadas(true)}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer flex items-center gap-1.5",
+                  verArchivadas
+                    ? "bg-background text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <ArchiveIcon className="size-3 text-muted-foreground" />
+                <span>Archivadas</span>
+                {donacionesArchivadas.length > 0 && (
+                  <span className="rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 px-1.5 py-0.2 text-[10px] font-semibold">
+                    {donacionesArchivadas.length}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            <div className="relative w-full sm:w-64">
               <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar por donante, email o ID..."
@@ -404,8 +456,17 @@ export function DonacionesView() {
           <CardContent className="p-0">
             {filtered.length === 0 ? (
               <div className="p-12 text-center text-sm text-muted-foreground space-y-2">
-                <HeartHandshakeIcon className="size-8 mx-auto text-muted-foreground/50 stroke-1" />
-                <p>No se encontraron donaciones con los filtros seleccionados.</p>
+                {verArchivadas ? (
+                  <>
+                    <ArchiveIcon className="size-8 mx-auto text-muted-foreground/50 stroke-1" />
+                    <p>No hay donaciones archivadas.</p>
+                  </>
+                ) : (
+                  <>
+                    <HeartHandshakeIcon className="size-8 mx-auto text-muted-foreground/50 stroke-1" />
+                    <p>No se encontraron donaciones activas con los filtros seleccionados.</p>
+                  </>
+                )}
               </div>
             ) : (
               <Table>
@@ -520,6 +581,26 @@ export function DonacionesView() {
                                   Copiar ID de pago
                                 </DropdownMenuItem>
                               )}
+
+                              <DropdownMenuItem
+                                className="cursor-pointer"
+                                onClick={async () => {
+                                  await toggleArchivarDonacion(d.id, !d.archivada)
+                                  await refresh()
+                                }}
+                              >
+                                {d.archivada ? (
+                                  <>
+                                    <ArchiveRestoreIcon className="size-4 mr-2 text-primary" />
+                                    Desarchivar donación
+                                  </>
+                                ) : (
+                                  <>
+                                    <ArchiveIcon className="size-4 mr-2 text-amber-500" />
+                                    Archivar donación
+                                  </>
+                                )}
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -666,12 +747,36 @@ export function DonacionesView() {
                   </div>
                 </div>
 
-                <DialogFooter className="pt-2">
+                <DialogFooter className="flex flex-row items-center justify-between gap-2 pt-2 sm:justify-between">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="w-full text-xs cursor-pointer"
+                    className="text-xs cursor-pointer gap-1.5"
+                    onClick={async () => {
+                      const newArchivada = !selectedDonacion.archivada
+                      await toggleArchivarDonacion(selectedDonacion.id, newArchivada)
+                      setSelectedDonacion({ ...selectedDonacion, archivada: newArchivada })
+                      await refresh()
+                    }}
+                  >
+                    {selectedDonacion.archivada ? (
+                      <>
+                        <ArchiveRestoreIcon className="size-3.5 text-primary" />
+                        <span>Restaurar a activas</span>
+                      </>
+                    ) : (
+                      <>
+                        <ArchiveIcon className="size-3.5 text-amber-500" />
+                        <span>Archivar donación</span>
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="text-xs cursor-pointer"
                     onClick={() => setSelectedDonacion(null)}
                   >
                     Cerrar

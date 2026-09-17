@@ -634,6 +634,7 @@ export interface DonacionItem {
   nombre_donante?: string
   email_donante?: string
   metodo_pago?: string
+  archivada?: boolean
   datos_adicionales?: Record<string, any>
 }
 
@@ -666,6 +667,7 @@ export async function fetchDonacionesFromDb(): Promise<DonacionItem[]> {
           nombre_donante: d.nombre_donante || "Anónimo",
           email_donante: d.email_donante || "",
           metodo_pago: d.metodo_pago || "Mercado Pago",
+          archivada: Boolean(d.archivada),
           datos_adicionales: d.datos_adicionales || {},
         }))
         const deduped = deduplicateItems("donaciones", mapped)
@@ -691,6 +693,21 @@ export async function fetchDonacionesFromDb(): Promise<DonacionItem[]> {
   } catch {}
 
   return local
+}
+
+export async function toggleArchivarDonacion(id: string, archivada: boolean): Promise<void> {
+  if (supabase) {
+    try {
+      await supabase.from("donaciones").update({ archivada }).eq("id", id)
+    } catch (e) {
+      console.warn("[DB] Error al archivar/desarchivar donacion en Supabase:", e)
+    }
+  }
+  const updated = getDonaciones().map((i) =>
+    i.id === id ? { ...i, archivada } : i
+  )
+  saveDonaciones(updated)
+  syncStoreToFiles("donaciones", updated)
 }
 
 export async function deleteDonacion(id: string): Promise<void> {

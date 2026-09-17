@@ -45,7 +45,7 @@ export function HorariosView() {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const [editingItem, setEditingItem] = React.useState<HorarioItem | null>(null)
 
-  const [diaSemana, setDiaSemana] = React.useState("0")
+  const [selectedDias, setSelectedDias] = React.useState<number[]>([0])
   const [horaInicio, setHoraInicio] = React.useState("09:00")
   const [horaFin, setHoraFin] = React.useState("10:00")
   const [categoria, setCategoria] = React.useState("misa")
@@ -89,7 +89,7 @@ export function HorariosView() {
     setLugaresCatalogo(activeLugares)
 
     setEditingItem(null)
-    setDiaSemana("0")
+    setSelectedDias([0])
     setHoraInicio("09:00")
     setHoraFin("10:00")
     setCategoria(activeTipos[0]?.codigo || "misa")
@@ -108,7 +108,7 @@ export function HorariosView() {
     setLugaresCatalogo(lugares.filter((l) => l.activo))
 
     setEditingItem(item)
-    setDiaSemana(String(item.dia_semana))
+    setSelectedDias([item.dia_semana])
     setHoraInicio(item.hora_inicio || "09:00")
     setHoraFin(item.hora_fin || "")
     setCategoria(item.categoria || "misa")
@@ -120,9 +120,9 @@ export function HorariosView() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!titulo.trim()) return
-    const data = {
-      dia_semana: Number(diaSemana),
+    if (!titulo.trim() || selectedDias.length === 0) return
+
+    const baseData = {
       hora_inicio: horaInicio,
       hora_fin: horaFin || null,
       categoria,
@@ -131,10 +131,32 @@ export function HorariosView() {
       descripcion: descripcion.trim(),
       activo: true,
     }
+
     if (editingItem) {
-      await updateHorario(editingItem.id, data)
+      // Update primary day
+      await updateHorario(editingItem.id, {
+        ...baseData,
+        dia_semana: selectedDias[0],
+      })
+      // If user selected multiple days when editing, create extra entries for other days
+      if (selectedDias.length > 1) {
+        for (let i = 1; i < selectedDias.length; i++) {
+          await addHorario({
+            ...baseData,
+            dia_semana: selectedDias[i],
+            orden: horarios.length + i,
+          })
+        }
+      }
     } else {
-      await addHorario({ ...data, orden: horarios.length + 1 })
+      // Create entries for each selected day
+      for (let i = 0; i < selectedDias.length; i++) {
+        await addHorario({
+          ...baseData,
+          dia_semana: selectedDias[i],
+          orden: horarios.length + i + 1,
+        })
+      }
     }
     refresh()
     setIsDialogOpen(false)
@@ -229,27 +251,40 @@ export function HorariosView() {
             <DialogDescription>Configuración de misas y servicios parroquiales.</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSave} className="flex flex-col gap-4 py-2">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-2">
-                <Label>Día</Label>
-                <Select
-                  items={DIAS}
-                  value={diaSemana}
-                  onValueChange={(v) => { if (v !== null && v !== undefined) setDiaSemana(v) }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Día" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DIAS.map((d) => (
-                      <SelectItem key={d.value} value={d.value}>
-                        {d.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {/* Días de la semana */}
+            <div className="grid gap-2">
+              <Label>Días</Label>
+              <div className="grid grid-cols-7 gap-1.5">
+                {DIAS.map((d) => {
+                  const val = Number(d.value)
+                  const isSelected = selectedDias.includes(val)
+                  return (
+                    <button
+                      key={d.value}
+                      type="button"
+                      onClick={() => {
+                        setSelectedDias((prev) =>
+                          prev.includes(val)
+                            ? prev.length > 1
+                              ? prev.filter((x) => x !== val)
+                              : prev
+                            : [...prev, val].sort((a, b) => a - b)
+                        )
+                      }}
+                      className={`h-9 rounded-md text-sm font-medium transition-colors cursor-pointer border ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background text-muted-foreground border-input hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      {d.label.slice(0, 3)}
+                    </button>
+                  )
+                })}
               </div>
+            </div>
 
+            <div className="grid grid-cols-2 gap-3">
               {/* Dynamic Select from 'tipos_horario' catalog table */}
               <div className="grid gap-2">
                 <Label>Tipo</Label>
@@ -278,6 +313,35 @@ export function HorariosView() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Dynamic Select from 'lugares' catalog table */}
+              <div className="grid gap-2">
+                <Label>Lugar</Label>
+                <Select
+                  items={
+                    lugaresCatalogo.length === 0
+                      ? [{ value: "Iglesia Principal", label: "Iglesia Principal" }]
+                      : lugaresCatalogo.map((l) => ({ value: l.nombre, label: l.nombre }))
+                  }
+                  value={lugar}
+                  onValueChange={(v) => { if (v) setLugar(v) }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Lugar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {lugaresCatalogo.length === 0 ? (
+                      <SelectItem value="Iglesia Principal">Iglesia Principal</SelectItem>
+                    ) : (
+                      lugaresCatalogo.map((l) => (
+                        <SelectItem key={l.id} value={l.nombre}>
+                          {l.nombre}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -296,35 +360,6 @@ export function HorariosView() {
               <Input placeholder="Ej: Misa Comunitaria" required value={titulo} onChange={(e) => setTitulo(e.target.value)} />
             </div>
 
-            {/* Dynamic Select from 'lugares' catalog table */}
-            <div className="grid gap-2">
-              <Label>Lugar</Label>
-              <Select
-                items={
-                  lugaresCatalogo.length === 0
-                    ? [{ value: "Iglesia Principal", label: "Iglesia Principal" }]
-                    : lugaresCatalogo.map((l) => ({ value: l.nombre, label: l.nombre }))
-                }
-                value={lugar}
-                onValueChange={(v) => { if (v) setLugar(v) }}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Lugar" />
-                </SelectTrigger>
-                <SelectContent>
-                  {lugaresCatalogo.length === 0 ? (
-                    <SelectItem value="Iglesia Principal">Iglesia Principal</SelectItem>
-                  ) : (
-                    lugaresCatalogo.map((l) => (
-                      <SelectItem key={l.id} value={l.nombre}>
-                        {l.nombre}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="grid gap-2">
               <Label>Descripción</Label>
               <Input placeholder="Detalle o nota..." value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
@@ -332,7 +367,7 @@ export function HorariosView() {
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="cursor-pointer">Cancelar</Button>
-              <Button type="submit" className="cursor-pointer">Guardar</Button>
+              <Button type="submit" disabled={selectedDias.length === 0} className="cursor-pointer">Guardar</Button>
             </DialogFooter>
           </form>
         </DialogContent>

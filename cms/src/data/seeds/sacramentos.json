@@ -1,15 +1,17 @@
 [
   {
-    "id": "s1",
+    "id": "ec9ad764-7988-41e4-99b4-cb88278f2662",
+    "created_at": "2026-08-25T21:46:50.140982+00:00",
     "slug": "bautismo",
     "titulo": "Bautismo",
     "descripcion": "Para bebés y niños hasta 6 años. Los papás y padrinos hacen un encuentro de preparación antes.",
-    "requisitos": "2.º y 4.º sábado de cada mes, a las 16:00. Partida de nacimiento del niño y datos de los padrinos.",
+    "requisitos": "",
     "categoria": "sacramento",
     "orden": 1
   },
   {
-    "id": "s2",
+    "id": "454414e5-3a92-4a96-84e0-2c039e909d2d",
+    "created_at": "2026-08-25T21:46:50.140982+00:00",
     "slug": "primera-comunion",
     "titulo": "Primera Comunión",
     "descripcion": "Preparación de dos años para chicos a partir de 4.º grado de primaria (9 años cumplidos).",
@@ -18,7 +20,8 @@
     "orden": 2
   },
   {
-    "id": "s3",
+    "id": "756707bd-0663-4566-ada8-ae2f1d94d246",
+    "created_at": "2026-08-25T21:46:50.140982+00:00",
     "slug": "confirmacion",
     "titulo": "Confirmación",
     "descripcion": "Para jóvenes a partir de 15 años y también para adultos que no la hayan recibido.",
@@ -27,7 +30,8 @@
     "orden": 3
   },
   {
-    "id": "s4",
+    "id": "b5b6efa9-a6da-402c-8cb2-73a1069b5b10",
+    "created_at": "2026-08-25T21:46:50.140982+00:00",
     "slug": "matrimonio",
     "titulo": "Matrimonio",
     "descripcion": "Conviene reservar la fecha con al menos seis meses de anticipación para armar el expediente sin apuros.",
@@ -36,7 +40,8 @@
     "orden": 4
   },
   {
-    "id": "s5",
+    "id": "69260490-8bc1-476d-ade9-1539ded1dc98",
+    "created_at": "2026-08-25T21:46:50.140982+00:00",
     "slug": "reconciliacion",
     "titulo": "Reconciliación (Confesión)",
     "descripcion": "Media hora antes de cada misa y los sábados de 17:00 a 18:30. También se puede coordinar con el sacerdote.",
@@ -45,7 +50,8 @@
     "orden": 5
   },
   {
-    "id": "s6",
+    "id": "a0ace1c9-9de6-4fdc-ac73-38a0a1fb0aed",
+    "created_at": "2026-08-25T21:46:50.140982+00:00",
     "slug": "uncion-de-enfermos",
     "titulo": "Unción de los Enfermos",
     "descripcion": "Para personas enfermas, adultos mayores o antes de una intervención quirúrgica. El sacerdote puede ir a domicilio o al hospital.",
