@@ -287,22 +287,27 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
       </div>
 
       <div class="ficha tabla-envoltorio" style="margin-top:2.5rem">
-        <table class="tabla-hitos">
-          <caption class="ficha__titulo-seccion" style="text-align:left">Hitos de la devoción</caption>
-          <thead>
-            <tr><th scope="col">Año</th><th scope="col">Hito</th><th scope="col">Protagonista o autoridad</th></tr>
-          </thead>
-          <tbody>
-            <tr><th scope="row">1893</th><td>Llega desde Italia la primera imagen para culto privado</td><td>Marco Stoppa</td></tr>
-            <tr><th scope="row">1923</th><td>Entronización del cuadro en el templo del Cerro</td><td>Pbro. Gerardo Benincasa</td></tr>
-            <tr><th scope="row">1926</th><td>Novena y mecenazgo para restaurar el templo en ruinas</td><td>P. Querubín de Ceriana / Matrimonio Darnaud</td></tr>
-            <tr><th scope="row">1930</th><td>Decreto de titularidad de la iglesia y del altar mayor</td><td>Mons. Francisco Aragone</td></tr>
-            <tr><th scope="row">1930</th><td>Bendición de la venerada imagen patronal de Stuflesser</td><td>Familia Diz-Sánchez</td></tr>
-            <tr><th scope="row">1930</th><td>Aprobación oficial del Himno a la Virgen de la Ayuda</td><td>Autoridad eclesiástica</td></tr>
-            <tr><th scope="row">1931</th><td>Aprobación del reglamento de la Congregación de la Virgen</td><td>Curia eclesiástica</td></tr>
-            <tr><th scope="row">1935</th><td>Consagración solemne del templo y depósito de reliquias</td><td>Mons. Francisco Aragone</td></tr>
-          </tbody>
-        </table>
+        <div class="tabla-cabecera-fila">
+          <h3 class="ficha__titulo-seccion" style="margin:0;">Hitos de la devoción</h3>
+          <span class="tabla-hint-movil">↔ Deslizá para ver completo</span>
+        </div>
+        <div class="tabla-scroll-area">
+          <table class="tabla-hitos">
+            <thead>
+              <tr><th scope="col">Año</th><th scope="col">Hito</th><th scope="col">Protagonista o autoridad</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">1893</th><td>Llega desde Italia la primera imagen para culto privado</td><td>Marco Stoppa</td></tr>
+              <tr><th scope="row">1923</th><td>Entronización del cuadro en el templo del Cerro</td><td>Pbro. Gerardo Benincasa</td></tr>
+              <tr><th scope="row">1926</th><td>Novena y mecenazgo para restaurar el templo en ruinas</td><td>P. Querubín de Ceriana / Matrimonio Darnaud</td></tr>
+              <tr><th scope="row">1930</th><td>Decreto de titularidad de la iglesia y del altar mayor</td><td>Mons. Francisco Aragone</td></tr>
+              <tr><th scope="row">1930</th><td>Bendición de la venerada imagen patronal de Stuflesser</td><td>Familia Diz-Sánchez</td></tr>
+              <tr><th scope="row">1930</th><td>Aprobación oficial del Himno a la Virgen de la Ayuda</td><td>Autoridad eclesiástica</td></tr>
+              <tr><th scope="row">1931</th><td>Aprobación del reglamento de la Congregación de la Virgen</td><td>Curia eclesiástica</td></tr>
+              <tr><th scope="row">1935</th><td>Consagración solemne del templo y depósito de reliquias</td><td>Mons. Francisco Aragone</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </section>
@@ -821,33 +826,97 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     max-width: 58ch;
   }
 
+  /* ---------- Tabla de Hitos Deslizable ---------- */
+  .tabla-envoltorio {
+    position: relative;
+  }
+  .tabla-cabecera-fila {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(201, 169, 106, 0.25);
+  }
+  .tabla-hint-movil {
+    display: none;
+    font-size: 0.75rem;
+    color: var(--colorOro, #C9A96A);
+    background: rgba(201, 169, 106, 0.12);
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  @media (max-width: 768px) {
+    .tabla-hint-movil {
+      display: inline-flex;
+      align-items: center;
+    }
+  }
+  .tabla-scroll-area {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    cursor: grab;
+    user-select: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(201, 169, 106, 0.4) transparent;
+    padding-bottom: 0.5rem;
+  }
+  .tabla-scroll-area:active {
+    cursor: grabbing;
+  }
+  .tabla-scroll-area::-webkit-scrollbar {
+    height: 6px;
+  }
+  .tabla-scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(201, 169, 106, 0.35);
+    border-radius: 4px;
+  }
   .tabla-hitos {
     width: 100%;
+    min-width: 560px;
     border-collapse: collapse;
     text-align: left;
   }
   .tabla-hitos th,
   .tabla-hitos td {
-    padding: 0.7rem 0.9rem 0.7rem 0;
-    border-bottom: 1px solid rgba(22, 36, 74, 0.12);
+    padding: 0.85rem 1rem 0.85rem 0;
+    border-bottom: 1px solid rgba(22, 36, 74, 0.1);
     vertical-align: top;
+    line-height: 1.45;
   }
   .tabla-hitos thead th {
     color: var(--colorOro, #C9A96A);
     font-size: 0.82rem;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding-bottom: 0.75rem;
   }
   .tabla-hitos tbody th {
     width: 5.5rem;
+    min-width: 5.5rem;
     font-weight: 700;
     white-space: nowrap;
+    color: var(--lapis, #16244A);
+    font-size: 1.05rem;
+  }
+  .tabla-hitos td:nth-child(2) {
+    min-width: 260px;
+    padding-right: 1.5rem;
+  }
+  .tabla-hitos td:nth-child(3) {
+    min-width: 180px;
+    color: var(--gris, #5A626A);
+    font-size: 0.95rem;
   }
   .tabla-hitos tr:last-child th,
   .tabla-hitos tr:last-child td {
     border-bottom: 0;
-  }
-  .tabla-envoltorio {
-    overflow-x: auto;
   }
 
   /* ---------- Marcador / Placeholder de Imágenes ---------- */
@@ -1286,6 +1355,40 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     }
   }
 
+  function setupTablaScroll() {
+    const scrollArea = document.querySelector('.tabla-scroll-area');
+    if (scrollArea instanceof HTMLElement) {
+      let isDown = false;
+      let startX = 0;
+      let scrollLeft = 0;
+
+      scrollArea.addEventListener('mousedown', (e) => {
+        isDown = true;
+        scrollArea.style.cursor = 'grabbing';
+        startX = e.pageX - scrollArea.offsetLeft;
+        scrollLeft = scrollArea.scrollLeft;
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (!isDown) return;
+        isDown = false;
+        if (scrollArea) scrollArea.style.cursor = 'grab';
+      });
+
+      scrollArea.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - scrollArea.offsetLeft;
+        const walk = (x - startX) * 1.5;
+        scrollArea.scrollLeft = scrollLeft - walk;
+      });
+    }
+  }
+
   setupMuseoScroll();
-  document.addEventListener('astro:page-load', setupMuseoScroll);
+  setupTablaScroll();
+  document.addEventListener('astro:page-load', () => {
+    setupMuseoScroll();
+    setupTablaScroll();
+  });
 </script>
