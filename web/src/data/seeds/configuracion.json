@@ -30,6 +30,12 @@
   "donaciones": {
     "titulo_seccion": "Sostenimiento y obras comunitarias",
     "mensaje": "El templo y las obras comunitarias de solidaridad en el Cerro se sostienen con la generosa colaboración de vecinos y peregrinos.",
+    "mercadopago": {
+      "activo": true,
+      "modo": "sandbox",
+      "public_key": "APP_USR-3e91a063-54aa-4430-b99f-f0b2f36027ef",
+      "access_token": "APP_USR-7245646562335146-091221-4cd26be68cc47d0deaf1b4b1737e27b2-3683185197"
+    },
     "cuentas_bancarias": [
       {
         "id": "cb-1",

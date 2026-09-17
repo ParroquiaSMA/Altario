@@ -296,23 +296,17 @@ img {
 }
 
 .marca svg {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%
+  flex: none
 }
 
 .marca__logo {
-  display: block;
-  max-height: 50px;
+  height: 48px;
   width: auto;
-  max-width: 240px;
-  object-fit: contain
-}
-
-.marca__texto {
-  display: flex;
-  flex-direction: column
+  max-height: 52px;
+  max-width: 260px;
+  object-fit: contain;
+  display: block;
+  flex: none;
 }
 
 .marca__nombre {
@@ -387,6 +381,12 @@ img {
 }
 
 @media (max-width:1000px) {
+  .marca__logo {
+    height: 42px;
+    max-height: 44px;
+    max-width: 210px;
+  }
+
   .cabecera__fila {
     position: static
   }
@@ -1062,13 +1062,15 @@ td .nota {
   border-radius: 999px;
   padding: .5rem 1.1rem;
   cursor: pointer;
+  transition: all .2s ease;
 }
 
 .filtro:hover {
   border-color: var(--oro-texto)
 }
 
-.filtro[aria-pressed="true"] {
+.filtro[aria-pressed="true"],
+.filtro.activo {
   background: var(--lapis-claro);
   border-color: var(--lapis-claro);
   color: #fff
@@ -1394,16 +1396,20 @@ legend {
   color: var(--oro)
 }
 
-@media (max-width:600px) {
+@media (max-width:640px) {
   .datos li {
     flex-direction: column;
-    gap: .2rem;
-    padding: .75rem 0
+    gap: .25rem;
+    padding: .75rem 0;
   }
 
   .datos strong {
     flex: none;
-    width: auto
+    width: auto;
+  }
+
+  .datos span {
+    word-break: break-word;
   }
 }
 
@@ -1589,7 +1595,7 @@ dialog.modal-donar {
   inset: 0;
   margin: auto;
   padding: 0;
-  max-width: 540px;
+  max-width: 580px;
   width: calc(100% - 1.5rem);
   max-height: calc(100dvh - 2.5rem);
   border: 1px solid var(--linea);
@@ -1818,6 +1824,341 @@ dialog.modal-donar:not([open]) {
   font-size: .875rem;
 }
 
+/* ---------- Mercado Pago Payment Bricks ---------- */
+.modal-donar__frecuencia {
+  display: flex;
+  background: var(--cal, #f1f4f9);
+  border-radius: 9999px;
+  padding: 0.25rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--linea, #e2e8f0);
+}
+
+.frecuencia-btn {
+  flex: 1;
+  padding: 0.55rem 1rem;
+  border-radius: 9999px;
+  border: 0;
+  background: transparent;
+  color: var(--tinta, #1e293b);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.frecuencia-btn.activo {
+  background: var(--lapis, #1d3557);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(29, 53, 87, 0.25);
+}
+
+.modal-donar__label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--tinta, #1e293b);
+  margin-bottom: 0.5rem;
+}
+
+.montos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.monto-chip {
+  padding: 0.85rem 0.5rem;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--linea, #cbd5e1);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--tinta, #1e293b);
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.monto-chip:hover {
+  border-color: var(--lapis, #16244A);
+  background: rgba(22, 36, 74, 0.04);
+}
+
+.monto-chip.activo {
+  background: var(--lapis, #16244A);
+  border-color: var(--lapis, #16244A);
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(22, 36, 74, 0.22);
+}
+
+.monto-custom-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.15rem;
+}
+
+.monto-custom-moneda {
+  position: absolute;
+  left: 0.95rem;
+  color: var(--gris, #64748b);
+  font-weight: 700;
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.monto-custom-input {
+  width: 100%;
+  height: 52px;
+  padding: 0.8rem 3.5rem 0.8rem 2.25rem;
+  border: 1.5px solid var(--linea, #cbd5e1);
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 0.975rem;
+  color: var(--tinta, #1e293b);
+  font-family: inherit;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.monto-custom-input:focus {
+  border-color: var(--lapis, #16244A);
+  box-shadow: 0 0 0 3px rgba(22, 36, 74, 0.12);
+}
+
+.monto-custom-tag {
+  position: absolute;
+  right: 0.95rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gris, #64748b);
+  background: var(--cal, #f1f4f9);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.modal-donar__info-frecuencia {
+  font-size: 0.825rem;
+  color: #7c5e26;
+  background: #fdfbf7;
+  border: 1px solid #ebdcb8;
+  border-left: 3.5px solid var(--oro, #C9A96A);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  line-height: 1.4;
+}
+
+.mp-brick-container-wrap {
+  min-height: 180px;
+  position: relative;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+/* Mercado Pago Brick - Estilos limpios y generales */
+#paymentBrick_container {
+  width: 100%;
+}
+
+/* Card contenedor de opciones de pago */
+#paymentBrick_container [class*="payment-options"] {
+  border: 1.5px solid var(--linea, #cbd5e1) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+/* Padding vertical cómodo en las cards/opciones de pago */
+#paymentBrick_container [class*="payment-options"] > [class*="selector-"] {
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+/* Padding en el interior de la tarjeta desplegada */
+#paymentBrick_container [class*="payment-options"] > [class*="payment-option-"] {
+  padding: 1.25rem !important;
+  box-sizing: border-box !important;
+}
+
+/* Botón de confirmación a ancho completo */
+#paymentBrick_container button[type="submit"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0.95rem 1.5rem !important;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  background-color: var(--lapis, #16244A) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(22, 36, 74, 0.25) !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+  margin-top: 1.25rem !important;
+  min-height: 52px !important;
+}
+
+#paymentBrick_container button[type="submit"]:hover {
+  background-color: #1e355b !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(22, 36, 74, 0.32) !important;
+}
+
+#paymentBrick_container [data-testid="submit-wrapper"],
+#paymentBrick_container [data-testid="submit-button"] {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+.mp-loading-skeleton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  gap: 0.75rem;
+  color: var(--gris, #64748b);
+  font-size: 0.875rem;
+}
+
+.mp-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(29, 53, 87, 0.15);
+  border-top-color: var(--lapis, #1d3557);
+  border-radius: 50%;
+  animation: mpSpin 0.8s linear infinite;
+}
+
+@keyframes mpSpin {
+  to { transform: rotate(360deg); }
+}
+
+.mp-alerta-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.modal-donar__alternativas {
+  margin-top: 1.25rem;
+  border: 1px dashed var(--linea, #cbd5e1);
+  border-radius: 8px;
+  padding: 0.6rem 0.85rem;
+  background: rgba(248, 250, 252, 0.6);
+}
+
+.modal-donar__alternativas summary {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--lapis-claro, #2a4d7d);
+  cursor: pointer;
+  user-select: none;
+}
+
+.modal-donar__alternativas-cuerpo {
+  padding-top: 0.85rem;
+}
+
+.mp-vista-exito {
+  text-align: center;
+  padding: 1.5rem 0.5rem;
+}
+
+.mp-exito-icono {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: rgba(22, 101, 52, 0.1);
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mp-vista-exito h3 {
+  font-size: 1.35rem;
+  color: var(--lapis-claro, #1d3557);
+  margin: 0 0 0.5rem;
+}
+
+.mp-vista-exito p {
+  font-size: 0.925rem;
+  color: var(--gris, #64748b);
+  margin: 0 0 1.25rem;
+}
+
+.mp-exito-detalle {
+  background: var(--cal, #f8fafc);
+  border: 1px solid var(--linea, #e2e8f0);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.mp-exito-fila {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 0.875rem;
+}
+
+.mp-exito-fila:last-child {
+  border-bottom: 0;
+}
+
+.mp-exito-fila span {
+  color: var(--gris, #64748b);
+}
+
+.mp-exito-fila strong {
+  color: var(--tinta, #1e293b);
+  font-weight: 700;
+}
+
+.mp-seguridad-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.775rem;
+  color: var(--gris, #64748b);
+}
+
+@media (max-width: 500px) {
+  .montos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 /* ---------- Impresión ---------- */
 @media print {
 
@@ -1829,8 +2170,7 @@ dialog.modal-donar:not([open]) {
   .filtros,
   .visor,
   .franja,
-  .redes,
-  .modal-donar {
+  .redes {
     display: none !important
   }
 
@@ -1870,4 +2210,81 @@ dialog.modal-donar:not([open]) {
     content: " (" attr(href) ")";
     font-size: 9pt
   }
+}
+
+
+/* =========================================================
+   MUSEO DE TESOROS SAGRADOS - GLOBAL OVERRIDE
+   ========================================================= */
+.seccion--museo {
+  overflow: hidden;
+}
+.museo-galeria {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 2.5rem !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  width: 100% !important;
+  padding: 1.5rem 0.5rem 2.5rem !important;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  box-sizing: border-box;
+}
+.museo-galeria::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.museo-pieza {
+  flex: 0 0 320px !important;
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+  scroll-snap-align: center;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+  position: relative;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+}
+.museo-pieza__escena {
+  position: relative;
+  width: 100%;
+  height: 440px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+}
+.museo-pieza__halo {
+  display: none !important;
+}
+.museo-pieza__imagen {
+  position: relative;
+  z-index: 2;
+  height: 400px !important;
+  max-height: 400px !important;
+  width: auto !important;
+  max-width: 290px !important;
+  object-fit: contain !important;
+  display: block !important;
+  filter: none !important;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.museo-pieza:hover .museo-pieza__imagen {
+  transform: translateY(-5px) scale(1.02);
+  filter: none !important;
+}
+.museo-pieza:hover .museo-pieza__nombre {
+  color: #C9A96A;
 }

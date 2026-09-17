@@ -74,9 +74,17 @@ export interface MedioDonacionItem {
   activo?: boolean
 }
 
+export interface MercadoPagoConfig {
+  activo: boolean
+  modo: "sandbox" | "produccion"
+  public_key: string
+  access_token: string
+}
+
 export interface DonacionesConfig {
   titulo_seccion?: string
   mensaje?: string
+  mercadopago?: MercadoPagoConfig
   cuentas_bancarias: CuentaBancariaItem[]
   medios_donacion: MedioDonacionItem[]
 }

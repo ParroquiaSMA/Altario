@@ -1,0 +1,11 @@
+---
+import RootLayout from '../layouts/RootLayout.astro';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { DonacionesView } from '@/components/views/donaciones-view';
+---
+
+<RootLayout title="Donaciones & Sostenimiento — Altario CMS">
+  <DashboardShell client:only="react" title="Donaciones" currentPath="/donaciones">
+    <DonacionesView client:only="react" />
+  </DashboardShell>
+</RootLayout>

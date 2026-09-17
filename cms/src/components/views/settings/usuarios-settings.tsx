@@ -16,6 +16,14 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -174,124 +182,136 @@ export function UsuariosSettings() {
   const rolLabel = (rol: CMSUser["rol"]) => ROLES.find((r) => r.value === rol)?.label ?? rol
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-base font-semibold">Usuarios del Panel</h2>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Gestioná quién tiene acceso al CMS y con qué permisos.
-        </p>
-      </div>
-
-      {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="relative w-full sm:w-80">
-          <SearchIcon className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por nombre o correo..."
-            className="pl-8"
-            value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value); setPageIndex(0) }}
-          />
+    <div className="flex flex-col h-full min-h-0 w-full overflow-hidden">
+      {/* Static Header */}
+      <div className="w-full px-6 py-4 border-b border-border bg-background shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-base font-medium tracking-tight text-foreground">
+            Usuarios del Panel
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Gestioná quién tiene acceso al CMS y con qué permisos.
+          </p>
         </div>
-        <Button onClick={handleOpenAdd} className="w-full sm:w-auto gap-2">
-          <PlusIcon className="size-4" />
-          Nuevo Usuario
-        </Button>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <Button onClick={handleOpenAdd} size="sm" className="gap-1.5 cursor-pointer">
+            <PlusIcon className="size-4" />
+            Nuevo Usuario
+          </Button>
+        </div>
       </div>
 
-      {/* Table Card */}
-      <Card className="p-0">
-        <CardContent className="p-0">
-          {filtered.length === 0 ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">
-              No hay usuarios registrados.
-            </div>
-          ) : (
-            <>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b bg-muted/30">
-                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Estado</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Nombre</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground hidden sm:table-cell">Correo</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Rol</th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginated.map((user) => (
-                    <tr key={user.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
-                      <td className="px-4 py-3">
-                        {user.status === "activo" ? (
-                          <Badge variant="outline" className="gap-1.5 text-emerald-600 border-emerald-300">
-                            <span className="size-1.5 rounded-full bg-emerald-500" />
-                            Activo
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="gap-1.5 text-muted-foreground">
-                            <span className="size-1.5 rounded-full bg-muted-foreground/40" />
-                            Inactivo
-                          </Badge>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 font-medium">
-                        {user.nombre}
-                        {user.id === currentUserId && (
-                          <span className="ml-2 text-[10px] text-muted-foreground bg-muted rounded px-1 py-0.5">Tú</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{user.email}</td>
-                      <td className="px-4 py-3">
-                        <Badge variant="secondary" className="text-xs font-normal">{rolLabel(user.rol)}</Badge>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            render={<Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted" />}
-                          >
-                            <EllipsisVerticalIcon className="size-4" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-44">
-                            <DropdownMenuItem onClick={() => handleOpenEdit(user)}>Editar datos</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleOpenPassword(user)}>
-                              <KeyRoundIcon />
-                              Cambiar contraseña
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleStatus(user)} disabled={user.id === currentUserId}>
-                              {user.status === "activo" ? "Desactivar" : "Activar"}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              variant="destructive"
-                              onClick={() => handleDelete(user)}
-                              disabled={user.id === currentUserId}
-                            >
-                              Eliminar
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* Scrollable Body */}
+      <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4">
+        {/* Toolbar */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="relative w-full sm:w-80">
+            <SearchIcon className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nombre o correo..."
+              className="pl-8"
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setPageIndex(0) }}
+            />
+          </div>
+        </div>
 
-              {/* Pagination */}
-              <div className="flex items-center justify-between gap-4 px-4 py-3 border-t text-xs text-muted-foreground">
-                <span>
-                  {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, filtered.length)} de {filtered.length} usuarios
-                </span>
-                <div className="flex items-center gap-1">
-                  <Button variant="outline" size="icon" className="size-8" onClick={() => setPageIndex(0)} disabled={currentPage === 0}><ChevronsLeftIcon className="size-4" /></Button>
-                  <Button variant="outline" size="icon" className="size-8" onClick={() => setPageIndex((p) => Math.max(0, p - 1))} disabled={currentPage === 0}><ChevronLeftIcon className="size-4" /></Button>
-                  <Button variant="outline" size="icon" className="size-8" onClick={() => setPageIndex((p) => Math.min(totalPages - 1, p + 1))} disabled={currentPage >= totalPages - 1}><ChevronRightIcon className="size-4" /></Button>
-                  <Button variant="outline" size="icon" className="size-8" onClick={() => setPageIndex(totalPages - 1)} disabled={currentPage >= totalPages - 1}><ChevronsRightIcon className="size-4" /></Button>
-                </div>
+        {/* Table Card */}
+        <Card className="p-0 border rounded-lg overflow-hidden shadow-2xs">
+          <CardContent className="p-0">
+            {filtered.length === 0 ? (
+              <div className="p-8 text-center text-sm text-muted-foreground">
+                No hay usuarios registrados.
               </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+            ) : (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/30 hover:bg-muted/30">
+                      <TableHead className="px-4">Estado</TableHead>
+                      <TableHead className="px-4">Nombre</TableHead>
+                      <TableHead className="px-4 hidden sm:table-cell">Correo</TableHead>
+                      <TableHead className="px-4">Rol</TableHead>
+                      <TableHead className="px-4 text-right">Acciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginated.map((user) => (
+                      <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
+                        <TableCell className="px-4 py-3">
+                          {user.status === "activo" ? (
+                            <Badge variant="outline" className="gap-1.5 text-emerald-600 border-emerald-300">
+                              <span className="size-1.5 rounded-full bg-emerald-500" />
+                              Activo
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="gap-1.5 text-muted-foreground">
+                              <span className="size-1.5 rounded-full bg-muted-foreground/40" />
+                              Inactivo
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="px-4 py-3 font-medium">
+                          {user.nombre}
+                          {user.id === currentUserId && (
+                            <span className="ml-2 text-[10px] text-muted-foreground bg-muted rounded px-1.5 py-0.5">Tú</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{user.email}</TableCell>
+                        <TableCell className="px-4 py-3">
+                          <Badge variant="secondary" className="text-xs font-normal">{rolLabel(user.rol)}</Badge>
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              render={<Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />}
+                            >
+                              <EllipsisVerticalIcon className="size-4" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-44">
+                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(user)}>Editar datos</DropdownMenuItem>
+                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenPassword(user)}>
+                                <KeyRoundIcon className="size-4 mr-2" />
+                                Cambiar contraseña
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleToggleStatus(user)} disabled={user.id === currentUserId}>
+                                {user.status === "activo" ? "Desactivar" : "Activar"}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                variant="destructive"
+                                className="cursor-pointer"
+                                onClick={() => handleDelete(user)}
+                                disabled={user.id === currentUserId}
+                              >
+                                Eliminar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+
+                {/* Pagination */}
+                <div className="flex items-center justify-between gap-4 px-4 py-3 border-t text-xs text-muted-foreground">
+                  <span>
+                    {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, filtered.length)} de {filtered.length} usuarios
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Button variant="outline" size="icon" className="size-8 cursor-pointer" onClick={() => setPageIndex(0)} disabled={currentPage === 0}><ChevronsLeftIcon className="size-4" /></Button>
+                    <Button variant="outline" size="icon" className="size-8 cursor-pointer" onClick={() => setPageIndex((p) => Math.max(0, p - 1))} disabled={currentPage === 0}><ChevronLeftIcon className="size-4" /></Button>
+                    <Button variant="outline" size="icon" className="size-8 cursor-pointer" onClick={() => setPageIndex((p) => Math.min(totalPages - 1, p + 1))} disabled={currentPage >= totalPages - 1}><ChevronRightIcon className="size-4" /></Button>
+                    <Button variant="outline" size="icon" className="size-8 cursor-pointer" onClick={() => setPageIndex(totalPages - 1)} disabled={currentPage >= totalPages - 1}><ChevronsRightIcon className="size-4" /></Button>
+                  </div>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* ─── Add User Dialog ─── */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>

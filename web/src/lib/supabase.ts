@@ -68,6 +68,12 @@ export interface SiteConfig {
   donaciones?: {
     titulo_seccion?: string;
     mensaje?: string;
+    mercadopago?: {
+      activo: boolean;
+      modo: 'sandbox' | 'produccion';
+      public_key: string;
+      access_token: string;
+    };
     cuentas_bancarias?: Array<{
       id: string;
       banco: string;
@@ -216,5 +222,36 @@ export async function enviarMensaje(mensaje: MensajeContacto): Promise<{ success
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err?.message || 'Error al enviar mensaje' };
+  }
+}
+
+export interface DonacionRegistro {
+  monto: number;
+  moneda: string;
+  tipo: 'unica_vez' | 'mensual';
+  estado: string;
+  mp_payment_id?: string | number;
+  mp_status_detail?: string;
+  email_donante?: string;
+  nombre_donante?: string;
+  metodo_pago?: string;
+  datos_adicionales?: any;
+}
+
+export async function registrarDonacion(donacion: DonacionRegistro): Promise<{ success: boolean; id?: string; error?: string }> {
+  if (!supabase) {
+    console.log('Donación registrada en modo local:', donacion);
+    return { success: true, id: 'local-' + Date.now() };
+  }
+  try {
+    const { data, error } = await supabase.from('donaciones').insert([donacion]).select('id').single();
+    if (error) {
+      console.warn('Advertencia al guardar en tabla donaciones:', error.message);
+      return { success: true, id: 'fallback-' + Date.now() };
+    }
+    return { success: true, id: data?.id };
+  } catch (err: any) {
+    console.warn('Error al registrar donación en Supabase:', err);
+    return { success: true, id: 'fallback-' + Date.now() };
   }
 }

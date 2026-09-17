@@ -1,0 +1,135 @@
+[
+  {
+    "id": "don-25b55a4f0a144f",
+    "created_at": "2026-09-13T12:53:42.841Z",
+    "monto": 1000,
+    "moneda": "UYU",
+    "tipo": "mensual",
+    "estado": "authorized",
+    "mp_payment_id": "25b55a4f0a144f9782b6a33cc7fb692c",
+    "mp_status_detail": "subscription_authorized",
+    "nombre_donante": "Donante",
+    "email_donante": "test_user_1134431769480668900@testuser.com",
+    "metodo_pago": "master",
+    "datos_adicionales": {
+      "preapproval_id": "25b55a4f0a144f9782b6a33cc7fb692c",
+      "frequency": 1
+    }
+  },
+  {
+    "id": "don-3091e7cac8bc",
+    "created_at": "2026-09-13T02:43:00Z",
+    "monto": 500,
+    "moneda": "UYU",
+    "tipo": "mensual",
+    "estado": "approved",
+    "mp_payment_id": "3091e7cac8bc486e8ed56c5eb1802b7e",
+    "mp_status_detail": "subscription_authorized",
+    "nombre_donante": "Augusto Pereira",
+    "email_donante": "test_user_1134431769480668900@testuser.com",
+    "metodo_pago": "Mastercard Crédito",
+    "datos_adicionales": {
+      "card_last_four": "0604",
+      "frecuencia": "mensual"
+    }
+  },
+  {
+    "id": "don-001",
+    "created_at": "2026-09-12T19:30:00Z",
+    "monto": 1000,
+    "moneda": "UYU",
+    "tipo": "mensual",
+    "estado": "approved",
+    "mp_payment_id": "MP-98421054",
+    "mp_status_detail": "accredited",
+    "nombre_donante": "María Rodríguez",
+    "email_donante": "mrodriguez@gmail.com",
+    "metodo_pago": "Tarjeta Visa Débito",
+    "datos_adicionales": {
+      "card_last_four": "4242",
+      "frecuencia": "mensual"
+    }
+  },
+  {
+    "id": "don-002",
+    "created_at": "2026-09-12T16:15:00Z",
+    "monto": 500,
+    "moneda": "UYU",
+    "tipo": "unica_vez",
+    "estado": "approved",
+    "mp_payment_id": "MP-98317721",
+    "mp_status_detail": "accredited",
+    "nombre_donante": "Juan Carlos Pérez",
+    "email_donante": "juan.perez@adinet.com.uy",
+    "metodo_pago": "Mastercard Crédito",
+    "datos_adicionales": {
+      "card_last_four": "1098"
+    }
+  },
+  {
+    "id": "don-003",
+    "created_at": "2026-09-11T11:20:00Z",
+    "monto": 2000,
+    "moneda": "UYU",
+    "tipo": "mensual",
+    "estado": "approved",
+    "mp_payment_id": "MP-98102349",
+    "mp_status_detail": "accredited",
+    "nombre_donante": "Familia González",
+    "email_donante": "familiagonzalez@montevideo.com.uy",
+    "metodo_pago": "Tarjeta OCA",
+    "datos_adicionales": {
+      "card_last_four": "8812",
+      "frecuencia": "mensual"
+    }
+  },
+  {
+    "id": "don-004",
+    "created_at": "2026-09-10T14:45:00Z",
+    "monto": 200,
+    "moneda": "UYU",
+    "tipo": "unica_vez",
+    "estado": "pending",
+    "mp_payment_id": "MP-97812034",
+    "mp_status_detail": "pending_waiting_payment",
+    "nombre_donante": "Carmen Silva",
+    "email_donante": "carmensilva@vera.com.uy",
+    "metodo_pago": "Abitab (Efectivo)",
+    "datos_adicionales": {
+      "ticket_url": "https://www.mercadopago.com.uy/payments/97812034/ticket"
+    }
+  },
+  {
+    "id": "don-005",
+    "created_at": "2026-09-08T10:00:00Z",
+    "monto": 500,
+    "moneda": "UYU",
+    "tipo": "mensual",
+    "estado": "approved",
+    "mp_payment_id": "MP-97230491",
+    "mp_status_detail": "accredited",
+    "nombre_donante": "Beatriz Méndez",
+    "email_donante": "bmendez@gmail.com",
+    "metodo_pago": "Tarjeta Visa",
+    "datos_adicionales": {
+      "card_last_four": "3321",
+      "frecuencia": "mensual"
+    }
+  },
+  {
+    "id": "don-006",
+    "created_at": "2026-09-05T18:05:00Z",
+    "monto": 1500,
+    "moneda": "UYU",
+    "tipo": "unica_vez",
+    "estado": "approved",
+    "mp_payment_id": "MP-96948211",
+    "mp_status_detail": "accredited",
+    "nombre_donante": "Alejandro Varela",
+    "email_donante": "avarela@outlook.com",
+    "metodo_pago": "Transferencia Bancaria",
+    "datos_adicionales": {
+      "banco": "BROU"
+    }
+  }
+]

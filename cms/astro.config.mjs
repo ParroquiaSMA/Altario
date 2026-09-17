@@ -59,6 +59,30 @@ function devConfigApiPlugin() {
           return;
         }
 
+        // 1.5. Read Store JSON
+        if (req.url?.startsWith('/api/read-store') && req.method === 'GET') {
+          try {
+            const urlObj = new URL(req.url, 'http://localhost');
+            const store = urlObj.searchParams.get('store');
+            if (store) {
+              const filePath = path.resolve(process.cwd(), `src/data/seeds/${store}.json`);
+              if (fs.existsSync(filePath)) {
+                const content = fs.readFileSync(filePath, 'utf-8');
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(content);
+                return;
+              }
+            }
+            res.statusCode = 404;
+            res.end(JSON.stringify({ error: 'Store not found' }));
+          } catch (err) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: String(err) }));
+          }
+          return;
+        }
+
         // 2. Sync Store JSON (galeria, horarios, avisos, etc.)
         if (req.url === '/api/sync-store' && req.method === 'POST') {
           let body = '';

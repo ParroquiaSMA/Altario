@@ -1,41 +1,1299 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getSiteConfig } from '../lib/supabase';
-import { marked } from 'marked';
 
 const siteConfig = await getSiteConfig();
-const { parroquia, historia } = siteConfig;
+const { parroquia } = siteConfig;
 
-const titulo = historia?.titulo || 'Setenta y ocho años en la misma esquina';
-const bajada = historia?.bajada || 'Empezó como una capilla de chapa levantada por vecinos que no querían caminar treinta cuadras para ir a misa. El templo de hoy se construyó alrededor de esa capilla, sin tirarla abajo.';
-
-const markdownContent = historia?.contenido_markdown || '';
-const contenidoHtml = markdownContent ? await marked.parse(markdownContent) : '';
+const titulo = 'Historia de la Parroquia Santuario Santa María de la Ayuda';
+const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bahía: el quinto templo más antiguo de la Arquidiócesis de Montevideo y más de 160 años de fe, comunidad e identidad en la Villa del Cerro.';
 ---
 
-<Layout title={`Historia — ${parroquia.nombre}`} description={bajada} currentPage="historia">
+<Layout
+  title={`Historia — ${parroquia?.nombre || 'Parroquia Santuario Santa María de la Ayuda'}`}
+  description="De la capilla de chapa de 1857 al santuario actual: el quinto templo más antiguo de Montevideo. La huella vasca de Aránzazu, los capuchinos, la devoción a la Virgen de la Ayuda y los jesuitas."
+  currentPage="historia"
+>
+  <!-- ===== PORTADA ===== -->
   <section class="portada">
     <svg class="portada__fondo" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
       <g fill="none" stroke="#C9A96A">
-        <path d="M100 300 V150 a70 70 0 0 1 140 0 V300"></path>
-        <path d="M300 300 V120 a90 90 0 0 1 180 0 V300"></path>
-        <path d="M540 300 V150 a70 70 0 0 1 140 0 V300"></path>
-        <path d="M740 300 V120 a90 90 0 0 1 180 0 V300"></path>
-        <path d="M980 300 V150 a70 70 0 0 1 140 0 V300"></path>
+        <circle cx="980" cy="150" r="60"></circle>
+        <circle cx="980" cy="150" r="110"></circle>
+        <circle cx="980" cy="150" r="160"></circle>
+        <circle cx="980" cy="150" r="215"></circle>
+        <path d="M980 -70 V370 M760 150 H1200"></path>
+        <path d="M825 -5 L1135 305 M1135 -5 L825 305"></path>
+        <path d="M200 300 V170 a60 60 0 0 1 120 0 V300"></path>
       </g>
     </svg>
     <div class="contenedor">
       <p class="miga"><a href="/">Inicio</a><span aria-hidden="true">›</span>Historia</p>
-      <p class="antetitulo">Historia</p>
+      <p class="antetitulo">Nuestra historia</p>
       <h1>{titulo}</h1>
-      {bajada && <p class="portada__bajada">{bajada}</p>}
+      <p class="portada__bajada">{bajada}</p>
     </div>
   </section>
 
+  <!-- ===== 1. ORÍGENES ===== -->
   <section class="seccion">
-    <div class="contenedor--angosto">
-      <article class="prosa" set:html={contenidoHtml}>
-      </article>
+    <div class="contenedor">
+      <p class="antetitulo">1839 – 1857</p>
+      <h2>Los primeros cimientos en la "Cosmópolis"</h2>
+      <p class="divisor"><i aria-hidden="true"></i></p>
+
+      <div class="fila-editorial">
+        <div>
+          <div class="texto-historia">
+            <p>El 5 de enero de 1839 el gobierno nacional, por firma de Don Santiago Vázquez, accedió a la solicitud del vecino Don Domingo Ramela para erigir una capilla pública en la Villa del Cerro, originalmente proyectada bajo la advocación de San Juan Bautista.</p>
+            <p>Pasaron casi dos décadas de gestiones hasta que el 13 de septiembre de 1857 se inauguró formalmente el primer oratorio en las calles Chile y Perú, bajo el título de “Dulce Nombre de María”. Pocas semanas después, el 31 de octubre de 1857, consta en los libros de bautismo el cambio oficial a “Santa María del Cerro”, tomándose 1857 como el año fundacional de la parroquia. Es reconocida formalmente como el <strong>quinto templo más antiguo de la Arquidiócesis de Montevideo</strong>.</p>
+            <p>La zona era conocida popularmente como “Cosmópolis” por la rica diversidad de inmigrantes (españoles, vascos, italianos y más adelante eslavos) que poblaron sus laderas para trabajar en los saladeros y salazones. Esa mezcla cosmopolita marcó desde el primer día la vida y el espíritu de la comunidad cerrense.</p>
+          </div>
+
+          <div class="ficha" style="margin-top:1.75rem">
+            <h3>Los límites de la parroquia en 1857</h3>
+            <p>A pedido del Pbro. Juan Bautista Cúneo, el Vicario Apostólico fijó con precisión la jurisdicción de la nueva parroquia:</p>
+            <dl>
+              <dt>Norte</dt><dd>Arroyo San Gregorio y Zanja Reyuna (Paso de la Arena)</dd>
+              <dt>Este</dt><dd>Arroyo Pantanoso, desde el Paso de la Arena hasta su desembocadura en la Bahía de Montevideo</dd>
+              <dt>Sur</dt><dd>Río de la Plata</dd>
+              <dt>Oeste</dt><dd>Río Santa Lucía</dd>
+            </dl>
+          </div>
+        </div>
+
+        <!-- RECUADRO IMAGEN A LA DERECHA -->
+        <div class="columna-lateral">
+          <figure class="foto-editorial">
+            <img
+              src="/assets/img/historia/vista-panoramica-antigua.jpg"
+              alt="Vista panorámica antigua de la Villa del Cerro"
+              class="foto-editorial__img"
+              loading="lazy"
+            />
+            <figcaption class="foto-editorial__pie">
+              <strong>Vista panorámica de la Villa del Cerro</strong>
+              <span>Registro histórico de la Cosmópolis en los orígenes de la comunidad parroquial.</span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 2. CRONOLOGÍA ===== -->
+  <section class="seccion seccion--oscura">
+    <div class="contenedor">
+      <p class="antetitulo">Línea de tiempo</p>
+      <h2>Los hitos, en orden</h2>
+      <p class="divisor"><i aria-hidden="true"></i></p>
+
+      <ol class="cronologia">
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1839</span>
+          <div class="cronologia__cuerpo">
+            <h3>Autorización de la primera capilla</h3>
+            <p>El gobierno accede a la solicitud de Domingo Ramela para levantar una capilla pública bajo la advocación de San Juan Bautista.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1857</span>
+          <div class="cronologia__cuerpo">
+            <h3>Inauguración y primer nombre</h3>
+            <p>Se abre el oratorio en Chile y Perú como “Dulce Nombre de María” y semanas después pasa a llamarse “Santa María del Cerro”. Se fijan los límites y se consagra como el quinto templo más antiguo de la Arquidiócesis de Montevideo.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1867</span>
+          <div class="cronologia__cuerpo">
+            <h3>Piedra fundamental del templo actual</h3>
+            <p>El 17 de diciembre se coloca la piedra fundamental apadrinada por el Brigadier Gral. Venancio Flores y María García Zamora. El Pbro. Juan Bautista Laphitz celebra misa bajo toldos encerados.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1870</span>
+          <div class="cronologia__cuerpo">
+            <h3>La “Capilla Vieja” en calle Chile</h3>
+            <p>Dieciséis feligreses vascos levantan un austero galpón de madera y chapa de 8 por 15 metros para sostener el culto mientras avanza la obra definitiva.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1871</span>
+          <div class="cronologia__cuerpo">
+            <h3>Nuestra Señora de Aránzazu</h3>
+            <p>Por la impronta de la colectividad vasca, desde el 14 de enero la parroquia es conocida popularmente como Aránzazu. Consta en matrimonio de 1872 y en el sello parroquial de 1899: “Patrona del Cerro”.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1893</span>
+          <div class="cronologia__cuerpo">
+            <h3>Llega la Virgen de la Ayuda</h3>
+            <p>Marco Stoppa trae desde Busto Arsizio (Italia) la primera imagen de la Virgen de la Ayuda, sembrando una profunda devoción en las familias de la zona.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1923</span>
+          <div class="cronologia__cuerpo">
+            <h3>Cuadro en el templo del Cerro</h3>
+            <p>El Pbro. Gerardo Benincasa entroniza solemnemente un cuadro con la imagen de Nuestra Señora de la Ayuda en el templo parroquial.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1926</span>
+          <div class="cronologia__cuerpo">
+            <h3>Llegan los Capuchinos y restauración</h3>
+            <p>Asume la Orden de Frailes Menores Capuchinos. Tras una novena del P. Querubín de Ceriana, la familia Darnaud financia la restauración integral del templo deteriorado.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1930</span>
+          <div class="cronologia__cuerpo">
+            <h3>Santa María de la Ayuda, titular única</h3>
+            <p>Por decreto del 30 de marzo, Mons. Francisco Aragone nombra titular única a Santa María de la Ayuda por la transformación demográfica del barrio. Se bendice la talla de Ferdinando Stuflesser donada por Manuel Diz.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1935</span>
+          <div class="cronologia__cuerpo">
+            <h3>Consagración solemne del templo</h3>
+            <p>El 28 de diciembre Mons. Aragone consagra el templo y deposita en el altar reliquias del Velo de la Virgen, San Lorenzo, Santa Águeda, San Francisco y San José de Cupertino.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1957</span>
+          <div class="cronologia__cuerpo">
+            <h3>Centenario y frescos de Lino Dinetto</h3>
+            <p>Se inaugura el monumental fresco del “Juicio Final” en el presbiterio (declarado Monumento Histórico Nacional) y el mosaico de María Reina de la Paz en el atrio.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1968</span>
+          <div class="cronologia__cuerpo">
+            <h3>Piedra del Santuario de Aránzazu</h3>
+            <p>El 21 de abril se bendice la piedra fundamental del nuevo santuario (proyecto Arq. Vaia). La imagen colonial de Aránzazu recorre el Cerro en carreta tirada por bueyes junto al Nuncio Bruñera y coros vascos.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1991</span>
+          <div class="cronologia__cuerpo">
+            <h3>Retorno al clero secular</h3>
+            <p>En la Pascua de 1991 los Capuchinos concluyen 65 años de misión y el clero diocesano retoma la guía pastoral con sacerdotes como Bonilla, Silveira y Ulfe.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">1992</span>
+          <div class="cronologia__cuerpo">
+            <h3>Hitos marianos en el Cerro</h3>
+            <p>Llega la imagen auténtica de la Virgen de los Treinta y Tres en carreta recibida con la «Diana de Palleja» en la Fortaleza, y se celebra la «Noche Blanca» con la Virgen de Fátima.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">2007</span>
+          <div class="cronologia__cuerpo">
+            <h3>Sesquicentenario (150 años)</h3>
+            <p>Procesión jubilar de quince cuadras, misa conmemorativa de Mons. Tróccoli, bendición de placa de mármol y 150 hogares del barrio consagrados a la Virgen.</p>
+          </div>
+        </li>
+        <li class="cronologia__item">
+          <span class="cronologia__anio">Presente</span>
+          <div class="cronologia__cuerpo">
+            <h3>Misiones territoriales y Compañía de Jesús</h3>
+            <p>Tras las misiones populares con la Sociedad de San Juan y la Sagrada Familia, la animación comunitaria y pastoral se encuentra confiada a los sacerdotes Jesuitas.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===== 3. LOS VASCOS Y EL TEMPLO ===== -->
+  <section class="seccion">
+    <div class="contenedor">
+      <p class="antetitulo">1867 – 1873</p>
+      <h2>La colectividad vasca y la era de Nuestra Señora de Aránzazu</h2>
+      <p class="divisor"><i aria-hidden="true"></i></p>
+
+      <div class="fila-editorial">
+        <div class="texto-historia">
+          <p>A finales de 1867, durante una dura epidemia de cólera, llegó al Cerro el <strong>Pbro. Juan Bautista Laphitz</strong>, misionero betharramita nacido en Arizcun (Navarra). Como no había todavía un edificio adecuado, celebraba la misa para la nutrida colectividad vasca bajo toldos encerados en las esquinas de Chile y República Argentina, subiendo y bajando las laderas para dar los sacramentos a los enfermos graves y catequizar a los hijos de los obreros.</p>
+          <p>El <strong>17 de diciembre de 1867</strong> se colocó la piedra fundamental del templo actual, apadrinada por el Gobernador Brigadier General Venancio Flores y su esposa María García Zamora. La comunidad vasca llegada de Guipúzcoa y Navarra fue el verdadero motor que unió esfuerzos y recursos para levantar la sede definitiva que hoy domina el paisaje del Cerro.</p>
+        </div>
+
+        <!-- RECUADRO TESTIMONIO A LA DERECHA -->
+        <div class="columna-lateral">
+          <div class="ficha ficha--destacada">
+            <span class="ficha__etiqueta">Memoria viva · 1867</span>
+            <p class="ficha__cita">
+              «Bajo toldos encerados en las calles del Cerro, desafiando el rigor del cólera y subiendo las laderas, el Padre Laphitz encendió la fe que uniría a la colectividad vasca para erigir este templo definitivo.»
+            </p>
+            <p class="ficha__autor">— Crónicas de los orígenes de la parroquia</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rejilla" style="margin-top:2.5rem">
+        <article class="tarjeta">
+          <div class="tarjeta__distintivo">Hito 1870</div>
+          <h3>La “Capilla Vieja” (1870)</h3>
+          <p>Erigida por dieciséis feligreses mayormente vascos en la calle Chile: un galpón de 8 por 15 metros, sin ventanas y con portones de tablones, donde los vecinos debían llevar sus propios asientos.</p>
+        </article>
+
+        <article class="tarjeta">
+          <div class="tarjeta__distintivo">Arquitectura</div>
+          <h3>El templo nuevo en sus inicios</h3>
+          <p>El poeta Juan Burghi lo describió con los muros sin revocar, techos de pizarra, una cruz de hierro coronando la estructura y dos pequeñas campanas —“esquilas”— en el atrio.</p>
+        </article>
+
+        <article class="tarjeta">
+          <div class="tarjeta__distintivo">Patronazgo</div>
+          <h3>Nuestra Señora de Aránzazu</h3>
+          <p>Desde el 14 de enero de 1871 la parroquia fue conocida con este nombre. En 1872 figura en partidas matrimoniales y en 1899 el sello parroquial rezaba: <em>“Patrona del Cerro”</em>.</p>
+        </article>
+
+        <article class="tarjeta">
+          <div class="tarjeta__distintivo">Fiesta Popular</div>
+          <h3>Fervor popular e identidad cerrense</h3>
+          <p>En la década de 1890 el ausentismo escolar el 8 de septiembre era total (en 1890 asistieron solo 8 de 118 alumnos). En 1912 <em>El Eco del Cerro</em> narraba diez días continuos de fiestas con orquestas y pirotecnia.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 4. LA DEVOCIÓN A LA VIRGEN DE LA AYUDA ===== -->
+  <section class="seccion seccion--papel">
+    <div class="contenedor">
+      <p class="antetitulo">1893 – 1935</p>
+      <h2>De Busto Arsizio a la proclamación de Santa María de la Ayuda</h2>
+      <p class="divisor"><i aria-hidden="true"></i></p>
+
+      <div class="fila-editorial">
+        <div class="texto-historia">
+          <p>En 1893 llegó a Montevideo la primera imagen procedente de Busto Arsizio (Lombardía, Italia), traída por <strong>Don Marco Stoppa</strong>. Aunque su culto comenzó de forma particular en una capilla de la calle Jaime Cibils, la devoción prendió con fuerza en el pueblo. En 1923, el Pbro. Gerardo Benincasa instaló formalmente un cuadro con su imagen en el templo parroquial.</p>
+          <p>En 1926, al asumir la conducción los Frailes Menores Capuchinos, el Pbro. Querubín de Ceriana realizó una novena a la Virgen pidiendo auxilio para reparar el edificio en ruinas; providencialmente, el matrimonio formado por Don Fernando Darnaud y su esposa ingresó a orar tras un paseo por la Fortaleza y costeó la restauración íntegra.</p>
+          <p>La devoción comunitaria se selló en 1930 tras la sanación de Doña Zenona Sánchez, esposa de Don Manuel Diz. La familia encomendó a los afamados talleres tiroleses de <strong>Ferdinando Stuflesser</strong> (Ortisei, Val Gardena) la talla en madera policromada que hoy preside el presbiterio y que fue bendecida solemnemente el 11 de mayo de 1930.</p>
+          <p>El 30 de marzo de 1930, el Arzobispo Mons. Francisco Aragone firmó el decreto que proclamó a <strong>Santa María de la Ayuda titular oficial única</strong> de la parroquia y de su altar mayor, fundamentando la decisión en que la colectividad vasca original se había transformado demográficamente y que el fervor cerrense se orientaba con decisión hacia esta advocación.</p>
+        </div>
+
+        <!-- RECUADRO IMAGEN A LA DERECHA: VIRGEN DE LA AYUDA -->
+        <div class="columna-lateral">
+          <div class="marcador-foto marcador-foto--editorial">
+            <span class="marcador-foto__badge">Espacio para fotografía destacada</span>
+            <svg class="marcador-foto__svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <p class="marcador-foto__titulo">Buscar: Talla de Santa María de la Ayuda (Ferdinando Stuflesser, 1930)</p>
+            <p class="marcador-foto__detalle">Fotografía en alta definición de la imagen titular en el presbiterio o del cuadro primitivo traído de Busto Arsizio en 1893.</p>
+            <span class="marcador-foto__sugerencia">Archivos de referencia: <code>folleto de la historia de la virgen de la ayuda.docx</code> y <code>ALTAR COMPARACIÓN.docx</code></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ficha tabla-envoltorio" style="margin-top:2.5rem">
+        <table class="tabla-hitos">
+          <caption class="ficha__titulo-seccion" style="text-align:left">Hitos de la devoción</caption>
+          <thead>
+            <tr><th scope="col">Año</th><th scope="col">Hito</th><th scope="col">Protagonista o autoridad</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">1893</th><td>Llega desde Italia la primera imagen para culto privado</td><td>Marco Stoppa</td></tr>
+            <tr><th scope="row">1923</th><td>Entronización del cuadro en el templo del Cerro</td><td>Pbro. Gerardo Benincasa</td></tr>
+            <tr><th scope="row">1926</th><td>Novena y mecenazgo para restaurar el templo en ruinas</td><td>P. Querubín de Ceriana / Matrimonio Darnaud</td></tr>
+            <tr><th scope="row">1930</th><td>Decreto de titularidad de la iglesia y del altar mayor</td><td>Mons. Francisco Aragone</td></tr>
+            <tr><th scope="row">1930</th><td>Bendición de la venerada imagen patronal de Stuflesser</td><td>Familia Diz-Sánchez</td></tr>
+            <tr><th scope="row">1930</th><td>Aprobación oficial del Himno a la Virgen de la Ayuda</td><td>Autoridad eclesiástica</td></tr>
+            <tr><th scope="row">1931</th><td>Aprobación del reglamento de la Congregación de la Virgen</td><td>Curia eclesiástica</td></tr>
+            <tr><th scope="row">1935</th><td>Consagración solemne del templo y depósito de reliquias</td><td>Mons. Francisco Aragone</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 5. LOS CAPUCHINOS ===== -->
+  <section class="seccion">
+    <div class="contenedor">
+      <p class="antetitulo">1926 – 1991</p>
+      <h2>La etapa de los Capuchinos, el arte y el servicio social</h2>
+      <p class="divisor"><i aria-hidden="true"></i></p>
+
+      <div class="fila-editorial">
+        <div class="texto-historia">
+          <p>Los Capuchinos asumieron el 21 de marzo de 1926 y el convenio del 5 de marzo de 1928 les entregó la administración pastoral a perpetuidad, guiando a la comunidad cerrense durante 65 años de profunda entrega. El Pbro. Querubín de Ceriana fue el alma impulsora para finalizar la casa parroquial y los colegios.</p>
+          <p>El 28 de diciembre de 1935 se consagró solemnemente el templo. En la ara del altar mayor se depositaron reliquias del Velo de la Santísima Virgen, de San Lorenzo, Santa Águeda, San Francisco de Asís y San José de Cupertino.</p>
+          <p>Frente a las sucesivas crisis económicas del Cerro y el posterior cierre paulatino de los saladeros y de la industria frigorífica, la parroquia tejió una sólida red educativa, sanitaria y de contención comunitaria que asistió a miles de familias.</p>
+        </div>
+
+        <!-- RECUADRO IMAGEN A LA DERECHA: CAPUCHINOS -->
+        <div class="columna-lateral">
+          <div class="marcador-foto marcador-foto--editorial">
+            <span class="marcador-foto__badge">Espacio para fotografía</span>
+            <svg class="marcador-foto__svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <p class="marcador-foto__titulo">Buscar: Frailes Capuchinos en el Cerro (P. Querubín de Ceriana)</p>
+            <p class="marcador-foto__detalle">Comunidad capuchina, casa parroquial, comedores barriales o consagración del altar mayor de 1935.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rejilla" style="margin-top:2.5rem">
+        <article class="tarjeta">
+          <div class="marcador-foto marcador-foto--tarjeta">
+            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span class="marcador-foto__titulo">Buscar: Colegio Santa Clara</span>
+            <span class="marcador-foto__detalle">Fachada histórica de 1896 o grupos escolares de época</span>
+          </div>
+          <h3>Colegio Santa Clara</h3>
+          <p>Abierto en 1896 con la colaboración de las Religiosas de San José y el apoyo benefector de doña Clara Jackson de Heber.</p>
+        </article>
+
+        <article class="tarjeta">
+          <div class="marcador-foto marcador-foto--tarjeta">
+            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span class="marcador-foto__titulo">Buscar: Colegio Santa María de la Ayuda</span>
+            <span class="marcador-foto__detalle">Patios o aulas históricas de la década de 1920-1940</span>
+          </div>
+          <h3>Colegio Santa María de la Ayuda</h3>
+          <p>Fundado en 1922 como institución educativa parroquial, pilar pedagógico y espiritual del Cerro durante generaciones.</p>
+        </article>
+
+        <article class="tarjeta">
+          <div class="marcador-foto marcador-foto--tarjeta">
+            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span class="marcador-foto__titulo">Buscar: Obras sociales PAS</span>
+            <span class="marcador-foto__detalle">Pbro. Martín Lagos (1967) y asistencia infantil en el Cerro</span>
+          </div>
+          <h3>PAS — Promoción de Acción Social</h3>
+          <p>Fundada en 1967 por el Pbro. Martín Lagos para asistir, educar y promover integralmente a la infancia desvalida del barrio.</p>
+        </article>
+
+        <article class="tarjeta">
+          <div class="marcador-foto marcador-foto--tarjeta">
+            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span class="marcador-foto__titulo">Buscar: «La Marlesita» / P. Marlés</span>
+            <span class="marcador-foto__detalle">Comedor, policlínica o presencia capuchina en huelgas frigoríficas</span>
+          </div>
+          <h3>La Marlesita</h3>
+          <p>Obra del Pbro. Ignacio Marlés (Ignacio de Elías) en la zona del cementerio. Sostuvo policlínica y comedor en tiempos de huelgas y crisis frigorífica.</p>
+        </article>
+
+        <article class="tarjeta">
+          <div class="marcador-foto marcador-foto--tarjeta">
+            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span class="marcador-foto__titulo">Buscar: Mural «Juicio Final» (Lino Dinetto)</span>
+            <span class="marcador-foto__detalle">Fresco monumental del ábside y mosaico de María Reina de la Paz</span>
+          </div>
+          <h3>Mural del “Juicio Final” y Mosaico</h3>
+          <p>Inaugurado en 1957 por el centenario, obra magistral del maestro Lino Dinetto declarada Monumento Histórico Nacional, junto al mosaico del atrio.</p>
+        </article>
+
+        <article class="tarjeta">
+          <div class="marcador-foto marcador-foto--tarjeta">
+            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span class="marcador-foto__titulo">Buscar: Proyecto Santuario Aránzazu (1968)</span>
+            <span class="marcador-foto__detalle">Procesión en carreta con bueyes o planos del Arq. Vaia</span>
+          </div>
+          <h3>Intento de Santuario de Aránzazu (1968)</h3>
+          <p>En 1957 el P. Marlés impulsó la Confraternidad Vasco-Americana. El 21 de abril de 1968 se colocó la piedra del nuevo santuario (Arq. Vaia) con procesión en carreta de bueyes, coros vascos y el Nuncio Bruñera.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 6. IMAGINERÍA ===== -->
+  <section class="seccion seccion--oscura seccion--museo">
+    <div class="contenedor">
+      <div class="museo-cabecera">
+        <div>
+          <p class="antetitulo">Guía de Imaginería y Patrimonio</p>
+          <h2>Tesoros sagrados del templo</h2>
+          <p class="divisor"><i aria-hidden="true"></i></p>
+        </div>
+        <div class="museo-controles">
+          <span class="museo-controles__hint">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+            Deslizá para recorrer
+          </span>
+          <div class="museo-controles__botones">
+            <button type="button" class="museo-btn" id="btn-museo-prev" aria-label="Pieza anterior">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="museo-btn" id="btn-museo-next" aria-label="Pieza siguiente">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="museo-galeria" id="galeria-tesoros" tabindex="0" role="region" aria-label="Galería de esculturas e imaginería sagrada">
+        <!-- 1. San Expedito -->
+        <article class="museo-pieza">
+          <div class="museo-pieza__escena">
+            <div class="museo-pieza__halo" aria-hidden="true"></div>
+            <img
+              src="/assets/img/historia/tesoros/01-san-expedito.png"
+              alt="Escultura de San Expedito"
+              class="museo-pieza__imagen"
+              loading="lazy"
+            />
+            <div class="museo-pieza__pedestal" aria-hidden="true"></div>
+          </div>
+          <div class="museo-pieza__cedula">
+            <span class="museo-pieza__advocacion">Causas urgentes · Mártir romano</span>
+            <h3 class="museo-pieza__nombre">San Expedito</h3>
+            <p class="museo-pieza__descripcion">
+              Comandante romano que proclama la fe con su cruz en alto al grito de «Hodie» (hoy), pisoteando al cuervo que tienta con la postergación («Cras»). Patrono fiel en las causas urgentes e inmediatas.
+            </p>
+          </div>
+        </article>
+
+        <!-- 2. Cristo Crucificado -->
+        <article class="museo-pieza">
+          <div class="museo-pieza__escena">
+            <div class="museo-pieza__halo" aria-hidden="true"></div>
+            <img
+              src="/assets/img/historia/tesoros/02-crucifixion-jesus.png"
+              alt="Cristo Crucificado"
+              class="museo-pieza__imagen"
+              loading="lazy"
+            />
+            <div class="museo-pieza__pedestal" aria-hidden="true"></div>
+          </div>
+          <div class="museo-pieza__cedula">
+            <span class="museo-pieza__advocacion">Presbiterio · Redención y entrega</span>
+            <h3 class="museo-pieza__nombre">Cristo Crucificado</h3>
+            <p class="museo-pieza__descripcion">
+              Pieza central de la Pasión del Señor que custodia el altar mayor del templo. Obra de profunda devoción que ha congregado la oración silenciosa y el consuelo de la comunidad cerrense.
+            </p>
+          </div>
+        </article>
+
+        <!-- 3. Santa Isabel de Hungría -->
+        <article class="museo-pieza">
+          <div class="museo-pieza__escena">
+            <div class="museo-pieza__halo" aria-hidden="true"></div>
+            <img
+              src="/assets/img/historia/tesoros/03-santa-isabel-hungria.png"
+              alt="Escultura de Santa Isabel de Hungría"
+              class="museo-pieza__imagen"
+              loading="lazy"
+            />
+            <div class="museo-pieza__pedestal" aria-hidden="true"></div>
+          </div>
+          <div class="museo-pieza__cedula">
+            <span class="museo-pieza__advocacion">Patrona de la caridad · Terciaria</span>
+            <h3 class="museo-pieza__nombre">Santa Isabel de Hungría</h3>
+            <p class="museo-pieza__descripcion">
+              Princesa de Hungría y terciaria franciscana, insigne modelo de caridad evangélica que consagró su vida al servicio de los enfermos y la fundación de hospitales para los desvalidos.
+            </p>
+          </div>
+        </article>
+
+        <!-- 4. San Valentín -->
+        <article class="museo-pieza">
+          <div class="museo-pieza__escena">
+            <div class="museo-pieza__halo" aria-hidden="true"></div>
+            <img
+              src="/assets/img/historia/tesoros/04-san-valentin.png"
+              alt="Escultura de San Valentín"
+              class="museo-pieza__imagen"
+              loading="lazy"
+            />
+            <div class="museo-pieza__pedestal" aria-hidden="true"></div>
+          </div>
+          <div class="museo-pieza__cedula">
+            <span class="museo-pieza__advocacion">Mártir de Roma · Patrono de los enamorados</span>
+            <h3 class="museo-pieza__nombre">San Valentín</h3>
+            <p class="museo-pieza__descripcion">
+              Sacerdote del siglo III que desafió las órdenes del emperador casando en secreto a jóvenes soldados. Su histórica imagen fue entronizada solemnemente en el templo en 2006.
+            </p>
+          </div>
+        </article>
+
+        <!-- 5. San Antonio de Padua -->
+        <article class="museo-pieza">
+          <div class="museo-pieza__escena">
+            <div class="museo-pieza__halo" aria-hidden="true"></div>
+            <img
+              src="/assets/img/historia/tesoros/05-san-antonio-padua.png"
+              alt="Escultura de San Antonio de Padua"
+              class="museo-pieza__imagen"
+              loading="lazy"
+            />
+            <div class="museo-pieza__pedestal" aria-hidden="true"></div>
+          </div>
+          <div class="museo-pieza__cedula">
+            <span class="museo-pieza__advocacion">Doctor de la Iglesia · Familia Franciscana</span>
+            <h3 class="museo-pieza__nombre">San Antonio de Padua</h3>
+            <p class="museo-pieza__descripcion">
+              El «Doctor Evangélico», predicador popular de caridad inagotable y protector de los pobres, representado en hábito franciscano con el Niño Jesús y el lirio de la pureza.
+            </p>
+          </div>
+        </article>
+
+        <!-- 6. Inmaculada Concepción -->
+        <article class="museo-pieza">
+          <div class="museo-pieza__escena">
+            <div class="museo-pieza__halo" aria-hidden="true"></div>
+            <img
+              src="/assets/img/historia/tesoros/06-inmaculada-concepcion.png"
+              alt="Escultura de la Inmaculada Concepción"
+              class="museo-pieza__imagen"
+              loading="lazy"
+            />
+            <div class="museo-pieza__pedestal" aria-hidden="true"></div>
+          </div>
+          <div class="museo-pieza__cedula">
+            <span class="museo-pieza__advocacion">Dogma mariano · Reina de la Paz</span>
+            <h3 class="museo-pieza__nombre">Inmaculada Concepción</h3>
+            <p class="museo-pieza__descripcion">
+              Símbolo de pureza y esperanza para el pueblo cerrense. María concebida sin mancha de pecado original, pisando a la serpiente sobre la media luna, vestida de túnica blanca y manto azul.
+            </p>
+          </div>
+        </article>
+
+        <!-- 7. Jesús Eucarístico -->
+        <article class="museo-pieza">
+          <div class="museo-pieza__escena">
+            <div class="museo-pieza__halo" aria-hidden="true"></div>
+            <img
+              src="/assets/img/historia/tesoros/07-jesus-eucaristico.png"
+              alt="Escultura de Jesús Eucarístico"
+              class="museo-pieza__imagen"
+              loading="lazy"
+            />
+            <div class="museo-pieza__pedestal" aria-hidden="true"></div>
+          </div>
+          <div class="museo-pieza__cedula">
+            <span class="museo-pieza__advocacion">Sagrado Corazón · Alianza y Adoración</span>
+            <h3 class="museo-pieza__nombre">Jesús Eucarístico</h3>
+            <p class="museo-pieza__descripcion">
+              Imagen del Señor bendiciendo y ofreciendo su Sagrado Corazón ardiente de amor, fuente espiritual de la adoración eucarística y la vida sacramental que vivifica a la comunidad parroquial.
+            </p>
+          </div>
+        </article>
+
+        <!-- 8. Beato Jacinto Vera -->
+        <article class="museo-pieza">
+          <div class="museo-pieza__escena">
+            <div class="museo-pieza__halo" aria-hidden="true"></div>
+            <img
+              src="/assets/img/historia/tesoros/08-beato-jacinto-vera.png"
+              alt="Escultura del Beato Jacinto Vera"
+              class="museo-pieza__imagen"
+              loading="lazy"
+            />
+            <div class="museo-pieza__pedestal" aria-hidden="true"></div>
+          </div>
+          <div class="museo-pieza__cedula">
+            <span class="museo-pieza__advocacion">Primer Obispo de Montevideo · Misionero de la Patria</span>
+            <h3 class="museo-pieza__nombre">Beato Jacinto Vera</h3>
+            <p class="museo-pieza__descripcion">
+              Apóstol incansable del Uruguay que recorrió ciudades y campos a caballo consolidando la Iglesia y la concordia nacional. Beatificado solemnemente en el Estadio Centenario en 2023.
+            </p>
+          </div>
+        </article>
+
+        <!-- 9. Nuestra Señora de los Treinta y Tres -->
+        <article class="museo-pieza">
+          <div class="museo-pieza__escena">
+            <div class="museo-pieza__halo" aria-hidden="true"></div>
+            <img
+              src="/assets/img/historia/tesoros/09-virgen-treinta-y-tres.png"
+              alt="Escultura de Nuestra Señora de los Treinta y Tres"
+              class="museo-pieza__imagen"
+              loading="lazy"
+            />
+            <div class="museo-pieza__pedestal" aria-hidden="true"></div>
+          </div>
+          <div class="museo-pieza__cedula">
+            <span class="museo-pieza__advocacion">Patrona del Uruguay · Memoria Cerrense</span>
+            <h3 class="museo-pieza__nombre">Virgen de los Treinta y Tres</h3>
+            <p class="museo-pieza__descripcion">
+              Patrona de la Patria ante quien juraron los libertadores en 1825. Su imagen recorrió solemnemente la Villa del Cerro en carreta en 1992 hasta la Fortaleza en una histórica demostración de fe popular.
+            </p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 7. DE 1991 A HOY ===== -->
+  <section class="seccion">
+    <div class="contenedor">
+      <p class="antetitulo">1991 hasta hoy</p>
+      <h2>Retorno diocesano y presencia pastoral jesuita</h2>
+      <p class="divisor"><i aria-hidden="true"></i></p>
+
+      <div class="fila-editorial">
+        <div class="texto-historia">
+          <p>En la Pascua de 1991, tras 65 años de fecundísima labor capuchina, la parroquia retornó a la atención pastoral del clero secular diocesano de Montevideo. El Pbro. Martín Pérez Scremini coordinó el traspaso, asumiendo sucesivamente como párrocos Juan Carlos Bonilla, Juan Silveira y Miguel Ulfe.</p>
+          <p>El año 1992 legó dos momentos marianos inolvidables: en agosto, la imagen auténtica de la Virgen de los Treinta y Tres ascendió al Cerro en carreta y fue recibida en la Fortaleza al compás de la tradicional «Diana de Palleja»; en octubre, la Virgen de Fátima recorrió las calles cerrenses en una multitudinaria «Noche Blanca» de vigilia y oración.</p>
+          <p>Para responder al crecimiento de la población, se erigieron la capilla Cruz Alta (1996) y la capilla Virgen de los Treinta y Tres en Casabó (2001). Entre 2014 y 2020 se vivieron intensas misiones populares junto a la Sociedad de San Juan y los Hermanos de la Sagrada Familia. En la actualidad, la animación pastoral de la parroquia y santuario se encuentra encomendada a los sacerdotes de la <strong>Compañía de Jesús (Jesuitas)</strong>.</p>
+        </div>
+
+        <!-- RECUADRO IMAGEN A LA DERECHA -->
+        <div class="columna-lateral">
+          <div class="marcador-foto marcador-foto--editorial">
+            <span class="marcador-foto__badge">Espacio para fotografía histórica</span>
+            <svg class="marcador-foto__svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <p class="marcador-foto__titulo">Buscar: Virgen de los Treinta y Tres en carreta a la Fortaleza (1992)</p>
+            <p class="marcador-foto__detalle">Recepción con la Diana de Palleja o de la «Noche Blanca» con la Virgen de Fátima recorriendo las calles del Cerro.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rejilla" style="margin-top:2.5rem">
+        <article class="tarjeta">
+          <div class="marcador-foto marcador-foto--tarjeta">
+            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span class="marcador-foto__titulo">Buscar: Foto de sacerdotes y ordenaciones</span>
+            <span class="marcador-foto__detalle">Daniel Pérez (1954), Marcelo Garrone, Eric Juárez o Fernando García</span>
+          </div>
+          <h3>Vocaciones nacidas en el Cerro</h3>
+          <p>Fray Daniel Pérez (1954) fue el primer hijo de la parroquia en abrazar los votos capuchinos. Posteriormente florecieron vocaciones al clero secular: Marcelo Garrone (2002), Eric Juárez (2002) y Fernando García (2007).</p>
+        </article>
+
+        <article class="tarjeta">
+          <div class="marcador-foto marcador-foto--tarjeta">
+            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span class="marcador-foto__titulo">Buscar: Capillas Cruz Alta y Casabó</span>
+            <span class="marcador-foto__detalle">Fachada o vida de comunidad en las capillas periféricas</span>
+          </div>
+          <h3>Capillas filiales</h3>
+          <p>La capilla Cruz Alta (fundada en 1996) y Virgen de los Treinta y Tres en Casabó (2001) extendieron la vida comunitaria y misionera hacia los barrios más alejados del templo sede.</p>
+        </article>
+
+        <article class="tarjeta">
+          <div class="marcador-foto marcador-foto--tarjeta">
+            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span class="marcador-foto__titulo">Buscar: Presencia Jesuita y misiones</span>
+            <span class="marcador-foto__detalle">Misiones populares y acción pastoral jesuita en la actualidad</span>
+          </div>
+          <h3>Pastoral Jesuita y Misiones</h3>
+          <p>El impulso apostólico se renueva mediante misiones comunitarias territoriales y la animación de la Compañía de Jesús, promoviendo la pastoral social y la piedad popular mariana.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 8. SESQUICENTENARIO ===== -->
+  <section class="seccion seccion--papel">
+    <div class="contenedor">
+      <p class="antetitulo">2007</p>
+      <h2>Los 150 años (Sesquicentenario)</h2>
+      <p class="divisor"><i aria-hidden="true"></i></p>
+
+      <div class="fila-editorial">
+        <div class="texto-historia">
+          <p>En mayo de 2007 una multitudinaria procesión jubilar recorrió quince cuadras del Cerro, una por cada década de existencia, presidida por Mons. Martín Pérez Scremini. El 20 de octubre, el Pbro. Milton Tróccoli celebró la solemne misa de acción de gracias y se bendijo una placa de mármol conmemorativa que atestigua el siglo y medio de fidelidad.</p>
+          <p>Como fruto apostólico del jubileo, se consagraron 150 hogares de familias cerrenses a la Virgen de la Ayuda. Los festejos culminaron solemnemente el 28 de diciembre de 2007 con la misa de dedicación del templo.</p>
+          <p>Desde entonces la parroquia santuario permanece con sus puertas abiertas de par en par en la emblemática esquina de Bogotá y Prusia, acogiendo la oración de peregrinos y vecinos tal como lo soñaron las familias que la fundaron.</p>
+        </div>
+
+        <!-- RECUADRO IMAGEN A LA DERECHA -->
+        <div class="columna-lateral">
+          <div class="marcador-foto marcador-foto--editorial">
+            <span class="marcador-foto__badge">Espacio para fotografía conmemorativa</span>
+            <svg class="marcador-foto__svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <p class="marcador-foto__titulo">Buscar: Procesión Jubilar de 15 cuadras o placa de mármol (2007)</p>
+            <p class="marcador-foto__detalle">Fotografía de la multitudinaria procesión por las calles del Cerro o de la placa bendecida por el Sesquicentenario.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FRANJA FINAL ===== -->
+  <section class="franja">
+    <div class="contenedor franja__fila">
+      <div>
+        <h2>Vení a conocer el templo</h2>
+        <p><strong>Ubicación:</strong> Esquina de Bogotá 3585 y Prusia, Villa del Cerro, Montevideo.</p>
+        <p><strong>Contacto:</strong> Tel. 2311 1150 · Cel. 093 523 389</p>
+        <p><strong>Horarios:</strong> Martes a viernes de 16:00 a 18:00 hs, sábados de 17:00 a 18:30 hs y domingos de 10:00 a 10:45 hs y de 17:00 a 18:30 hs.</p>
+      </div>
+      <a class="boton boton--azul" href="/contacto">Cómo llegar</a>
     </div>
   </section>
 </Layout>
+
+<style>
+  /* ---------- Grilla Editorial (Texto a la izquierda, Foto a la derecha) ---------- */
+  .fila-editorial {
+    display: grid;
+    grid-template-columns: 1.18fr 0.82fr;
+    gap: 2.75rem;
+    align-items: stretch;
+    margin-bottom: 2rem;
+  }
+  .columna-lateral {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .texto-historia {
+    max-width: 62ch;
+  }
+  .texto-historia p {
+    margin: 0 0 1.15rem;
+  }
+  .texto-historia p:last-child {
+    margin-bottom: 0;
+  }
+
+  .cronologia {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .cronologia__item {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: 0 1.5rem;
+  }
+  .cronologia__anio {
+    font-weight: 700;
+    color: var(--colorOro, #C9A96A);
+    padding-top: 0.05rem;
+    letter-spacing: 0.01em;
+  }
+  .cronologia__cuerpo {
+    position: relative;
+    border-left: 1px solid rgba(201, 169, 106, 0.35);
+    padding: 0 0 1.9rem 1.6rem;
+  }
+  .cronologia__item:last-child .cronologia__cuerpo {
+    border-left-color: transparent;
+    padding-bottom: 0;
+  }
+  .cronologia__cuerpo::before {
+    content: "";
+    position: absolute;
+    left: -5px;
+    top: 0.45rem;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--colorOro, #C9A96A);
+  }
+  .cronologia h3 {
+    margin: 0 0 0.3rem;
+    font-size: 1.05rem;
+    color: #ffffff;
+  }
+  .cronologia p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.82);
+    max-width: 58ch;
+  }
+
+  .tabla-hitos {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  .tabla-hitos th,
+  .tabla-hitos td {
+    padding: 0.7rem 0.9rem 0.7rem 0;
+    border-bottom: 1px solid rgba(22, 36, 74, 0.12);
+    vertical-align: top;
+  }
+  .tabla-hitos thead th {
+    color: var(--colorOro, #C9A96A);
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+  }
+  .tabla-hitos tbody th {
+    width: 5.5rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .tabla-hitos tr:last-child th,
+  .tabla-hitos tr:last-child td {
+    border-bottom: 0;
+  }
+  .tabla-envoltorio {
+    overflow-x: auto;
+  }
+
+  /* ---------- Marcador / Placeholder de Imágenes ---------- */
+  .marcador-foto {
+    border: 2px dashed rgba(201, 169, 106, 0.55);
+    background: rgba(201, 169, 106, 0.05);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    color: var(--lapis, #16244A);
+    transition: all 0.2s ease;
+  }
+  .marcador-foto:hover {
+    border-color: var(--colorOro, #C9A96A);
+    background: rgba(201, 169, 106, 0.09);
+  }
+  .marcador-foto--editorial {
+    margin: 0;
+    height: 100%;
+    min-height: 250px;
+    box-sizing: border-box;
+  }
+  .seccion--oscura .marcador-foto {
+    border-color: rgba(201, 169, 106, 0.4);
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
+  }
+  .seccion--oscura .marcador-foto:hover {
+    border-color: var(--colorOro, #C9A96A);
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .marcador-foto--tarjeta {
+    margin: 0 0 1.25rem 0;
+    padding: 1.25rem 0.75rem;
+    aspect-ratio: 16 / 9;
+    border-width: 1.5px;
+    width: 100%;
+  }
+  .marcador-foto__badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--colorOro, #C9A96A);
+    background: rgba(201, 169, 106, 0.15);
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    margin-bottom: 0.25rem;
+  }
+  .marcador-foto__svg {
+    color: var(--colorOro, #C9A96A);
+    margin-bottom: 0.25rem;
+  }
+  .marcador-foto__titulo {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.3;
+  }
+  .marcador-foto--tarjeta .marcador-foto__titulo {
+    font-size: 0.82rem;
+  }
+  .marcador-foto__detalle {
+    font-size: 0.82rem;
+    opacity: 0.85;
+    margin: 0;
+    max-width: 44ch;
+    line-height: 1.35;
+  }
+  .marcador-foto--tarjeta .marcador-foto__detalle {
+    font-size: 0.75rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .marcador-foto__sugerencia {
+    font-size: 0.76rem;
+    color: var(--colorOro, #C9A96A);
+    font-weight: 600;
+    margin-top: 0.25rem;
+  }
+  .marcador-foto__sugerencia code {
+    background: rgba(0, 0, 0, 0.06);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+  }
+  .seccion--oscura .marcador-foto__sugerencia code {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* ---------- Foto Editorial ---------- */
+  .foto-editorial {
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(201, 169, 106, 0.3);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  }
+  .foto-editorial__img {
+    width: 100%;
+    height: 270px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+  .foto-editorial:hover .foto-editorial__img {
+    transform: scale(1.02);
+  }
+  .foto-editorial__pie {
+    padding: 0.9rem 1.1rem;
+    font-size: 0.82rem;
+    background: #fff;
+    border-top: 1px solid rgba(201, 169, 106, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .foto-editorial__pie strong {
+    color: var(--lapis, #16244A);
+  }
+  .foto-editorial__pie span {
+    color: #666;
+    line-height: 1.35;
+  }
+
+  /* Distintivo de Época / Tarjeta */
+  .tarjeta__distintivo {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--colorOro, #C9A96A);
+    background: rgba(201, 169, 106, 0.12);
+    border: 1px solid rgba(201, 169, 106, 0.3);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    margin-bottom: 0.85rem;
+  }
+
+  /* Cita en Ficha Destacada */
+  .ficha--destacada {
+    border-left: 3px solid var(--colorOro, #C9A96A);
+    background: rgba(201, 169, 106, 0.07);
+    padding: 1.5rem;
+    border-radius: 0 8px 8px 0;
+  }
+  .ficha__etiqueta {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--colorOro, #C9A96A);
+    margin-bottom: 0.6rem;
+  }
+  .ficha__cita {
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--lapis, #16244A);
+    margin: 0 0 0.85rem 0;
+  }
+  .ficha__autor {
+    font-size: 0.8rem;
+    color: #666;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  /* =========================================================
+     MUSEO DE TESOROS SAGRADOS (Horizontal Scroll Exhibit)
+     ========================================================= */
+  .seccion--museo {
+    padding-top: 4.5rem;
+    padding-bottom: 5rem;
+    overflow: hidden;
+  }
+  .museo-cabecera {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .museo-controles {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .museo-controles__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: rgba(201, 169, 106, 0.9);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .museo-controles__botones {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .museo-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(201, 169, 106, 0.45);
+    background: rgba(255, 255, 255, 0.08);
+    color: #C9A96A;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .museo-btn:hover {
+    background: #C9A96A;
+    color: #0E1A33;
+    border-color: #C9A96A;
+    transform: scale(1.08);
+  }
+  .museo-btn:focus-visible {
+    outline: 2px solid #C9A96A;
+    outline-offset: 2px;
+  }
+
+  /* GALERÍA HORIZONTAL OBLIGATORIA (Sin barra inferior visible) */
+  .museo-galeria {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 2.5rem !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    width: 100% !important;
+    padding: 1.5rem 0.5rem 2.5rem !important;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    box-sizing: border-box;
+  }
+  .museo-galeria::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  /* PIEZA INDIVIDUAL DE MUSEO (ESTATUA) */
+  .museo-pieza {
+    flex: 0 0 320px !important;
+    width: 320px !important;
+    min-width: 320px !important;
+    max-width: 320px !important;
+    scroll-snap-align: center;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    position: relative;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+  }
+
+  /* Escena donde se exhibe la estatua */
+  .museo-pieza__escena {
+    position: relative;
+    width: 100%;
+    height: 440px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .museo-pieza__halo {
+    display: none;
+  }
+  .museo-pieza__imagen {
+    position: relative;
+    z-index: 2;
+    height: 400px !important;
+    max-height: 400px !important;
+    width: auto !important;
+    max-width: 290px !important;
+    object-fit: contain !important;
+    display: block !important;
+    filter: none !important;
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .museo-pieza:hover .museo-pieza__imagen {
+    transform: translateY(-5px) scale(1.02);
+  }
+  .museo-pieza__pedestal {
+    display: none;
+  }
+
+  /* Cédula o ficha de museo */
+  .museo-pieza__cedula {
+    width: 100%;
+    position: relative;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    transition: border-color 0.4s ease;
+  }
+  .museo-pieza:hover .museo-pieza__cedula {
+    border-color: rgba(201, 169, 106, 0.6);
+  }
+  .museo-pieza__cedula::before {
+    content: "";
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 7px;
+    height: 7px;
+    background: rgba(255, 255, 255, 0.3);
+    transition: background 0.4s ease, transform 0.4s ease;
+  }
+  .museo-pieza:hover .museo-pieza__cedula::before {
+    background: #C9A96A;
+    transform: translateX(-50%) rotate(45deg) scale(1.15);
+  }
+  .museo-pieza__advocacion {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #C9A96A;
+    margin-bottom: 0.35rem;
+  }
+  .museo-pieza__nombre {
+    font-size: 1.35rem;
+    color: #ffffff;
+    margin: 0 0 0.55rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    transition: color 0.3s ease;
+  }
+  .museo-pieza:hover .museo-pieza__nombre {
+    color: #C9A96A;
+  }
+  .museo-pieza__descripcion {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .fila-editorial {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+    .marcador-foto--editorial {
+      min-height: 200px;
+    }
+    .cronologia__item {
+      grid-template-columns: 1fr;
+    }
+    .cronologia__anio {
+      margin-bottom: 0.2rem;
+    }
+    .cronologia__cuerpo {
+      border-left: 0;
+      padding-left: 0;
+      padding-bottom: 1.6rem;
+    }
+    .cronologia__cuerpo::before {
+      display: none;
+    }
+    .marcador-foto--tarjeta {
+      aspect-ratio: auto;
+      min-height: 120px;
+    }
+    .museo-cabecera {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    .museo-controles {
+      width: 100%;
+      justify-content: space-between;
+    }
+    .museo-pieza {
+      flex: 0 0 280px !important;
+      width: 280px !important;
+      min-width: 280px !important;
+      max-width: 280px !important;
+    }
+    .museo-pieza__escena {
+      height: 380px;
+    }
+    .museo-pieza__imagen {
+      height: 350px !important;
+      max-height: 350px !important;
+      max-width: 250px !important;
+    }
+  }
+</style>
+
+<script>
+  function setupMuseoScroll() {
+    const galeria = document.getElementById('galeria-tesoros');
+    const prevBtn = document.getElementById('btn-museo-prev');
+    const nextBtn = document.getElementById('btn-museo-next');
+
+    if (galeria && prevBtn && nextBtn) {
+      prevBtn.addEventListener('click', () => {
+        galeria.scrollBy({ left: -340, behavior: 'smooth' });
+      });
+      nextBtn.addEventListener('click', () => {
+        galeria.scrollBy({ left: 340, behavior: 'smooth' });
+      });
+    }
+  }
+
+  setupMuseoScroll();
+  document.addEventListener('astro:page-load', setupMuseoScroll);
+</script>

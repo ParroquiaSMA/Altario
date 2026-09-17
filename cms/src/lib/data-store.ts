@@ -5,6 +5,7 @@ import seedFotos from "@/data/seeds/galeria.json"
 import seedMensajes from "@/data/seeds/mensajes.json"
 import seedSacramentos from "@/data/seeds/sacramentos.json"
 import seedGrupos from "@/data/seeds/grupos.json"
+import seedDonaciones from "@/data/seeds/donaciones.json"
 
 export interface HorarioItem {
   id: string
@@ -70,6 +71,62 @@ export interface MensajeItem {
   created_at: string
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function getItemSignature(key: string, item: any): string {
+  if (!item) return ""
+  if (key === "horarios" && item.titulo) {
+    return `${item.dia_semana}_${item.hora_inicio}_${String(item.titulo).trim().toLowerCase()}`
+  }
+  if (key === "avisos" && item.titulo) {
+    return `${String(item.titulo).trim().toLowerCase()}_${item.fecha || ""}`
+  }
+  if ((key === "fotos" || key === "galeria") && (item.imagen_url || item.titulo)) {
+    return `${item.imagen_url || ""}_${String(item.titulo || "").trim().toLowerCase()}`
+  }
+  if (key === "sacramentos" && (item.slug || item.titulo)) {
+    return String(item.slug || item.titulo).trim().toLowerCase()
+  }
+  if (key === "grupos" && item.nombre) {
+    return String(item.nombre).trim().toLowerCase()
+  }
+  if (key === "donaciones") {
+    return String(item.mp_payment_id || item.id || "")
+  }
+  if (key === "mensajes") {
+    return item.id ? String(item.id) : `${item.correo || ""}_${item.created_at || ""}`
+  }
+  return String(item.id || item.slug || "")
+}
+
+function deduplicateItems<T>(key: string, items: T[]): T[] {
+  if (!Array.isArray(items) || items.length <= 1) return items
+  const map = new Map<string, any>()
+
+  for (const item of items as any[]) {
+    if (!item) continue
+    const sig = getItemSignature(key, item)
+    if (!sig) {
+      map.set(`fallback_${Math.random()}`, item)
+      continue
+    }
+
+    if (!map.has(sig)) {
+      map.set(sig, item)
+    } else {
+      const current = map.get(sig)
+      const currentIsUuid = UUID_REGEX.test(String(current?.id || ""))
+      const itemIsUuid = UUID_REGEX.test(String(item?.id || ""))
+      // Prefer real Supabase UUID over mock seed ID (e.g. h-001)
+      if (!currentIsUuid && itemIsUuid) {
+        map.set(sig, item)
+      }
+    }
+  }
+
+  return Array.from(map.values()) as T[]
+}
+
 function getStore<T>(key: string, seed: T[]): T[] {
   if (typeof window === "undefined") return seed
   try {
@@ -78,7 +135,15 @@ function getStore<T>(key: string, seed: T[]): T[] {
       localStorage.setItem(`altario:db:${key}`, JSON.stringify(seed))
       return seed
     }
-    return JSON.parse(raw) as T[]
+    const local = JSON.parse(raw) as T[]
+    if (!Array.isArray(local)) return seed
+
+    // Limpia cualquier residuo de duplicados que haya quedado en localStorage
+    const cleaned = deduplicateItems<T>(key, local)
+    if (cleaned.length !== local.length) {
+      localStorage.setItem(`altario:db:${key}`, JSON.stringify(cleaned))
+    }
+    return cleaned
   } catch {
     return seed
   }
@@ -553,3 +618,91 @@ export async function deleteMensaje(id: string): Promise<void> {
   saveMensajes(updated)
   syncStoreToFiles("mensajes", updated)
 }
+
+// ──────────────────────────────────────────────
+// DONACIONES Y SOSTENIMIENTO (HISTORIAL Y SEGUIMIENTO)
+// ──────────────────────────────────────────────
+export interface DonacionItem {
+  id: string
+  created_at: string
+  monto: number
+  moneda: string
+  tipo: "unica_vez" | "mensual" | string
+  estado: "approved" | "pending" | "rejected" | "in_process" | "authorized" | string
+  mp_payment_id?: string
+  mp_status_detail?: string
+  nombre_donante?: string
+  email_donante?: string
+  metodo_pago?: string
+  datos_adicionales?: Record<string, any>
+}
+
+export const getDonaciones = (): DonacionItem[] =>
+  getStore<DonacionItem>("donaciones", seedDonaciones as DonacionItem[])
+
+export const saveDonaciones = (items: DonacionItem[]) =>
+  setStore("donaciones", items)
+
+export async function fetchDonacionesFromDb(): Promise<DonacionItem[]> {
+  const local = getDonaciones()
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("donaciones")
+        .select("*")
+        .order("created_at", { ascending: false })
+
+      if (!error && data && data.length > 0) {
+        const mapped: DonacionItem[] = data.map((d: any) => ({
+          id: d.id,
+          created_at: d.created_at || new Date().toISOString(),
+          monto: Number(d.monto) || 0,
+          moneda: d.moneda || "UYU",
+          tipo: d.tipo || "unica_vez",
+          estado: d.estado || "pending",
+          mp_payment_id: d.mp_payment_id || undefined,
+          mp_status_detail: d.mp_status_detail || undefined,
+          nombre_donante: d.nombre_donante || "Anónimo",
+          email_donante: d.email_donante || "",
+          metodo_pago: d.metodo_pago || "Mercado Pago",
+          datos_adicionales: d.datos_adicionales || {},
+        }))
+        const deduped = deduplicateItems("donaciones", mapped)
+        saveDonaciones(deduped)
+        return deduped
+      }
+    } catch (e) {
+      console.warn("[DB] Error fetching donaciones from Supabase:", e)
+    }
+  }
+
+  // Fallback a archivos locales si Supabase no está configurado o falla
+  try {
+    const res = await fetch("/api/read-store?store=donaciones")
+    if (res.ok) {
+      const fileData = (await res.json()) as DonacionItem[]
+      if (Array.isArray(fileData) && fileData.length > 0) {
+        const deduped = deduplicateItems("donaciones", fileData)
+        saveDonaciones(deduped)
+        return deduped
+      }
+    }
+  } catch {}
+
+  return local
+}
+
+export async function deleteDonacion(id: string): Promise<void> {
+  if (supabase) {
+    try {
+      await supabase.from("donaciones").delete().eq("id", id)
+    } catch (e) {
+      console.warn("[DB] Error al eliminar donacion en Supabase:", e)
+    }
+  }
+  const updated = getDonaciones().filter(i => i.id !== id)
+  saveDonaciones(updated)
+  syncStoreToFiles("donaciones", updated)
+}
+

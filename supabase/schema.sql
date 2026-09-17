@@ -188,3 +188,27 @@ create policy "Acceso total sacramentos para CMS"
 
 create policy "Acceso total grupos para CMS"
   on public.grupos for all using (true) with check (true);
+
+-- TABLA: DONACIONES Y SOSTENIMIENTO (MERCADO PAGO)
+create table if not exists public.donaciones (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  monto numeric(10,2) not null,
+  moneda text not null default 'UYU',
+  tipo text not null default 'unica_vez', -- 'unica_vez', 'mensual'
+  estado text not null, -- 'approved', 'pending', 'rejected', 'in_process'
+  mp_payment_id text,
+  mp_status_detail text,
+  email_donante text,
+  nombre_donante text,
+  metodo_pago text,
+  datos_adicionales jsonb
+);
+
+alter table public.donaciones enable row level security;
+
+create policy "Inserción pública de donaciones"
+  on public.donaciones for insert with check (true);
+
+create policy "Lectura de donaciones para CMS"
+  on public.donaciones for select using (true);

@@ -3,10 +3,10 @@
 import * as React from "react"
 import { CatalogosSettings } from "@/components/views/settings/catalogos-settings"
 import { UsuariosSettings } from "@/components/views/settings/usuarios-settings"
-import { SitioSettings } from "@/components/views/settings/sitio-settings"
+import { DonacionesSettings } from "@/components/views/settings/donaciones-settings"
 import { CheckCircle2Icon, AlertCircleIcon, LockIcon } from "lucide-react"
 
-export type SettingsSection = "catalogos" | "usuarios" | "sitio" | "seguridad"
+export type SettingsSection = "catalogos" | "usuarios" | "donaciones" | "seguridad"
 
 interface NavItem {
   id: SettingsSection
@@ -16,7 +16,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { id: "catalogos", title: "Catálogos" },
   { id: "usuarios", title: "Usuarios" },
-  { id: "sitio", title: "Sitio Web" },
+  { id: "donaciones", title: "Donaciones" },
   { id: "seguridad", title: "Seguridad" },
 ]
 
@@ -26,31 +26,30 @@ export function SettingsView() {
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden flex-1 min-h-0">
       {/* ── 2-Column Split Workspace ──────────────────────────── */}
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-[230px_minmax(0,1fr)] lg:grid-cols-[250px_minmax(0,1fr)] min-h-0 overflow-hidden">
-        {/* Left Settings Submenu (Identical visual style to Sensilo) */}
-        <aside className="border-r border-border p-2.5 flex flex-col justify-between shrink-0 overflow-y-auto min-h-0 bg-sidebar/50">
-          <div className="space-y-1">
-            <ul className="flex w-full min-w-0 flex-col gap-1 list-none p-0 m-0">
+      <div className="flex-1 flex flex-col md:flex-row min-h-full h-full items-stretch overflow-hidden">
+        {/* Left Settings Submenu (Sizing identical to donaciones) */}
+        <aside className="w-full md:w-56 lg:w-64 shrink-0 border-r bg-muted/10 p-4 lg:p-6 flex flex-col justify-between overflow-y-auto min-h-0">
+          <div className="space-y-4">
+            <nav className="space-y-1">
               {NAV_ITEMS.map((item) => {
                 const isActive = activeSection === item.id
 
                 return (
-                  <li key={item.id} className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setActiveSection(item.id)}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-xs transition-colors text-left cursor-pointer h-8 ${
-                        isActive
-                          ? "bg-accent text-accent-foreground font-medium"
-                          : "text-muted-foreground font-normal hover:bg-muted/60 hover:text-foreground"
-                      }`}
-                    >
-                      <span className="truncate">{item.title}</span>
-                    </button>
-                  </li>
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setActiveSection(item.id)}
+                    className={`w-full text-left px-3 py-2.5 rounded-md text-sm transition-colors cursor-pointer ${
+                      isActive
+                        ? "bg-accent text-accent-foreground font-medium"
+                        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                    }`}
+                  >
+                    <span className="truncate">{item.title}</span>
+                  </button>
                 )
               })}
-            </ul>
+            </nav>
           </div>
 
           <div className="p-3 bg-background rounded-lg border border-border text-xs text-muted-foreground mt-4 shrink-0 shadow-2xs">
@@ -62,10 +61,10 @@ export function SettingsView() {
         </aside>
 
         {/* Right Settings Content */}
-        <main className="flex-1 min-w-0 overflow-hidden flex flex-col bg-background">
+        <main className="flex-1 w-full min-w-0 overflow-hidden flex flex-col bg-background">
           {activeSection === "catalogos" && <CatalogosSettings />}
           {activeSection === "usuarios" && <UsuariosSettings />}
-          {activeSection === "sitio" && <SitioSettings />}
+          {activeSection === "donaciones" && <DonacionesSettings />}
           {activeSection === "seguridad" && <SeguridadSettings />}
         </main>
       </div>
