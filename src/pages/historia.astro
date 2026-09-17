@@ -351,14 +351,12 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
         </h3>
         <div class="grilla-colegios">
           <article class="tarjeta-colegio">
-            <div class="tarjeta-colegio__marco">
-              <img
-                src="/assets/img/historia/colegio-santa-clara.jpg"
-                alt="Colegio Santa Clara"
-                class="tarjeta-colegio__img"
-                loading="lazy"
-              />
-            </div>
+            <img
+              src="/assets/img/historia/colegio-santa-clara.jpg"
+              alt="Colegio Santa Clara"
+              class="tarjeta-colegio__img"
+              loading="lazy"
+            />
             <div class="tarjeta-colegio__cuerpo">
               <h4>Colegio Santa Clara</h4>
               <p>Abierto en 1896 con la colaboración de las Religiosas de San José y el apoyo benefector de doña Clara Jackson de Heber.</p>
@@ -366,14 +364,12 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
           </article>
 
           <article class="tarjeta-colegio">
-            <div class="tarjeta-colegio__marco">
-              <img
-                src="/assets/img/historia/colegio-santa-maria-de-la-ayuda.jpg"
-                alt="Colegio Santa María de la Ayuda"
-                class="tarjeta-colegio__img"
-                loading="lazy"
-              />
-            </div>
+            <img
+              src="/assets/img/historia/colegio-santa-maria-de-la-ayuda.jpg"
+              alt="Colegio Santa María de la Ayuda"
+              class="tarjeta-colegio__img"
+              loading="lazy"
+            />
             <div class="tarjeta-colegio__cuerpo">
               <h4>Colegio Santa María de la Ayuda</h4>
               <p>Fundado en 1922 como institución educativa parroquial, pilar pedagógico y espiritual del Cerro durante generaciones.</p>
@@ -651,40 +647,16 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
 
       <div class="rejilla" style="margin-top:2.5rem">
         <article class="tarjeta">
-          <div class="marcador-foto marcador-foto--tarjeta">
-            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-              <circle cx="12" cy="13" r="4"></circle>
-            </svg>
-            <span class="marcador-foto__titulo">Buscar: Foto de sacerdotes y ordenaciones</span>
-            <span class="marcador-foto__detalle">Daniel Pérez (1954), Marcelo Garrone, Eric Juárez o Fernando García</span>
-          </div>
           <h3>Vocaciones nacidas en el Cerro</h3>
           <p>Fray Daniel Pérez (1954) fue el primer hijo de la parroquia en abrazar los votos capuchinos. Posteriormente florecieron vocaciones al clero secular: Marcelo Garrone (2002), Eric Juárez (2002) y Fernando García (2007).</p>
         </article>
 
         <article class="tarjeta">
-          <div class="marcador-foto marcador-foto--tarjeta">
-            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-              <circle cx="12" cy="13" r="4"></circle>
-            </svg>
-            <span class="marcador-foto__titulo">Buscar: Capillas Cruz Alta y Casabó</span>
-            <span class="marcador-foto__detalle">Fachada o vida de comunidad en las capillas periféricas</span>
-          </div>
           <h3>Capillas filiales</h3>
           <p>La capilla Cruz Alta (fundada en 1996) y Virgen de los Treinta y Tres en Casabó (2001) extendieron la vida comunitaria y misionera hacia los barrios más alejados del templo sede.</p>
         </article>
 
         <article class="tarjeta">
-          <div class="marcador-foto marcador-foto--tarjeta">
-            <svg class="marcador-foto__svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-              <circle cx="12" cy="13" r="4"></circle>
-            </svg>
-            <span class="marcador-foto__titulo">Buscar: Presencia Jesuita y misiones</span>
-            <span class="marcador-foto__detalle">Misiones populares y acción pastoral jesuita en la actualidad</span>
-          </div>
           <h3>Pastoral Jesuita y Misiones</h3>
           <p>El impulso apostólico se renueva mediante misiones comunitarias territoriales y la animación de la Compañía de Jesús, promoviendo la pastoral social y la piedad popular mariana.</p>
         </article>
@@ -950,149 +922,64 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     border-bottom: 0;
   }
 
-  /* ---------- Marcador / Placeholder de Imágenes ---------- */
-  .marcador-foto {
-    border: 2px dashed rgba(201, 169, 106, 0.55);
-    background: rgba(201, 169, 106, 0.05);
-    border-radius: 8px;
-    padding: 1.5rem;
-    text-align: center;
+  /* ---------- Foto Editorial (ocupa todo el div, sin recuadro blanco) ---------- */
+  .columna-lateral {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35rem;
-    color: var(--lapis, #16244A);
-    transition: all 0.2s ease;
-  }
-  .marcador-foto:hover {
-    border-color: var(--colorOro, #C9A96A);
-    background: rgba(201, 169, 106, 0.09);
-  }
-  .marcador-foto--editorial {
-    margin: 0;
     height: 100%;
-    min-height: 250px;
-    box-sizing: border-box;
   }
-  .seccion--oscura .marcador-foto {
-    border-color: rgba(201, 169, 106, 0.4);
-    background: rgba(255, 255, 255, 0.04);
-    color: #ffffff;
-  }
-  .seccion--oscura .marcador-foto:hover {
-    border-color: var(--colorOro, #C9A96A);
-    background: rgba(255, 255, 255, 0.08);
-  }
-  .marcador-foto--tarjeta {
-    margin: 0 0 1.25rem 0;
-    padding: 1.25rem 0.75rem;
-    aspect-ratio: 16 / 9;
-    border-width: 1.5px;
-    width: 100%;
-  }
-  .marcador-foto__badge {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--colorOro, #C9A96A);
-    background: rgba(201, 169, 106, 0.15);
-    padding: 0.25rem 0.65rem;
-    border-radius: 999px;
-    margin-bottom: 0.25rem;
-  }
-  .marcador-foto__svg {
-    color: var(--colorOro, #C9A96A);
-    margin-bottom: 0.25rem;
-  }
-  .marcador-foto__titulo {
-    font-weight: 700;
-    font-size: 0.95rem;
-    margin: 0;
-    line-height: 1.3;
-  }
-  .marcador-foto--tarjeta .marcador-foto__titulo {
-    font-size: 0.82rem;
-  }
-  .marcador-foto__detalle {
-    font-size: 0.82rem;
-    opacity: 0.85;
-    margin: 0;
-    max-width: 44ch;
-    line-height: 1.35;
-  }
-  .marcador-foto--tarjeta .marcador-foto__detalle {
-    font-size: 0.75rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .marcador-foto__sugerencia {
-    font-size: 0.76rem;
-    color: var(--colorOro, #C9A96A);
-    font-weight: 600;
-    margin-top: 0.25rem;
-  }
-  .marcador-foto__sugerencia code {
-    background: rgba(0, 0, 0, 0.06);
-    padding: 0.1rem 0.35rem;
-    border-radius: 4px;
-  }
-  .seccion--oscura .marcador-foto__sugerencia code {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  /* ---------- Foto Editorial (ocupa todo el div, sin recuadro blanco) ---------- */
   .foto-editorial {
     margin: 0;
     width: 100%;
     height: 100%;
+    min-height: 460px;
     position: relative;
     border-radius: 8px;
     overflow: hidden;
-    background: rgba(16, 24, 48, 0.08);
-    border: 1px solid rgba(201, 169, 106, 0.3);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
-    display: flex;
+    background: #16244A;
+    border: 1px solid rgba(201, 169, 106, 0.35);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
   }
   .foto-editorial__img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    min-height: 420px;
     object-fit: cover;
+    object-position: center top;
     display: block;
-    transition: transform 0.5s ease;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .foto-editorial:hover .foto-editorial__img {
-    transform: scale(1.02);
+    transform: scale(1.03);
   }
   .foto-editorial__pie {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 2.75rem 1.35rem 1.15rem;
-    background: linear-gradient(to top, rgba(16, 24, 48, 0.92) 0%, rgba(16, 24, 48, 0.55) 55%, transparent 100%);
+    padding: 3.5rem 1.6rem 1.4rem;
+    background: linear-gradient(to top, rgba(16, 24, 48, 0.95) 0%, rgba(16, 24, 48, 0.6) 60%, transparent 100%);
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.3rem;
     border-top: none !important;
+    z-index: 2;
   }
   .foto-editorial__pie strong {
     color: #C9A96A;
-    font-size: 0.98rem;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    font-size: 1.05rem;
+    font-family: var(--display, Marcellus);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
   }
   .foto-editorial__pie span {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 0.82rem;
-    line-height: 1.4;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.86rem;
+    line-height: 1.45;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
   }
 
-  /* ---------- Grilla Colegios (fotos a sangre completa) ---------- */
+  /* ---------- Grilla Colegios (fotos a sangre completa, sin recuadro blanco) ---------- */
   .grilla-colegios {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -1104,53 +991,58 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     }
   }
   .tarjeta-colegio {
-    background: var(--superficie, #fff);
-    border: 1px solid var(--linea, rgba(201, 169, 106, 0.25));
+    position: relative;
+    height: 320px;
     border-radius: 8px;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(201, 169, 106, 0.35);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    background: #16244A;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   }
   .tarjeta-colegio:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.09);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
     border-color: var(--colorOro, #C9A96A);
   }
-  .tarjeta-colegio__marco {
-    width: 100%;
-    height: 220px;
-    overflow: hidden;
-    background: rgba(0, 0, 0, 0.05);
-  }
   .tarjeta-colegio__img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center 30%;
     display: block;
-    transition: transform 0.5s ease;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .tarjeta-colegio:hover .tarjeta-colegio__img {
-    transform: scale(1.04);
+    transform: scale(1.05);
   }
   .tarjeta-colegio__cuerpo {
-    padding: 1.5rem 1.75rem 1.75rem;
-    flex: 1;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 3.5rem 1.6rem 1.4rem;
+    background: linear-gradient(to top, rgba(16, 24, 48, 0.95) 0%, rgba(16, 24, 48, 0.65) 60%, transparent 100%);
     display: flex;
     flex-direction: column;
+    gap: 0.35rem;
+    z-index: 2;
   }
   .tarjeta-colegio__cuerpo h4 {
-    margin: 0 0 0.5rem;
-    font-size: 1.15rem;
+    margin: 0;
+    font-size: 1.25rem;
     font-family: var(--display, Marcellus);
-    color: var(--lapis, #16244A);
+    color: #C9A96A;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
   }
   .tarjeta-colegio__cuerpo p {
     margin: 0;
-    color: var(--tinta, #333);
-    font-size: 0.95rem;
-    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.92rem;
+    line-height: 1.45;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
   }
 
   /* Distintivo de Época / Tarjeta */
@@ -1393,8 +1285,8 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
       grid-template-columns: 1fr;
       gap: 1.75rem;
     }
-    .marcador-foto--editorial {
-      min-height: 200px;
+    .foto-editorial {
+      min-height: 380px;
     }
     .cronologia__item {
       grid-template-columns: 1fr;
@@ -1409,10 +1301,6 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     }
     .cronologia__cuerpo::before {
       display: none;
-    }
-    .marcador-foto--tarjeta {
-      aspect-ratio: auto;
-      min-height: 120px;
     }
     .museo-cabecera {
       flex-direction: column;

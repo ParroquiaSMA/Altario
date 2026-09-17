@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Analytics from '@vercel/analytics/astro';
 import { getSiteConfig } from '../lib/supabase';
 import '../styles/global.css';
 
@@ -138,5 +139,6 @@ const ogImageUrl = seo?.og_image_url || parroquia.logo_url || undefined;
     <Footer />
 
     <script is:inline src="/assets/parroquia.js"></script>
+    <Analytics />
   </body>
 </html>
