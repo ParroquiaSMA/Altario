@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { getSiteConfig } from '../lib/supabase';
+import '../styles/global.css';
 
 interface Props {
   title?: string;
@@ -74,7 +75,7 @@ const ogImageUrl = seo?.og_image_url || parroquia.logo_url || undefined;
       href="https://fonts.googleapis.com/css2?family=Marcellus&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/assets/estilos.css" />
+    <link rel="stylesheet" href="/assets/estilos.css?v=20260917b" />
 
     {/* Dynamic theme colors configured from CMS */}
     <style define:vars={{

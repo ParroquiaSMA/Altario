@@ -31,6 +31,7 @@ const initials = parroquia.logo_iniciales || getAutoInitials(parroquia.nombre);
           alt={parroquia.nombre}
           class="marca__logo"
           loading="eager"
+          style="height: 42px; max-height: 42px; width: auto; max-width: 220px; object-fit: contain;"
         />
       ) : (
         <>
@@ -60,3 +61,14 @@ const initials = parroquia.logo_iniciales || getAutoInitials(parroquia.nombre);
     </nav>
   </div>
 </header>
+
+<style>
+  .marca__logo {
+    height: 42px !important;
+    max-height: 42px !important;
+    width: auto !important;
+    max-width: 220px !important;
+    object-fit: contain !important;
+    display: block !important;
+  }
+</style>
