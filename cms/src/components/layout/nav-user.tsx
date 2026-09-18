@@ -105,12 +105,15 @@ export function NavUser({ user }: { user: User }) {
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <Avatar className="size-8 rounded-lg">
+          <DropdownMenuTrigger
+            render={
+              <SidebarMenuButton
+                size="lg"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              />
+            }
+          >
+            <Avatar className="size-8 rounded-lg">
                 {user.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
                 <AvatarFallback className="rounded-lg font-medium">
                   {getInitials(user.name)}
@@ -121,7 +124,6 @@ export function NavUser({ user }: { user: User }) {
                 <span className="truncate text-xs text-muted-foreground">{user.email}</span>
               </div>
               <EllipsisVerticalIcon className="ms-auto size-4" />
-            </SidebarMenuButton>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
