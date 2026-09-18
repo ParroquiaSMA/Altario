@@ -170,6 +170,10 @@ function setStore<T>(key: string, items: T[]): void {
 
 function syncStoreToFiles(store: string, data: any): void {
   if (typeof window === "undefined") return
+  // Solo sincronizar a archivos en entorno local de desarrollo (Vite middleware)
+  if (!window.location.hostname.includes("localhost") && !window.location.hostname.includes("127.0.0.1")) {
+    return
+  }
   fetch("/api/sync-store", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
