@@ -71,11 +71,18 @@ async function vercelFetch(path: string, params: Record<string, string>): Promis
     const res = await fetch(url.toString(), {
       headers: { Authorization: `Bearer ${TOKEN}` },
     })
-    if (!res.ok) return null
+    if (!res.ok) {
+      console.warn(`[Vercel Analytics] HTTP ${res.status} on ${path}:`, await res.text())
+      return null
+    }
     const json = await res.json()
-    if (json.error) return null
+    if (json.error) {
+      console.warn(`[Vercel Analytics] API error on ${path}:`, json.error)
+      return null
+    }
     return json.data
-  } catch {
+  } catch (err) {
+    console.warn(`[Vercel Analytics] Fetch failed on ${path}:`, err)
     return null
   }
 }

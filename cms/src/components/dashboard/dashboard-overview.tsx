@@ -271,14 +271,14 @@ export function DashboardOverview() {
   const DEVICE_COLORS = ["var(--foreground)", "#A3D4EE", "#D9A07A"]
 
   // Current traffic slice (for area chart)
-  const vals = visitCounts.length ? visitCounts : [0]
+  const vals = visitCounts.length ? visitCounts : Array(range).fill(0)
   const W = 380
-  const H = 190
-  const pb = 20
-  const pt = 10
+  const H = 150
+  const pb = 26
+  const pt = 12
   const mx = Math.max(...vals, 1) * 1.15
   const n = vals.length
-  const getX = (i: number) => i * (W / (n - 1))
+  const getX = (i: number) => (n > 1 ? i * (W / (n - 1)) : W / 2)
   const getY = (v: number) => pt + (H - pb - pt) * (1 - v / mx)
 
   let areaPathD = ""
@@ -294,23 +294,34 @@ export function DashboardOverview() {
   })
 
   const getLabelDate = (i: number) => {
-    const today = new Date(2026, 8, 18)
-    const dt = new Date(today)
-    dt.setDate(today.getDate() - (n - 1 - i))
+    if (trafficTimeseries[i]?.timestamp) {
+      const dt = new Date(trafficTimeseries[i].timestamp)
+      return dt.toLocaleDateString("es-UY", { day: "numeric", month: "short" })
+    }
+    const dt = new Date()
+    dt.setDate(dt.getDate() - (n - 1 - i))
     return dt.toLocaleDateString("es-UY", { day: "numeric", month: "short" })
   }
+
+  // Índices para etiquetas en el eje X: inicio, centro y final (evita textos superpuestos)
+  const labelIndices =
+    n >= 3
+      ? [0, Math.floor((n - 1) / 2), n - 1]
+      : n === 2
+      ? [0, 1]
+      : [0]
 
   const handlePointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
     if (!areaSvgRef.current) return
     const rect = areaSvgRef.current.getBoundingClientRect()
     const sx = (e.clientX - rect.left) * (W / rect.width)
-    const i = Math.max(0, Math.min(vals.length - 1, Math.round(sx / (W / (vals.length - 1)))))
+    const i = Math.max(0, Math.min(vals.length - 1, Math.round(sx / (W / Math.max(vals.length - 1, 1)))))
     const x = getX(i)
     const y = getY(vals[i])
     setTooltip({
       show: true,
       x: (x * rect.width) / W,
-      y: (y * rect.height) / 190,
+      y: (y * rect.height) / H,
       val: vals[i],
       date: getLabelDate(i),
     })
@@ -849,7 +860,7 @@ export function DashboardOverview() {
             <div className="relative mt-3">
               <svg
                 ref={areaSvgRef}
-                className="w-full h-44 cursor-crosshair"
+                className="w-full h-36 cursor-crosshair block"
                 viewBox={`0 0 ${W} ${H}`}
                 onPointerMove={handlePointerMove}
                 onPointerLeave={() => setTooltip((t) => ({ ...t, show: false }))}
@@ -874,15 +885,15 @@ export function DashboardOverview() {
                 ))}
                 <path d={`${areaPathD} L${W} ${H - pb} L0 ${H - pb}Z`} fill="url(#ag)" />
                 <path d={areaPathD} fill="none" stroke="currentColor" strokeWidth="1.8" />
-                {[0, Math.floor((n - 1) / 2), n - 1].map((idx, k) => (
+                {labelIndices.map((idx, k) => (
                   <text
                     key={idx}
                     x={getX(idx)}
-                    y={H - 4}
-                    textAnchor={k === 0 ? "start" : k === 2 ? "end" : "middle"}
-                    fontSize="11"
+                    y={H - 6}
+                    textAnchor={k === 0 ? "start" : k === labelIndices.length - 1 ? "end" : "middle"}
+                    fontSize="10"
                     fill="currentColor"
-                    opacity="0.5"
+                    opacity="0.55"
                   >
                     {getLabelDate(idx)}
                   </text>
@@ -900,7 +911,7 @@ export function DashboardOverview() {
             </div>
 
             {/* Trío de métricas inferiores */}
-            <div className="grid grid-cols-2 border-t border-border pt-3 mt-3 divide-x divide-border text-center">
+            <div className="grid grid-cols-2 border-t border-border pt-3.5 mt-3 divide-x divide-border text-center">
               <div>
                 <span className="block text-[11px] text-muted-foreground">Páginas vistas</span>
                 <b className="text-sm font-semibold tabular-nums">
