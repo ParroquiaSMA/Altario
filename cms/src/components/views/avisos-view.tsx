@@ -55,11 +55,8 @@ export function AvisosView() {
   const [descripcion, setDescripcion] = React.useState("")
 
   const refresh = React.useCallback(async () => {
-    setAvisos(getAvisos())
     const dbItems = await fetchAvisosFromDb()
-    if (dbItems && dbItems.length > 0) {
-      setAvisos(dbItems)
-    }
+    setAvisos(dbItems || [])
   }, [])
 
   React.useEffect(() => {

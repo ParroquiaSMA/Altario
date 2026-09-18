@@ -128,44 +128,39 @@ function deduplicateItems<T>(key: string, items: T[]): T[] {
   return Array.from(map.values()) as T[]
 }
 
-// Memoria en tiempo de ejecución (sin localStorage para evitar duplicaciones y estados desfasados)
+// Memoria en tiempo de ejecución (directa de Supabase si está disponible)
 const inMemoryStores: Record<string, any[]> = {
-  horarios: seedHorarios,
-  avisos: seedAvisos,
-  sacramentos: seedSacramentos,
-  grupos: seedGrupos,
-  galeria: seedFotos,
-  mensajes: seedMensajes,
+  horarios: supabase ? [] : seedHorarios,
+  avisos: supabase ? [] : seedAvisos,
+  sacramentos: supabase ? [] : seedSacramentos,
+  grupos: supabase ? [] : seedGrupos,
+  galeria: supabase ? [] : seedFotos,
+  mensajes: supabase ? [] : seedMensajes,
+  donaciones: [],
+}
+
+// Limpiar residuos de seeds en localStorage si Supabase está activo
+if (typeof window !== "undefined" && supabase) {
+  try {
+    const keysToClean = ["horarios", "avisos", "sacramentos", "grupos", "galeria", "fotos", "mensajes", "donaciones"]
+    for (const k of keysToClean) {
+      localStorage.removeItem(`altario_store_${k}`)
+    }
+  } catch {}
 }
 
 function getStore<T>(key: string, seed: T[]): T[] {
-  if (inMemoryStores[key]) {
+  if (supabase) {
+    return (inMemoryStores[key] || []) as T[]
+  }
+  if (inMemoryStores[key] && inMemoryStores[key].length > 0) {
     return inMemoryStores[key] as T[]
   }
-  if (typeof window !== "undefined") {
-    try {
-      const stored = localStorage.getItem(`altario_store_${key}`)
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          inMemoryStores[key] = deduplicateItems<T>(key, parsed)
-          return inMemoryStores[key] as T[]
-        }
-      }
-    } catch {}
-  }
-  inMemoryStores[key] = deduplicateItems<T>(key, seed)
-  return inMemoryStores[key] as T[]
+  return seed as T[]
 }
 
 function setStore<T>(key: string, items: T[]): void {
-  const deduped = deduplicateItems<T>(key, items)
-  inMemoryStores[key] = deduped
-  if (typeof window !== "undefined") {
-    try {
-      localStorage.setItem(`altario_store_${key}`, JSON.stringify(deduped))
-    } catch {}
-  }
+  inMemoryStores[key] = items
 }
 
 function syncStoreToFiles(store: string, data: any): void {
@@ -188,15 +183,19 @@ export const getHorarios = (): HorarioItem[] => getStore<HorarioItem>("horarios"
 export const saveHorarios = (items: HorarioItem[]) => setStore("horarios", items)
 
 export async function fetchHorariosFromDb(): Promise<HorarioItem[]> {
-  const local = getHorarios()
-  if (!supabase) return local
+  if (!supabase) return inMemoryStores["horarios"] || []
   try {
     const { data, error } = await supabase.from("horarios").select("*").order("orden", { ascending: true })
-    if (error || !data) return local
-    saveHorarios(data as HorarioItem[])
-    return data as HorarioItem[]
-  } catch {
-    return local
+    if (error) {
+      console.error("[DB] Error al obtener horarios:", error)
+      return inMemoryStores["horarios"] || []
+    }
+    const items = (data || []) as HorarioItem[]
+    inMemoryStores["horarios"] = items
+    return items
+  } catch (err) {
+    console.error("[DB] Error al obtener horarios:", err)
+    return inMemoryStores["horarios"] || []
   }
 }
 
@@ -280,15 +279,19 @@ export const getAvisos = (): AvisoItem[] => getStore<AvisoItem>("avisos", seedAv
 export const saveAvisos = (items: AvisoItem[]) => setStore("avisos", items)
 
 export async function fetchAvisosFromDb(): Promise<AvisoItem[]> {
-  const local = getAvisos()
-  if (!supabase) return local
+  if (!supabase) return inMemoryStores["avisos"] || []
   try {
     const { data, error } = await supabase.from("avisos").select("*").order("fecha", { ascending: true })
-    if (error || !data) return local
-    saveAvisos(data as AvisoItem[])
-    return data as AvisoItem[]
-  } catch {
-    return local
+    if (error) {
+      console.error("[DB] Error al obtener avisos:", error)
+      return inMemoryStores["avisos"] || []
+    }
+    const items = (data || []) as AvisoItem[]
+    inMemoryStores["avisos"] = items
+    return items
+  } catch (err) {
+    console.error("[DB] Exception avisos:", err)
+    return inMemoryStores["avisos"] || []
   }
 }
 
@@ -300,9 +303,9 @@ export async function addAviso(item: Omit<AvisoItem, "id">): Promise<AvisoItem> 
     throw new Error(error?.message || "Error al insertar aviso en la base de datos")
   }
   const nuevo = data[0] as AvisoItem
-  const items = getAvisos()
+  const items = inMemoryStores["avisos"] || []
   const updated = [nuevo, ...items.filter(i => i.id !== nuevo.id)]
-  saveAvisos(updated)
+  inMemoryStores["avisos"] = updated
   syncStoreToFiles("avisos", updated)
   return nuevo
 }
@@ -314,9 +317,9 @@ export async function updateAviso(id: string, updates: Partial<AvisoItem>): Prom
     console.error("[DB] Error al actualizar aviso en Supabase:", error)
     throw new Error(error.message)
   }
-  const items = getAvisos()
+  const items = inMemoryStores["avisos"] || []
   const updated = items.map(i => (i.id === id ? { ...i, ...updates } : i))
-  saveAvisos(updated)
+  inMemoryStores["avisos"] = updated
   syncStoreToFiles("avisos", updated)
 }
 
@@ -327,8 +330,8 @@ export async function deleteAviso(id: string): Promise<void> {
     console.error("[DB] Error al eliminar aviso en Supabase:", error)
     throw new Error(error.message)
   }
-  const updated = getAvisos().filter(i => i.id !== id)
-  saveAvisos(updated)
+  const updated = (inMemoryStores["avisos"] || []).filter(i => i.id !== id)
+  inMemoryStores["avisos"] = updated
   syncStoreToFiles("avisos", updated)
 }
 
@@ -339,14 +342,16 @@ export const getFotos = (): FotoItem[] => getStore<FotoItem>("fotos", seedFotos 
 export const saveFotos = (items: FotoItem[]) => setStore("fotos", items)
 
 export async function fetchFotosFromDb(): Promise<FotoItem[]> {
-  const local = getFotos()
-  if (!supabase) return local
+  if (!supabase) return inMemoryStores["fotos"] || []
 
   try {
     const { data, error } = await supabase.from("galeria").select("*").order("orden", { ascending: true })
-    if (error || !data) return local
+    if (error) {
+      console.error("[DB] Error al obtener fotos:", error)
+      return inMemoryStores["fotos"] || []
+    }
 
-    const mapped: FotoItem[] = data.map((d: any) => ({
+    const mapped: FotoItem[] = (data || []).map((d: any) => ({
       id: d.id,
       titulo: d.titulo,
       categoria: d.categoria,
@@ -357,10 +362,11 @@ export async function fetchFotosFromDb(): Promise<FotoItem[]> {
       orden: d.orden ?? 0,
     }))
 
-    saveFotos(mapped)
+    inMemoryStores["fotos"] = mapped
     return mapped
-  } catch {
-    return local
+  } catch (err) {
+    console.error("[DB] Exception fotos:", err)
+    return inMemoryStores["fotos"] || []
   }
 }
 
@@ -394,59 +400,35 @@ export async function addFoto(item: Omit<FotoItem, "id">): Promise<FotoItem> {
     activo: Boolean(data[0].activo),
     orden: data[0].orden ?? 0,
   }
-  const items = getFotos()
+  const items = inMemoryStores["fotos"] || []
   const updated = [nuevo, ...items.filter(i => i.id !== nuevo.id)]
-  saveFotos(updated)
+  inMemoryStores["fotos"] = updated
   syncStoreToFiles("galeria", updated)
   return nuevo
 }
 
 export async function updateFoto(id: string, updates: Partial<FotoItem>): Promise<void> {
   if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-  let query = supabase.from("galeria").update(updates)
-  if (isUuid) {
-    query = query.eq("id", id)
-  } else {
-    const item = getFotos().find(i => i.id === id)
-    if (item?.titulo) {
-      query = query.eq("titulo", item.titulo)
-    } else {
-      query = query.eq("id", id)
-    }
-  }
-  const { error } = await query
+  const { error } = await supabase.from("galeria").update(updates).eq("id", id)
   if (error) {
     console.error("[DB] Error al actualizar foto en Supabase:", error)
     throw new Error(error.message)
   }
-  const items = getFotos()
+  const items = inMemoryStores["fotos"] || []
   const updated = items.map(i => (i.id === id ? { ...i, ...updates } : i))
-  saveFotos(updated)
+  inMemoryStores["fotos"] = updated
   syncStoreToFiles("galeria", updated)
 }
 
 export async function deleteFoto(id: string): Promise<void> {
   if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-  let query = supabase.from("galeria").delete()
-  if (isUuid) {
-    query = query.eq("id", id)
-  } else {
-    const item = getFotos().find(i => i.id === id)
-    if (item?.titulo) {
-      query = query.eq("titulo", item.titulo)
-    } else {
-      query = query.eq("id", id)
-    }
-  }
-  const { error } = await query
+  const { error } = await supabase.from("galeria").delete().eq("id", id)
   if (error) {
     console.error("[DB] Error al eliminar foto en Supabase:", error)
     throw new Error(error.message)
   }
-  const updated = getFotos().filter(i => i.id !== id)
-  saveFotos(updated)
+  const updated = (inMemoryStores["fotos"] || []).filter(i => i.id !== id)
+  inMemoryStores["fotos"] = updated
   syncStoreToFiles("galeria", updated)
 }
 
@@ -457,15 +439,19 @@ export const getSacramentos = (): SacramentoItem[] => getStore<SacramentoItem>("
 export const saveSacramentos = (items: SacramentoItem[]) => setStore("sacramentos", items)
 
 export async function fetchSacramentosFromDb(): Promise<SacramentoItem[]> {
-  const local = getSacramentos()
-  if (!supabase) return local
+  if (!supabase) return inMemoryStores["sacramentos"] || []
   try {
     const { data, error } = await supabase.from("sacramentos").select("*").order("orden", { ascending: true })
-    if (error || !data) return local
-    saveSacramentos(data as SacramentoItem[])
-    return data as SacramentoItem[]
-  } catch {
-    return local
+    if (error) {
+      console.error("[DB] Error al obtener sacramentos:", error)
+      return inMemoryStores["sacramentos"] || []
+    }
+    const items = (data || []) as SacramentoItem[]
+    inMemoryStores["sacramentos"] = items
+    return items
+  } catch (err) {
+    console.error("[DB] Exception sacramentos:", err)
+    return inMemoryStores["sacramentos"] || []
   }
 }
 
@@ -477,59 +463,35 @@ export async function addSacramento(item: Omit<SacramentoItem, "id">): Promise<S
     throw new Error(error?.message || "Error al insertar sacramento en la base de datos")
   }
   const nuevo = data[0] as SacramentoItem
-  const items = getSacramentos()
+  const items = inMemoryStores["sacramentos"] || []
   const updated = [nuevo, ...items.filter(i => i.id !== nuevo.id)]
-  saveSacramentos(updated)
+  inMemoryStores["sacramentos"] = updated
   syncStoreToFiles("sacramentos", updated)
   return nuevo
 }
 
 export async function updateSacramento(id: string, updates: Partial<SacramentoItem>): Promise<void> {
   if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-  let query = supabase.from("sacramentos").update(updates)
-  if (isUuid) {
-    query = query.eq("id", id)
-  } else {
-    const item = getSacramentos().find(i => i.id === id)
-    if (item?.slug) {
-      query = query.eq("slug", item.slug)
-    } else {
-      query = query.eq("id", id)
-    }
-  }
-  const { error } = await query
+  const { error } = await supabase.from("sacramentos").update(updates).eq("id", id)
   if (error) {
     console.error("[DB] Error al actualizar sacramento en Supabase:", error)
     throw new Error(error.message)
   }
-  const items = getSacramentos()
+  const items = inMemoryStores["sacramentos"] || []
   const updated = items.map(i => (i.id === id ? { ...i, ...updates } : i))
-  saveSacramentos(updated)
+  inMemoryStores["sacramentos"] = updated
   syncStoreToFiles("sacramentos", updated)
 }
 
 export async function deleteSacramento(id: string): Promise<void> {
   if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-  let query = supabase.from("sacramentos").delete()
-  if (isUuid) {
-    query = query.eq("id", id)
-  } else {
-    const item = getSacramentos().find(i => i.id === id)
-    if (item?.slug) {
-      query = query.eq("slug", item.slug)
-    } else {
-      query = query.eq("id", id)
-    }
-  }
-  const { error } = await query
+  const { error } = await supabase.from("sacramentos").delete().eq("id", id)
   if (error) {
     console.error("[DB] Error al eliminar sacramento en Supabase:", error)
     throw new Error(error.message)
   }
-  const updated = getSacramentos().filter(i => i.id !== id)
-  saveSacramentos(updated)
+  const updated = (inMemoryStores["sacramentos"] || []).filter(i => i.id !== id)
+  inMemoryStores["sacramentos"] = updated
   syncStoreToFiles("sacramentos", updated)
 }
 
@@ -540,15 +502,19 @@ export const getGrupos = (): GrupoItem[] => getStore<GrupoItem>("grupos", seedGr
 export const saveGrupos = (items: GrupoItem[]) => setStore("grupos", items)
 
 export async function fetchGruposFromDb(): Promise<GrupoItem[]> {
-  const local = getGrupos()
-  if (!supabase) return local
+  if (!supabase) return inMemoryStores["grupos"] || []
   try {
     const { data, error } = await supabase.from("grupos").select("*").order("orden", { ascending: true })
-    if (error || !data) return local
-    saveGrupos(data as GrupoItem[])
-    return data as GrupoItem[]
-  } catch {
-    return local
+    if (error) {
+      console.error("[DB] Error al obtener grupos:", error)
+      return inMemoryStores["grupos"] || []
+    }
+    const items = (data || []) as GrupoItem[]
+    inMemoryStores["grupos"] = items
+    return items
+  } catch (err) {
+    console.error("[DB] Exception grupos:", err)
+    return inMemoryStores["grupos"] || []
   }
 }
 
@@ -560,61 +526,38 @@ export async function addGrupo(item: Omit<GrupoItem, "id">): Promise<GrupoItem> 
     throw new Error(error?.message || "Error al insertar grupo en la base de datos")
   }
   const nuevo = data[0] as GrupoItem
-  const items = getGrupos()
+  const items = inMemoryStores["grupos"] || []
   const updated = [nuevo, ...items.filter(i => i.id !== nuevo.id)]
-  saveGrupos(updated)
+  inMemoryStores["grupos"] = updated
   syncStoreToFiles("grupos", updated)
   return nuevo
 }
 
 export async function updateGrupo(id: string, updates: Partial<GrupoItem>): Promise<void> {
   if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-  let query = supabase.from("grupos").update(updates)
-  if (isUuid) {
-    query = query.eq("id", id)
-  } else {
-    const item = getGrupos().find(i => i.id === id)
-    if (item?.nombre) {
-      query = query.eq("nombre", item.nombre)
-    } else {
-      query = query.eq("id", id)
-    }
-  }
-  const { error } = await query
+  const { error } = await supabase.from("grupos").update(updates).eq("id", id)
   if (error) {
     console.error("[DB] Error al actualizar grupo en Supabase:", error)
     throw new Error(error.message)
   }
-  const items = getGrupos()
+  const items = inMemoryStores["grupos"] || []
   const updated = items.map(i => (i.id === id ? { ...i, ...updates } : i))
-  saveGrupos(updated)
+  inMemoryStores["grupos"] = updated
   syncStoreToFiles("grupos", updated)
 }
 
 export async function deleteGrupo(id: string): Promise<void> {
   if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-  let query = supabase.from("grupos").delete()
-  if (isUuid) {
-    query = query.eq("id", id)
-  } else {
-    const item = getGrupos().find(i => i.id === id)
-    if (item?.nombre) {
-      query = query.eq("nombre", item.nombre)
-    } else {
-      query = query.eq("id", id)
-    }
-  }
-  const { error } = await query
+  const { error } = await supabase.from("grupos").delete().eq("id", id)
   if (error) {
     console.error("[DB] Error al eliminar grupo en Supabase:", error)
     throw new Error(error.message)
   }
-  const updated = getGrupos().filter(i => i.id !== id)
-  saveGrupos(updated)
+  const updated = (inMemoryStores["grupos"] || []).filter(i => i.id !== id)
+  inMemoryStores["grupos"] = updated
   syncStoreToFiles("grupos", updated)
 }
+
 // ──────────────────────────────────────────────
 // MENSAJES
 // ──────────────────────────────────────────────
@@ -622,16 +565,18 @@ export const getMensajes = (): MensajeItem[] => getStore<MensajeItem>("mensajes"
 export const saveMensajes = (items: MensajeItem[]) => setStore("mensajes", items)
 
 export async function fetchMensajesFromDb(): Promise<MensajeItem[]> {
-  const local = getMensajes()
-  if (!supabase) return local
+  if (!supabase) return inMemoryStores["mensajes"] || []
   try {
     const { data, error } = await supabase
       .from("mensajes_contacto")
       .select("*")
       .order("created_at", { ascending: false })
 
-    if (error || !data) return local
-    const mapped: MensajeItem[] = data.map((d: any) => ({
+    if (error) {
+      console.error("[DB] Error al obtener mensajes:", error)
+      return inMemoryStores["mensajes"] || []
+    }
+    const mapped: MensajeItem[] = (data || []).map((d: any) => ({
       id: d.id,
       nombre: d.nombre || "Sin nombre",
       correo: d.correo || "",
@@ -643,44 +588,38 @@ export async function fetchMensajesFromDb(): Promise<MensajeItem[]> {
       respondido: Boolean(d.respondido),
       created_at: d.created_at || new Date().toISOString(),
     }))
-    saveMensajes(mapped)
+    inMemoryStores["mensajes"] = mapped
     return mapped
   } catch (e) {
     console.warn("[DB] Error fetching mensajes:", e)
-    return local
+    return inMemoryStores["mensajes"] || []
   }
 }
 
 export async function updateMensaje(id: string, updates: Partial<MensajeItem>): Promise<void> {
   if (supabase) {
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-    if (isUuid) {
-      const { error } = await supabase.from("mensajes_contacto").update(updates).eq("id", id)
-      if (error) {
-        console.error("[DB] Error al actualizar mensaje en Supabase:", error)
-        throw new Error(error.message)
-      }
+    const { error } = await supabase.from("mensajes_contacto").update(updates).eq("id", id)
+    if (error) {
+      console.error("[DB] Error al actualizar mensaje en Supabase:", error)
+      throw new Error(error.message)
     }
   }
-  const items = getMensajes()
+  const items = inMemoryStores["mensajes"] || []
   const updated = items.map(i => (i.id === id ? { ...i, ...updates } : i))
-  saveMensajes(updated)
+  inMemoryStores["mensajes"] = updated
   syncStoreToFiles("mensajes", updated)
 }
 
 export async function deleteMensaje(id: string): Promise<void> {
   if (supabase) {
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-    if (isUuid) {
-      const { error } = await supabase.from("mensajes_contacto").delete().eq("id", id)
-      if (error) {
-        console.error("[DB] Error al eliminar mensaje en Supabase:", error)
-        throw new Error(error.message)
-      }
+    const { error } = await supabase.from("mensajes_contacto").delete().eq("id", id)
+    if (error) {
+      console.error("[DB] Error al eliminar mensaje en Supabase:", error)
+      throw new Error(error.message)
     }
   }
-  const updated = getMensajes().filter(i => i.id !== id)
-  saveMensajes(updated)
+  const updated = (inMemoryStores["mensajes"] || []).filter(i => i.id !== id)
+  inMemoryStores["mensajes"] = updated
   syncStoreToFiles("mensajes", updated)
 }
 
@@ -710,41 +649,40 @@ export const saveDonaciones = (items: DonacionItem[]) =>
   setStore("donaciones", items)
 
 export async function fetchDonacionesFromDb(): Promise<DonacionItem[]> {
-  const local = getDonaciones()
+  if (!supabase) return inMemoryStores["donaciones"] || []
 
-  if (supabase) {
-    try {
-      const { data, error } = await supabase
-        .from("donaciones")
-        .select("*")
-        .order("created_at", { ascending: false })
+  try {
+    const { data, error } = await supabase
+      .from("donaciones")
+      .select("*")
+      .order("created_at", { ascending: false })
 
-      if (!error && data && data.length > 0) {
-        const mapped: DonacionItem[] = data.map((d: any) => ({
-          id: d.id,
-          created_at: d.created_at || new Date().toISOString(),
-          monto: Number(d.monto) || 0,
-          moneda: d.moneda || "UYU",
-          tipo: d.tipo || "unica_vez",
-          estado: d.estado || "pending",
-          mp_payment_id: d.mp_payment_id || undefined,
-          mp_status_detail: d.mp_status_detail || undefined,
-          nombre_donante: d.nombre_donante || "Anónimo",
-          email_donante: d.email_donante || "",
-          metodo_pago: d.metodo_pago || "Mercado Pago",
-          archivada: Boolean(d.archivada),
-          datos_adicionales: d.datos_adicionales || {},
-        }))
-        const deduped = deduplicateItems("donaciones", mapped)
-        saveDonaciones(deduped)
-        return deduped
-      }
-    } catch (e) {
-      console.warn("[DB] Error fetching donaciones from Supabase:", e)
+    if (error) {
+      console.error("[DB] Error fetching donaciones from Supabase:", error)
+      return inMemoryStores["donaciones"] || []
     }
-  }
 
-  return local
+    const mapped: DonacionItem[] = (data || []).map((d: any) => ({
+      id: d.id,
+      created_at: d.created_at || new Date().toISOString(),
+      monto: Number(d.monto) || 0,
+      moneda: d.moneda || "UYU",
+      tipo: d.tipo || "unica_vez",
+      estado: d.estado || "pending",
+      mp_payment_id: d.mp_payment_id || undefined,
+      mp_status_detail: d.mp_status_detail || undefined,
+      nombre_donante: d.nombre_donante || "Anónimo",
+      email_donante: d.email_donante || "",
+      metodo_pago: d.metodo_pago || "Mercado Pago",
+      archivada: Boolean(d.archivada),
+      datos_adicionales: d.datos_adicionales || {},
+    }))
+    inMemoryStores["donaciones"] = mapped
+    return mapped
+  } catch (e) {
+    console.warn("[DB] Error fetching donaciones from Supabase:", e)
+    return inMemoryStores["donaciones"] || []
+  }
 }
 
 export async function toggleArchivarDonacion(id: string, archivada: boolean): Promise<void> {

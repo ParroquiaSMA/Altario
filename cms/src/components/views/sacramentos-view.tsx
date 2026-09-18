@@ -75,11 +75,8 @@ export function SacramentosView() {
   const [requisitos, setRequisitos] = React.useState("")
 
   const refresh = React.useCallback(async () => {
-    setItems(getSacramentos())
     const fromDb = await fetchSacramentosFromDb()
-    if (fromDb && fromDb.length > 0) {
-      setItems(fromDb)
-    }
+    setItems(fromDb || [])
   }, [])
 
   React.useEffect(() => {

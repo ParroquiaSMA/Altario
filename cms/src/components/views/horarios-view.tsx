@@ -60,7 +60,6 @@ export function HorariosView() {
   const [descripcion, setDescripcion] = React.useState("")
 
   const refresh = React.useCallback(async () => {
-    setHorarios(getHorarios())
     // Fetch directly from backend DB tables
     const [tipos, lugares, dbHorarios] = await Promise.all([
       fetchCatalogFromDb("tipos_horario"),
@@ -69,9 +68,7 @@ export function HorariosView() {
     ])
     setTiposCatalogo(tipos.filter((t) => t.activo))
     setLugaresCatalogo(lugares.filter((l) => l.activo))
-    if (dbHorarios && dbHorarios.length > 0) {
-      setHorarios(dbHorarios)
-    }
+    setHorarios(dbHorarios || [])
   }, [])
 
   React.useEffect(() => {

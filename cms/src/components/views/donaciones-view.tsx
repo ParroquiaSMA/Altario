@@ -169,14 +169,11 @@ export function DonacionesView() {
   const [copiedId, setCopiedId] = React.useState(false)
 
   const refresh = React.useCallback(async () => {
-    setDonaciones(getDonaciones())
     try {
       const dbItems = await fetchDonacionesFromDb()
-      if (dbItems && dbItems.length > 0) {
-        setDonaciones(dbItems)
-      }
+      setDonaciones(dbItems || [])
     } catch {
-      // Keep local
+      setDonaciones([])
     }
   }, [])
 

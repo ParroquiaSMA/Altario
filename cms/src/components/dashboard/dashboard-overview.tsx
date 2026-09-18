@@ -352,7 +352,7 @@ export function DashboardOverview() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-[1480px] mx-auto space-y-6 text-foreground">
+    <div className="w-full p-4 sm:p-6 lg:p-8 space-y-6 text-foreground">
       {/* Saludo y Botones de acción */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 flex-wrap">
         <div>
@@ -447,7 +447,7 @@ export function DashboardOverview() {
               </span>
             )}
             {analyticsLoading ? (
-              <Skeleton className="w-16 h-8" />
+              <Skeleton className="w-24 h-9" />
             ) : (
               renderSparkline(visitCounts.slice(-14).length ? visitCounts.slice(-14) : [0,0], "currentColor", "sp1")
             )}
@@ -475,7 +475,7 @@ export function DashboardOverview() {
               </span>
             )}
             {analyticsLoading ? (
-              <Skeleton className="w-16 h-8" />
+              <Skeleton className="w-24 h-9" />
             ) : (
               renderSparkline(
                 visitCounts.slice(-14).length ? visitCounts.slice(-14).map((v) => v * 1.5 + 1) : [0,0],
@@ -507,7 +507,7 @@ export function DashboardOverview() {
               </span>
             )}
             {dbLoading ? (
-              <Skeleton className="w-16 h-8" />
+              <Skeleton className="w-24 h-9" />
             ) : (
               renderSparkBars(sparkDonBars.length ? sparkDonBars : [0, 0, 0, 0, 0, 0], "#D9A07A")
             )}
@@ -539,7 +539,7 @@ export function DashboardOverview() {
               </span>
             )}
             {dbLoading ? (
-              <Skeleton className="w-16 h-8" />
+              <Skeleton className="w-24 h-9" />
             ) : (
               renderSparkBars([1, 0, 2, 0, 1, 3, 0, 1, 0, 2, 1, 0, 1, 2], "currentColor")
             )}

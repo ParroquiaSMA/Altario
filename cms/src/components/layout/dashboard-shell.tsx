@@ -21,20 +21,16 @@ export function DashboardShell({
   children,
 }: DashboardShellProps) {
   const [session, setSession] = React.useState<Session | null>(null)
-  const [ready, setReady] = React.useState(false)
 
   React.useEffect(() => {
     requireAuth()
     const s = getSession()
     setSession(s)
-    setReady(true)
   }, [])
-
-  if (!ready) return null
 
   const user = session
     ? { name: session.nombre, email: session.email }
-    : { name: "Cargando...", email: "" }
+    : { name: "Administrador", email: "" }
 
   const isFixedLayout =
     noScroll || currentPath === "/settings" || currentPath === "/settings-web"
@@ -44,8 +40,8 @@ export function DashboardShell({
       className="h-screen overflow-hidden bg-sidebar"
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
+          "--sidebar-width": "16rem",
+          "--header-height": "3rem",
         } as React.CSSProperties
       }
     >
@@ -58,7 +54,12 @@ export function DashboardShell({
             isFixedLayout ? "overflow-hidden h-full" : "overflow-y-auto"
           )}
         >
-          <div className="@container/main flex flex-1 flex-col min-w-0 h-full min-h-0">
+          <div
+            className={cn(
+              "flex flex-1 flex-col min-w-0 h-full min-h-0 w-full",
+              !isFixedLayout && "max-w-[1440px] mx-auto"
+            )}
+          >
             {children}
           </div>
         </div>

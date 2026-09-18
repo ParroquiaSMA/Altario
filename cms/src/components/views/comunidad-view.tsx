@@ -59,11 +59,8 @@ export function ComunidadView() {
   const [horarioEncuentro, setHorarioEncuentro] = React.useState("")
 
   const refresh = React.useCallback(async () => {
-    setItems(getGrupos())
     const fromDb = await fetchGruposFromDb()
-    if (fromDb && fromDb.length > 0) {
-      setItems(fromDb)
-    }
+    setItems(fromDb || [])
   }, [])
 
   React.useEffect(() => {

@@ -74,7 +74,7 @@ export async function fetchCatalogFromDb(name: CatalogName): Promise<CatalogOpti
         .eq("catalogo", name)
         .order("orden", { ascending: true })
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         setCatalog(name, data as CatalogOption[])
         return data as CatalogOption[]
       }

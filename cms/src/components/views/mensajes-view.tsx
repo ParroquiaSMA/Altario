@@ -70,13 +70,10 @@ export function MensajesView() {
   const [selectedMessage, setSelectedMessage] = React.useState<MensajeItem | null>(null)
 
   const refresh = React.useCallback(async () => {
-    setMensajes(getMensajes())
     setLoading(true)
     try {
       const dbItems = await fetchMensajesFromDb()
-      if (dbItems && dbItems.length > 0) {
-        setMensajes(dbItems)
-      }
+      setMensajes(dbItems || [])
     } finally {
       setLoading(false)
     }

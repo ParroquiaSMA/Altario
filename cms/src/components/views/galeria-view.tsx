@@ -45,9 +45,11 @@ export function GaleriaView() {
   const [imagenUrl, setImagenUrl] = React.useState("")
 
   const refresh = React.useCallback(async () => {
-    setFotos(getFotos())
-    fetchFotosFromDb().then((data) => setFotos(data))
-    const cats = await fetchCatalogFromDb("categorias_galeria")
+    const [dbFotos, cats] = await Promise.all([
+      fetchFotosFromDb(),
+      fetchCatalogFromDb("categorias_galeria"),
+    ])
+    setFotos(dbFotos || [])
     setCategoriasCatalogo(cats.filter((c) => c.activo))
   }, [])
 
