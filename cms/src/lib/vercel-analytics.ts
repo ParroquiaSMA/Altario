@@ -87,15 +87,17 @@ async function vercelFetch(path: string, params: Record<string, string>): Promis
   }
 }
 
-export async function fetchVercelAnalytics(days: 7 | 30 | 90): Promise<VercelAnalyticsData | null> {
+export async function fetchVercelAnalytics(days: number): Promise<VercelAnalyticsData | null> {
   if (!TOKEN || !TEAM_ID || !PROJECT_ID) return null
 
-  const { since, until } = getSinceUntil(days)
+  // Vercel Web Analytics en plan Hobby limita las consultas a los últimos 31 días
+  const safeDays = Math.min(Math.max(days, 1), 30)
+  const { since, until } = getSinceUntil(safeDays)
   const baseParams = { since, until }
 
   const [totalsRaw, timeseriesRaw, pagesRaw, devicesRaw, referrersRaw] = await Promise.all([
     vercelFetch("count", baseParams),
-    vercelFetch("aggregate", { ...baseParams, by: "day", limit: String(days) }),
+    vercelFetch("aggregate", { ...baseParams, by: "day", limit: String(safeDays) }),
     vercelFetch("aggregate", { ...baseParams, by: "requestPath", limit: "10" }),
     vercelFetch("aggregate", { ...baseParams, by: "deviceType" }),
     vercelFetch("aggregate", { ...baseParams, by: "referrerHostname", limit: "8" }),

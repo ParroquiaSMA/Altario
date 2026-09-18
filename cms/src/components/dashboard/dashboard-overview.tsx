@@ -13,19 +13,12 @@ import {
   ExternalLinkIcon,
 } from "lucide-react"
 import {
-  getMensajes,
   fetchMensajesFromDb,
-  getAvisos,
   fetchAvisosFromDb,
-  getHorarios,
   fetchHorariosFromDb,
-  getFotos,
   fetchFotosFromDb,
-  getDonaciones,
   fetchDonacionesFromDb,
-  getSacramentos,
   fetchSacramentosFromDb,
-  getGrupos,
   fetchGruposFromDb,
   type MensajeItem,
   type AvisoItem,
@@ -39,28 +32,9 @@ import {
 
 const fmt = (n: number) => Math.round(n).toLocaleString("es-UY")
 
-
-const pagesList = [
-  ["/horarios", 1102],
-  ["/", 864],
-  ["/sacramentos/bautismo", 402],
-  ["/donaciones", 231],
-  ["/galeria", 148],
-] as const
-
-const refsList = [
-  ["Google", 1180],
-  ["Instagram", 702],
-  ["Directo", 498],
-  ["WhatsApp", 286],
-  ["Facebook", 181],
-] as const
-
-const devicesList = [
-  { name: "Móvil", pct: 78, color: "var(--c-ink)" },
-  { name: "Escritorio", pct: 19, color: "var(--c-blue)" },
-  { name: "Tablet", pct: 3, color: "var(--c-clay)" },
-]
+function Skeleton({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded bg-muted ${className}`} />
+}
 
 const DIAS_SHORT = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"]
 
@@ -109,7 +83,7 @@ function buildMetodosPago(donaciones: DonacionItem[]) {
 }
 
 export function DashboardOverview() {
-  const [range, setRange] = React.useState<7 | 30 | 90>(30)
+  const [range, setRange] = React.useState<7 | 14 | 30>(30)
   const [msgFilter, setMsgFilter] = React.useState<"all" | "unread">("all")
   const [greeting, setGreeting] = React.useState(() => {
     const h = new Date().getHours()
@@ -120,7 +94,8 @@ export function DashboardOverview() {
     return f.charAt(0).toUpperCase() + f.slice(1)
   })
 
-  // Real data state
+  // Real data state (100% de Supabase, sin seeds mock)
+  const [dbLoading, setDbLoading] = React.useState(true)
   const [mensajes, setMensajes] = React.useState<MensajeItem[]>([])
   const [avisos, setAvisos] = React.useState<AvisoItem[]>([])
   const [horarios, setHorarios] = React.useState<HorarioItem[]>([])
@@ -144,7 +119,7 @@ export function DashboardOverview() {
 
   const areaSvgRef = React.useRef<SVGSVGElement | null>(null)
 
-  // Load real data from DB & local caches
+  // Load real data directly from DB
   React.useEffect(() => {
     const now = new Date()
     const h = now.getHours()
@@ -152,16 +127,7 @@ export function DashboardOverview() {
     const f = now.toLocaleDateString("es-UY", { weekday: "long", day: "numeric", month: "long" })
     setTodayFormatted(f.charAt(0).toUpperCase() + f.slice(1))
 
-    // Local
-    setMensajes(getMensajes())
-    setAvisos(getAvisos())
-    setHorarios(getHorarios())
-    setFotos(getFotos())
-    setDonaciones(getDonaciones())
-    setSacramentos(getSacramentos())
-    setGrupos(getGrupos())
-
-    // Supabase
+    setDbLoading(true)
     Promise.all([
       fetchMensajesFromDb(),
       fetchAvisosFromDb(),
@@ -178,6 +144,9 @@ export function DashboardOverview() {
       if (don) setDonaciones(don)
       if (sac) setSacramentos(sac)
       if (grp) setGrupos(grp)
+      setDbLoading(false)
+    }).catch(() => {
+      setDbLoading(false)
     })
   }, [])
 
@@ -196,6 +165,9 @@ export function DashboardOverview() {
   const donacionesActivas = donaciones.filter((d) => !d.archivada)
   const pendingDonaciones = donacionesActivas.filter((d) => d.estado === "pending" || d.estado === "in_process")
   const approvedDonaciones = donacionesActivas.filter((d) => d.estado === "approved" || d.estado === "authorized")
+  const donacionesMensualesActivas = donacionesActivas.filter(
+    (d) => d.tipo === "mensual" && (d.estado === "approved" || d.estado === "authorized")
+  )
 
   // Current month donations
   const now = new Date()
@@ -385,17 +357,24 @@ export function DashboardOverview() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight leading-tight">{greeting}</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            <span>{todayFormatted}</span>. Tenés{" "}
-            <strong className="text-foreground font-medium">
-              {unreadMensajes.length} {unreadMensajes.length === 1 ? "mensaje sin leer" : "mensajes sin leer"}
-            </strong>{" "}
-            y{" "}
-            <strong className="text-foreground font-medium">
-              {pendingDonaciones.length} {pendingDonaciones.length === 1 ? "donación pendiente" : "donaciones pendientes"}
-            </strong>{" "}
-            de confirmar.
-          </p>
+          <div className="text-muted-foreground mt-1 text-sm flex items-center gap-1.5 flex-wrap">
+            <span>{todayFormatted}.</span>
+            {dbLoading ? (
+              <Skeleton className="h-4 w-60 inline-block" />
+            ) : (
+              <span>
+                Tenés{" "}
+                <strong className="text-foreground font-medium">
+                  {unreadMensajes.length} {unreadMensajes.length === 1 ? "mensaje sin leer" : "mensajes sin leer"}
+                </strong>{" "}
+                y{" "}
+                <strong className="text-foreground font-medium">
+                  {pendingDonaciones.length} {pendingDonaciones.length === 1 ? "donación pendiente" : "donaciones pendientes"}
+                </strong>{" "}
+                de confirmar.
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {/* Selector de período */}
@@ -413,6 +392,17 @@ export function DashboardOverview() {
             </button>
             <button
               type="button"
+              onClick={() => setRange(14)}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                range === 14
+                  ? "bg-background text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              14 días
+            </button>
+            <button
+              type="button"
               onClick={() => setRange(30)}
               className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
                 range === 30
@@ -421,17 +411,6 @@ export function DashboardOverview() {
               }`}
             >
               30 días
-            </button>
-            <button
-              type="button"
-              onClick={() => setRange(90)}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-                range === 90
-                  ? "bg-background text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              90 días
             </button>
           </div>
 
@@ -460,13 +439,25 @@ export function DashboardOverview() {
             <span>Visitas al sitio</span>
           </div>
           <div className="flex items-baseline justify-between gap-3 mt-2.5">
-            <span className="text-3xl font-semibold tracking-tight tabular-nums">
-              {analyticsLoading ? <span className="text-muted-foreground text-2xl">—</span> : fmt(trafficVisitors)}
-            </span>
-            {renderSparkline(visitCounts.slice(-14).length ? visitCounts.slice(-14) : [0,0], "currentColor", "sp1")}
+            {analyticsLoading ? (
+              <Skeleton className="h-9 w-20" />
+            ) : (
+              <span className="text-3xl font-semibold tracking-tight tabular-nums">
+                {fmt(trafficVisitors)}
+              </span>
+            )}
+            {analyticsLoading ? (
+              <Skeleton className="w-16 h-8" />
+            ) : (
+              renderSparkline(visitCounts.slice(-14).length ? visitCounts.slice(-14) : [0,0], "currentColor", "sp1")
+            )}
           </div>
           <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-            <span>visitantes únicos, {range} días</span>
+            {analyticsLoading ? (
+              <Skeleton className="h-3 w-32" />
+            ) : (
+              <span>visitantes únicos, {range} días</span>
+            )}
           </div>
         </div>
 
@@ -476,17 +467,29 @@ export function DashboardOverview() {
             <span>Páginas vistas</span>
           </div>
           <div className="flex items-baseline justify-between gap-3 mt-2.5">
-            <span className="text-3xl font-semibold tracking-tight tabular-nums">
-              {analyticsLoading ? <span className="text-muted-foreground text-2xl">—</span> : fmt(trafficPageviews)}
-            </span>
-            {renderSparkline(
-              visitCounts.slice(-14).length ? visitCounts.slice(-14).map((v) => v * 1.5 + 1) : [0,0],
-              "currentColor",
-              "sp2"
+            {analyticsLoading ? (
+              <Skeleton className="h-9 w-20" />
+            ) : (
+              <span className="text-3xl font-semibold tracking-tight tabular-nums">
+                {fmt(trafficPageviews)}
+              </span>
+            )}
+            {analyticsLoading ? (
+              <Skeleton className="w-16 h-8" />
+            ) : (
+              renderSparkline(
+                visitCounts.slice(-14).length ? visitCounts.slice(-14).map((v) => v * 1.5 + 1) : [0,0],
+                "currentColor",
+                "sp2"
+              )
             )}
           </div>
           <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-            <span>en los últimos {range} días</span>
+            {analyticsLoading ? (
+              <Skeleton className="h-3 w-32" />
+            ) : (
+              <span>en los últimos {range} días</span>
+            )}
           </div>
         </div>
 
@@ -496,13 +499,23 @@ export function DashboardOverview() {
             <span>Recaudado en {now.toLocaleDateString("es-UY", { month: "long" })}</span>
           </div>
           <div className="flex items-baseline justify-between gap-3 mt-2.5">
-            <span className="text-3xl font-semibold tracking-tight tabular-nums">
-              $ {fmt(totalMes)}
-            </span>
-            {renderSparkBars(sparkDonBars.length ? sparkDonBars : [0, 0, 0, 0, 0, 0], "#D9A07A")}
+            {dbLoading ? (
+              <Skeleton className="h-9 w-24" />
+            ) : (
+              <span className="text-3xl font-semibold tracking-tight tabular-nums">
+                $ {fmt(totalMes)}
+              </span>
+            )}
+            {dbLoading ? (
+              <Skeleton className="w-16 h-8" />
+            ) : (
+              renderSparkBars(sparkDonBars.length ? sparkDonBars : [0, 0, 0, 0, 0, 0], "#D9A07A")
+            )}
           </div>
           <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-            {pendingTotal > 0 ? (
+            {dbLoading ? (
+              <Skeleton className="h-3 w-28" />
+            ) : pendingTotal > 0 ? (
               <span className="inline-flex items-center gap-0.5 font-medium px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
                 + $ {fmt(pendingTotal)} pendiente
               </span>
@@ -518,22 +531,36 @@ export function DashboardOverview() {
             <span>Mensajes recibidos</span>
           </div>
           <div className="flex items-baseline justify-between gap-3 mt-2.5">
-            <span className="text-3xl font-semibold tracking-tight tabular-nums">
-              {mensajes.length || 5}
-            </span>
-            {renderSparkBars([1, 0, 2, 0, 1, 3, 0, 1, 0, 2, 1, 0, 1, 2], "currentColor")}
-          </div>
-          <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-            {unreadMensajes.length > 0 ? (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/15 text-destructive font-medium">
-                {unreadMensajes.length} sin leer
-              </span>
+            {dbLoading ? (
+              <Skeleton className="h-9 w-16" />
             ) : (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-medium">
-                Al día
+              <span className="text-3xl font-semibold tracking-tight tabular-nums">
+                {mensajes.length}
               </span>
             )}
-            <span>consultas generales</span>
+            {dbLoading ? (
+              <Skeleton className="w-16 h-8" />
+            ) : (
+              renderSparkBars([1, 0, 2, 0, 1, 3, 0, 1, 0, 2, 1, 0, 1, 2], "currentColor")
+            )}
+          </div>
+          <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+            {dbLoading ? (
+              <Skeleton className="h-3 w-28" />
+            ) : (
+              <>
+                {unreadMensajes.length > 0 ? (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/15 text-destructive font-medium">
+                    {unreadMensajes.length} sin leer
+                  </span>
+                ) : (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-medium">
+                    Al día
+                  </span>
+                )}
+                <span>consultas generales</span>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -551,9 +578,13 @@ export function DashboardOverview() {
             </div>
             <div className="min-w-0">
               <span className="block font-medium text-xs leading-tight">Horarios</span>
-              <small className="block text-[11px] text-muted-foreground truncate">
-                {activeHorarios.length} {activeHorarios.length === 1 ? "activo" : "activos"}
-              </small>
+              {dbLoading ? (
+                <Skeleton className="h-3 w-14 mt-0.5" />
+              ) : (
+                <small className="block text-[11px] text-muted-foreground truncate">
+                  {activeHorarios.length} {activeHorarios.length === 1 ? "activo" : "activos"}
+                </small>
+              )}
             </div>
           </a>
 
@@ -566,9 +597,13 @@ export function DashboardOverview() {
             </div>
             <div className="min-w-0">
               <span className="block font-medium text-xs leading-tight">Avisos</span>
-              <small className="block text-[11px] text-muted-foreground truncate">
-                {activeAvisos.length > 0 ? `${activeAvisos.length} publicados` : "Ninguno publicado"}
-              </small>
+              {dbLoading ? (
+                <Skeleton className="h-3 w-16 mt-0.5" />
+              ) : (
+                <small className="block text-[11px] text-muted-foreground truncate">
+                  {activeAvisos.length > 0 ? `${activeAvisos.length} publicados` : "Ninguno publicado"}
+                </small>
+              )}
             </div>
           </a>
 
@@ -581,9 +616,13 @@ export function DashboardOverview() {
             </div>
             <div className="min-w-0">
               <span className="block font-medium text-xs leading-tight">Galería</span>
-              <small className="block text-[11px] text-muted-foreground truncate">
-                {fotos.length} imágenes
-              </small>
+              {dbLoading ? (
+                <Skeleton className="h-3 w-14 mt-0.5" />
+              ) : (
+                <small className="block text-[11px] text-muted-foreground truncate">
+                  {fotos.length} imágenes
+                </small>
+              )}
             </div>
           </a>
 
@@ -626,9 +665,15 @@ export function DashboardOverview() {
             </div>
             <div className="min-w-0">
               <span className="block font-medium text-xs leading-tight">Donaciones</span>
-              <small className="block text-[11px] text-muted-foreground truncate">
-                5 mensuales activas
-              </small>
+              {dbLoading ? (
+                <Skeleton className="h-3 w-16 mt-0.5" />
+              ) : (
+                <small className="block text-[11px] text-muted-foreground truncate">
+                  {donacionesMensualesActivas.length > 0
+                    ? `${donacionesMensualesActivas.length} mensuales activas`
+                    : "Sin mensuales activas"}
+                </small>
+              )}
             </div>
           </a>
         </div>
@@ -655,175 +700,228 @@ export function DashboardOverview() {
             <div className="grid grid-cols-1 md:grid-cols-[1.35fr_1fr] gap-6">
               {/* Lado izquierdo de donaciones */}
               <div>
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-3xl font-semibold tracking-tight tabular-nums">
-                    $ {fmt(totalMes)}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    recaudados este mes, de {currentMonthDonaciones.length} {currentMonthDonaciones.length === 1 ? "aporte" : "aportes"}
-                  </span>
-                </div>
+                {dbLoading ? (
+                  <>
+                    <Skeleton className="h-9 w-32 mb-2" />
+                    <Skeleton className="h-3.5 w-48 mb-4" />
+                    <Skeleton className="h-2.5 w-full rounded-full mb-3" />
+                    <div className="mt-5">
+                      <div className="flex items-center gap-4 mb-3">
+                        <Skeleton className="h-3 w-20" />
+                        <Skeleton className="h-3 w-20" />
+                      </div>
+                      <div className="h-40 flex items-end justify-between gap-3 pt-6 px-4">
+                        {[40, 75, 50, 90, 60, 85].map((h, idx) => (
+                          <div key={idx} className="flex-1 flex flex-col items-center gap-2">
+                            <div className="w-full bg-muted animate-pulse rounded-t-md" style={{ height: `${h}%` }} />
+                            <Skeleton className="h-3 w-7" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <span className="text-3xl font-semibold tracking-tight tabular-nums">
+                        $ {fmt(totalMes)}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        recaudados este mes, de {currentMonthDonaciones.length} {currentMonthDonaciones.length === 1 ? "aporte" : "aportes"}
+                      </span>
+                    </div>
 
-                {/* Barra de meta */}
-                <div className="mt-4">
-                  <div className="h-2.5 bg-muted rounded-full overflow-hidden flex">
-                    <div style={{ width: `${Math.round(pctMeta * 0.65)}%` }} className="h-full bg-foreground" />
-                    <div style={{ width: `${Math.round(pctMeta * 0.35)}%` }} className="h-full bg-[#D9A07A]" />
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                    <span>
-                      <strong className="text-foreground font-medium">{pctMeta}%</strong> de la meta mensual de $ {fmt(metaMensual)}
-                    </span>
-                    <span>Faltan $ {fmt(Math.max(0, metaMensual - totalMes))}</span>
-                  </div>
-                </div>
+                    {/* Barra de meta */}
+                    <div className="mt-4">
+                      <div className="h-2.5 bg-muted rounded-full overflow-hidden flex">
+                        <div style={{ width: `${Math.round(pctMeta * 0.65)}%` }} className="h-full bg-foreground" />
+                        <div style={{ width: `${Math.round(pctMeta * 0.35)}%` }} className="h-full bg-[#D9A07A]" />
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                        <span>
+                          <strong className="text-foreground font-medium">{pctMeta}%</strong> de la meta mensual de $ {fmt(metaMensual)}
+                        </span>
+                        <span>Faltan $ {fmt(Math.max(0, metaMensual - totalMes))}</span>
+                      </div>
+                    </div>
 
-                {/* Gráfico de barras SVG – datos reales */}
-                <div className="mt-5">
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="size-2 rounded-xs bg-foreground inline-block" /> Mensuales
-                    </span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="size-2 rounded-xs bg-[#D9A07A] inline-block" /> Puntuales
-                    </span>
-                  </div>
-                  <svg className="w-full h-40" viewBox="0 0 460 160">
-                    {[0, 0.5, 1].map((t) => {
-                      const y = 138 - 120 * t
-                      return (
-                        <g key={t}>
-                          <line x1="40" x2="460" y1={y} y2={y} stroke="currentColor" strokeOpacity="0.1" />
-                          {t > 0 && (
-                            <text x="0" y={y + 4} textAnchor="start" fontSize="10" fill="currentColor" opacity="0.5">
-                              $ {fmt(maxDonMonth * t)}
-                            </text>
-                          )}
-                        </g>
-                      )
-                    })}
-                    {donacionesPorMes.map((d, i) => {
-                      const slot = (460 - 40) / 6
-                      const bw = 28
-                      const x = 40 + i * slot + (slot - bw) / 2
-                      const hM = maxDonMonth > 0 ? (d.men / maxDonMonth) * 120 : 0
-                      const hP = maxDonMonth > 0 ? (d.pun / maxDonMonth) * 120 : 0
-                      return (
-                        <g key={d.label + i}>
-                          <rect x={x} y={138 - hM} width={bw} height={hM} fill="currentColor" rx="3" />
-                          {hP > 0 && <rect x={x} y={138 - hM - hP - 2} width={bw} height={hP} fill="#D9A07A" rx="3" />}
-                          <text
-                            x={x + bw / 2}
-                            y="154"
-                            textAnchor="middle"
-                            fontSize="11"
-                            fill="currentColor"
-                            opacity={i === 5 ? 1 : 0.6}
-                            fontWeight={i === 5 ? 600 : 400}
-                          >
-                            {d.label}
-                          </text>
-                        </g>
-                      )
-                    })}
-                  </svg>
-                </div>
+                    {/* Gráfico de barras SVG – datos reales */}
+                    <div className="mt-5">
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="size-2 rounded-xs bg-foreground inline-block" /> Mensuales
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="size-2 rounded-xs bg-[#D9A07A] inline-block" /> Puntuales
+                        </span>
+                      </div>
+                      <svg className="w-full h-40" viewBox="0 0 460 160">
+                        {[0, 0.5, 1].map((t) => {
+                          const y = 138 - 120 * t
+                          return (
+                            <g key={t}>
+                              <line x1="40" x2="460" y1={y} y2={y} stroke="currentColor" strokeOpacity="0.1" />
+                              {t > 0 && (
+                                <text x="0" y={y + 4} textAnchor="start" fontSize="10" fill="currentColor" opacity="0.5">
+                                  $ {fmt(maxDonMonth * t)}
+                                </text>
+                              )}
+                            </g>
+                          )
+                        })}
+                        {donacionesPorMes.map((d, i) => {
+                          const slot = (460 - 40) / 6
+                          const bw = 28
+                          const x = 40 + i * slot + (slot - bw) / 2
+                          const hM = maxDonMonth > 0 ? (d.men / maxDonMonth) * 120 : 0
+                          const hP = maxDonMonth > 0 ? (d.pun / maxDonMonth) * 120 : 0
+                          return (
+                            <g key={d.label + i}>
+                              <rect x={x} y={138 - hM} width={bw} height={hM} fill="currentColor" rx="3" />
+                              {hP > 0 && <rect x={x} y={138 - hM - hP - 2} width={bw} height={hP} fill="#D9A07A" rx="3" />}
+                              <text
+                                x={x + bw / 2}
+                                y="154"
+                                textAnchor="middle"
+                                fontSize="11"
+                                fill="currentColor"
+                                opacity={i === 5 ? 1 : 0.6}
+                                fontWeight={i === 5 ? 600 : 400}
+                              >
+                                {d.label}
+                              </text>
+                            </g>
+                          )
+                        })}
+                      </svg>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Lado derecho: Métodos y Recientes – datos reales */}
               <div className="space-y-4">
                 <h5 className="text-xs font-medium text-muted-foreground">Por método de pago</h5>
-                <div className="flex items-center gap-4">
-                  {/* Donut SVG – arcos calculados dinámicamente */}
-                  {(() => {
-                    const CIRC = 2 * Math.PI * 44
-                    const COLORS = ["currentColor", "#D9A07A", "#A3D4EE", "#7DC9A4", "#E8A87C"]
-                    let offset = 0
-                    return (
-                      <svg className="size-24 shrink-0" viewBox="0 0 110 110">
-                        <circle cx="55" cy="55" r="44" fill="none" stroke="currentColor" strokeWidth="12" strokeOpacity="0.08" />
-                        {metodosPago.slice(0, 5).map((m, i) => {
-                          const arc = (m.pct / 100) * CIRC
-                          const el = (
-                            <circle
-                              key={m.name}
-                              cx="55" cy="55" r="44"
-                              fill="none"
-                              stroke={COLORS[i % COLORS.length]}
-                              strokeWidth="12"
-                              strokeDasharray={`${arc} ${CIRC}`}
-                              strokeDashoffset={-offset}
-                              transform="rotate(-90 55 55)"
-                            />
-                          )
-                          offset += arc
-                          return el
-                        })}
-                        <text x="55" y="52" textAnchor="middle" fontSize="16" fontWeight="600" fill="currentColor">
-                          {totalAportes || 0}
-                        </text>
-                        <text x="55" y="66" textAnchor="middle" fontSize="10" fill="currentColor" opacity="0.6">
-                          aportes
-                        </text>
-                      </svg>
-                    )
-                  })()}
-                  <ul className="text-xs space-y-1.5 flex-1 min-w-0">
-                    {metodosPago.length === 0 ? (
-                      <li className="text-muted-foreground">Sin datos</li>
-                    ) : (
-                      metodosPago.slice(0, 4).map((m, i) => {
-                        const COLORS_LIST = ["bg-foreground", "bg-[#D9A07A]", "bg-[#A3D4EE]", "bg-[#7DC9A4]"]
-                        return (
-                          <li key={m.name} className="flex items-center justify-between gap-1">
-                            <span className="flex items-center gap-1.5 truncate text-muted-foreground">
-                              <span className={`size-2 rounded-xs ${COLORS_LIST[i % COLORS_LIST.length]} shrink-0`} />
-                              {m.name}
-                            </span>
-                            <b className="font-medium tabular-nums">{m.pct}%</b>
-                          </li>
-                        )
-                      })
-                    )}
-                  </ul>
-                </div>
-
-                {/* Últimas donaciones reales */}
-                <ul className="border-t border-border pt-3 space-y-2.5 text-xs">
-                  {recentDonaciones.length === 0 ? (
-                    <li className="text-center text-muted-foreground py-2">Sin donaciones recientes</li>
-                  ) : (
-                    recentDonaciones.map((d) => {
-                      const nombre = d.nombre_donante || "Anónimo"
-                      const initials = nombre.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()
-                      const fecha = d.created_at ? new Date(d.created_at).toLocaleDateString("es-UY", { day: "2-digit", month: "2-digit" }) : ""
-                      const isPending = d.estado === "pending" || d.estado === "in_process"
-                      return (
-                        <li key={d.id} className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div className="size-7 rounded-full bg-muted border border-border grid place-items-center text-[10px] font-medium shrink-0">
-                              {initials}
-                            </div>
-                            <div className="min-w-0">
-                              <span className="font-medium truncate block">{nombre}</span>
-                              <span className="text-[11px] text-muted-foreground">
-                                {d.tipo === "mensual" ? "Mensual" : "Puntual"}{d.metodo_pago ? `, ${d.metodo_pago}` : ""}
-                              </span>
+                {dbLoading ? (
+                  <>
+                    <div className="flex items-center gap-4">
+                      <Skeleton className="size-24 rounded-full shrink-0" />
+                      <div className="space-y-2 flex-1">
+                        <Skeleton className="h-3 w-full" />
+                        <Skeleton className="h-3 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
+                      </div>
+                    </div>
+                    <ul className="border-t border-border pt-3 space-y-2.5 text-xs">
+                      {[1, 2, 3].map((k) => (
+                        <li key={k} className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Skeleton className="size-7 rounded-full shrink-0" />
+                            <div className="space-y-1">
+                              <Skeleton className="h-3 w-24" />
+                              <Skeleton className="h-2.5 w-16" />
                             </div>
                           </div>
-                          <div className="text-right shrink-0">
-                            {isPending ? (
-                              <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-amber-500/15 text-amber-600 dark:text-amber-400 font-medium">Pendiente</span>
-                            ) : (
-                              <span className="font-medium">$ {fmt(d.monto)}</span>
-                            )}
-                            <small className="block text-[10px] text-muted-foreground">{fecha}</small>
-                          </div>
+                          <Skeleton className="h-4 w-12" />
                         </li>
-                      )
-                    })
-                  )}
-                </ul>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-4">
+                      {/* Donut SVG – arcos calculados dinámicamente */}
+                      {(() => {
+                        const CIRC = 2 * Math.PI * 44
+                        const COLORS = ["currentColor", "#D9A07A", "#A3D4EE", "#7DC9A4", "#E8A87C"]
+                        let offset = 0
+                        return (
+                          <svg className="size-24 shrink-0" viewBox="0 0 110 110">
+                            <circle cx="55" cy="55" r="44" fill="none" stroke="currentColor" strokeWidth="12" strokeOpacity="0.08" />
+                            {metodosPago.slice(0, 5).map((m, i) => {
+                              const arc = (m.pct / 100) * CIRC
+                              const el = (
+                                <circle
+                                  key={m.name}
+                                  cx="55" cy="55" r="44"
+                                  fill="none"
+                                  stroke={COLORS[i % COLORS.length]}
+                                  strokeWidth="12"
+                                  strokeDasharray={`${arc} ${CIRC}`}
+                                  strokeDashoffset={-offset}
+                                  transform="rotate(-90 55 55)"
+                                />
+                              )
+                              offset += arc
+                              return el
+                            })}
+                            <text x="55" y="52" textAnchor="middle" fontSize="16" fontWeight="600" fill="currentColor">
+                              {totalAportes || 0}
+                            </text>
+                            <text x="55" y="66" textAnchor="middle" fontSize="10" fill="currentColor" opacity="0.6">
+                              aportes
+                            </text>
+                          </svg>
+                        )
+                      })()}
+                      <ul className="text-xs space-y-1.5 flex-1 min-w-0">
+                        {metodosPago.length === 0 ? (
+                          <li className="text-muted-foreground">Sin datos</li>
+                        ) : (
+                          metodosPago.slice(0, 4).map((m, i) => {
+                            const COLORS_LIST = ["bg-foreground", "bg-[#D9A07A]", "bg-[#A3D4EE]", "bg-[#7DC9A4]"]
+                            return (
+                              <li key={m.name} className="flex items-center justify-between gap-1">
+                                <span className="flex items-center gap-1.5 truncate text-muted-foreground">
+                                  <span className={`size-2 rounded-xs ${COLORS_LIST[i % COLORS_LIST.length]} shrink-0`} />
+                                  {m.name}
+                                </span>
+                                <b className="font-medium tabular-nums">{m.pct}%</b>
+                              </li>
+                            )
+                          })
+                        )}
+                      </ul>
+                    </div>
+
+                    {/* Últimas donaciones reales */}
+                    <ul className="border-t border-border pt-3 space-y-2.5 text-xs">
+                      {recentDonaciones.length === 0 ? (
+                        <li className="text-center text-muted-foreground py-2">Sin donaciones recientes</li>
+                      ) : (
+                        recentDonaciones.map((d) => {
+                          const nombre = d.nombre_donante || "Anónimo"
+                          const initials = nombre.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()
+                          const fecha = d.created_at ? new Date(d.created_at).toLocaleDateString("es-UY", { day: "2-digit", month: "2-digit" }) : ""
+                          const isPending = d.estado === "pending" || d.estado === "in_process"
+                          return (
+                            <li key={d.id} className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="size-7 rounded-full bg-muted border border-border grid place-items-center text-[10px] font-medium shrink-0">
+                                  {initials}
+                                </div>
+                                <div className="min-w-0">
+                                  <span className="font-medium truncate block">{nombre}</span>
+                                  <span className="text-[11px] text-muted-foreground">
+                                    {d.tipo === "mensual" ? "Mensual" : "Puntual"}{d.metodo_pago ? `, ${d.metodo_pago}` : ""}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="text-right shrink-0">
+                                {isPending ? (
+                                  <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-amber-500/15 text-amber-600 dark:text-amber-400 font-medium">Pendiente</span>
+                                ) : (
+                                  <span className="font-medium">$ {fmt(d.monto)}</span>
+                                )}
+                                <small className="block text-[10px] text-muted-foreground">{fecha}</small>
+                              </div>
+                            </li>
+                          )
+                        })
+                      )}
+                    </ul>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -835,70 +933,74 @@ export function DashboardOverview() {
             <div className="flex items-start justify-between gap-3 mb-2">
               <div>
                 <h4 className="text-base font-semibold tracking-tight">Tráfico del sitio</h4>
-                <p className="text-xs text-muted-foreground mt-0.5">Visitas diarias, Vercel Analytics</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Visitas y páginas vistas diarias</p>
               </div>
-              <a
-                href="https://vercel.com/dashboard"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Abrir <ExternalLinkIcon className="size-3.5" />
-              </a>
             </div>
 
             <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-semibold tracking-tight tabular-nums">
-                {analyticsLoading ? <span className="text-muted-foreground">—</span> : fmt(trafficVisitors)}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                visitantes • {fmt(trafficPageviews)} págs. vistas
-              </span>
+              {analyticsLoading ? (
+                <Skeleton className="h-8 w-28" />
+              ) : (
+                <>
+                  <span className="text-2xl font-semibold tracking-tight tabular-nums">
+                    {fmt(trafficVisitors)}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    visitantes • {fmt(trafficPageviews)} págs. vistas
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Area Chart interactivo */}
             <div className="relative mt-3">
-              <svg
-                ref={areaSvgRef}
-                className="w-full h-36 cursor-crosshair block"
-                viewBox={`0 0 ${W} ${H}`}
-                onPointerMove={handlePointerMove}
-                onPointerLeave={() => setTooltip((t) => ({ ...t, show: false }))}
-              >
-                <defs>
-                  <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stopColor="#A3D4EE" stopOpacity="0.55" />
-                    <stop offset="1" stopColor="#A3D4EE" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                {[0.25, 0.5, 0.75, 1].map((t) => (
-                  <line
-                    key={t}
-                    x1="0"
-                    x2={W}
-                    y1={getY(mx * t)}
-                    y2={getY(mx * t)}
-                    stroke="currentColor"
-                    strokeOpacity="0.1"
-                    strokeDasharray={t === 1 ? undefined : "2 4"}
-                  />
-                ))}
-                <path d={`${areaPathD} L${W} ${H - pb} L0 ${H - pb}Z`} fill="url(#ag)" />
-                <path d={areaPathD} fill="none" stroke="currentColor" strokeWidth="1.8" />
-                {labelIndices.map((idx, k) => (
-                  <text
-                    key={idx}
-                    x={getX(idx)}
-                    y={H - 6}
-                    textAnchor={k === 0 ? "start" : k === labelIndices.length - 1 ? "end" : "middle"}
-                    fontSize="10"
-                    fill="currentColor"
-                    opacity="0.55"
-                  >
-                    {getLabelDate(idx)}
-                  </text>
-                ))}
-              </svg>
+              {analyticsLoading ? (
+                <div className="w-full h-36 rounded-lg bg-muted/40 flex items-center justify-center text-xs text-muted-foreground animate-pulse">
+                  Cargando visitas…
+                </div>
+              ) : (
+                <svg
+                  ref={areaSvgRef}
+                  className="w-full h-36 cursor-crosshair block"
+                  viewBox={`0 0 ${W} ${H}`}
+                  onPointerMove={handlePointerMove}
+                  onPointerLeave={() => setTooltip((t) => ({ ...t, show: false }))}
+                >
+                  <defs>
+                    <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0" stopColor="#A3D4EE" stopOpacity="0.55" />
+                      <stop offset="1" stopColor="#A3D4EE" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  {[0.25, 0.5, 0.75, 1].map((t) => (
+                    <line
+                      key={t}
+                      x1="0"
+                      x2={W}
+                      y1={getY(mx * t)}
+                      y2={getY(mx * t)}
+                      stroke="currentColor"
+                      strokeOpacity="0.1"
+                      strokeDasharray={t === 1 ? undefined : "2 4"}
+                    />
+                  ))}
+                  <path d={`${areaPathD} L${W} ${H - pb} L0 ${H - pb}Z`} fill="url(#ag)" />
+                  <path d={areaPathD} fill="none" stroke="currentColor" strokeWidth="1.8" />
+                  {labelIndices.map((idx, k) => (
+                    <text
+                      key={idx}
+                      x={getX(idx)}
+                      y={H - 6}
+                      textAnchor={k === 0 ? "start" : k === labelIndices.length - 1 ? "end" : "middle"}
+                      fontSize="10"
+                      fill="currentColor"
+                      opacity="0.55"
+                    >
+                      {getLabelDate(idx)}
+                    </text>
+                  ))}
+                </svg>
+              )}
 
               {tooltip.show && (
                 <div
@@ -914,15 +1016,23 @@ export function DashboardOverview() {
             <div className="grid grid-cols-2 border-t border-border pt-3.5 mt-3 divide-x divide-border text-center">
               <div>
                 <span className="block text-[11px] text-muted-foreground">Páginas vistas</span>
-                <b className="text-sm font-semibold tabular-nums">
-                  {analyticsLoading ? "—" : fmt(trafficPageviews)}
-                </b>
+                {analyticsLoading ? (
+                  <Skeleton className="h-4 w-12 mx-auto mt-1" />
+                ) : (
+                  <b className="text-sm font-semibold tabular-nums">
+                    {fmt(trafficPageviews)}
+                  </b>
+                )}
               </div>
               <div className="pl-2">
                 <span className="block text-[11px] text-muted-foreground">Visitantes</span>
-                <b className="text-sm font-semibold tabular-nums">
-                  {analyticsLoading ? "—" : fmt(trafficVisitors)}
-                </b>
+                {analyticsLoading ? (
+                  <Skeleton className="h-4 w-12 mx-auto mt-1" />
+                ) : (
+                  <b className="text-sm font-semibold tabular-nums">
+                    {fmt(trafficVisitors)}
+                  </b>
+                )}
               </div>
             </div>
           </div>
@@ -936,7 +1046,11 @@ export function DashboardOverview() {
           <h4 className="text-xs font-semibold tracking-tight mb-3">Páginas más visitadas</h4>
           <ul className="space-y-1.5 text-xs">
             {analyticsLoading ? (
-              <li className="text-muted-foreground text-center py-4">—</li>
+              <div className="space-y-2 py-1">
+                {[1, 2, 3, 4].map((k) => (
+                  <Skeleton key={k} className="h-6 w-full rounded-md" />
+                ))}
+              </div>
             ) : topPages.length === 0 ? (
               <li className="text-muted-foreground text-center py-4">Sin datos</li>
             ) : (
@@ -962,7 +1076,11 @@ export function DashboardOverview() {
           <h4 className="text-xs font-semibold tracking-tight mb-3">De dónde llegan</h4>
           <ul className="space-y-1.5 text-xs">
             {analyticsLoading ? (
-              <li className="text-muted-foreground text-center py-4">—</li>
+              <div className="space-y-2 py-1">
+                {[1, 2, 3, 4].map((k) => (
+                  <Skeleton key={k} className="h-6 w-full rounded-md" />
+                ))}
+              </div>
             ) : referrers.length === 0 ? (
               <li className="text-muted-foreground text-center py-4">Sin datos aún</li>
             ) : (
@@ -986,39 +1104,47 @@ export function DashboardOverview() {
         {/* Dispositivos - datos reales */}
         <div className="border border-border rounded-xl p-4 bg-card">
           <h4 className="text-xs font-semibold tracking-tight mb-3">Dispositivos</h4>
-          <div className="flex h-6 rounded-md overflow-hidden gap-0.5 my-2">
-            {analyticsLoading ? (
-              <div className="h-full bg-muted w-full rounded-md" />
-            ) : deviceData.length === 0 ? (
-              <div className="h-full bg-muted w-full rounded-md" />
-            ) : (
-              deviceData.map((d, i) => (
-                <div
-                  key={d.name}
-                  style={{ width: `${((d.count / totalDeviceVisitors) * 100).toFixed(1)}%`, backgroundColor: DEVICE_COLORS[i % DEVICE_COLORS.length] }}
-                  className="h-full"
-                  title={`${d.name} ${Math.round((d.count / totalDeviceVisitors) * 100)}%`}
-                />
-              ))
-            )}
-          </div>
-          <ul className="space-y-1.5 text-xs mt-3">
-            {analyticsLoading ? (
-              <li className="text-muted-foreground text-center">—</li>
-            ) : deviceData.length === 0 ? (
-              <li className="text-muted-foreground text-center">Sin datos</li>
-            ) : (
-              deviceData.map((d, i) => (
-                <li key={d.name} className="flex items-center justify-between py-1 border-b border-border/50 last:border-0">
-                  <span className="flex items-center gap-1.5 text-muted-foreground">
-                    <span className="size-2 rounded-xs inline-block" style={{ backgroundColor: DEVICE_COLORS[i % DEVICE_COLORS.length] }} />
-                    {d.name}
-                  </span>
-                  <b className="font-medium tabular-nums">{Math.round((d.count / totalDeviceVisitors) * 100)}%</b>
-                </li>
-              ))
-            )}
-          </ul>
+          {analyticsLoading ? (
+            <>
+              <Skeleton className="h-6 w-full rounded-md my-2" />
+              <div className="space-y-2 mt-3">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex h-6 rounded-md overflow-hidden gap-0.5 my-2">
+                {deviceData.length === 0 ? (
+                  <div className="h-full bg-muted w-full rounded-md" />
+                ) : (
+                  deviceData.map((d, i) => (
+                    <div
+                      key={d.name}
+                      style={{ width: `${((d.count / totalDeviceVisitors) * 100).toFixed(1)}%`, backgroundColor: DEVICE_COLORS[i % DEVICE_COLORS.length] }}
+                      className="h-full"
+                      title={`${d.name} ${Math.round((d.count / totalDeviceVisitors) * 100)}%`}
+                    />
+                  ))
+                )}
+              </div>
+              <ul className="space-y-1.5 text-xs mt-3">
+                {deviceData.length === 0 ? (
+                  <li className="text-muted-foreground text-center">Sin datos</li>
+                ) : (
+                  deviceData.map((d, i) => (
+                    <li key={d.name} className="flex items-center justify-between py-1 border-b border-border/50 last:border-0">
+                      <span className="flex items-center gap-1.5 text-muted-foreground">
+                        <span className="size-2 rounded-xs inline-block" style={{ backgroundColor: DEVICE_COLORS[i % DEVICE_COLORS.length] }} />
+                        {d.name}
+                      </span>
+                      <b className="font-medium tabular-nums">{Math.round((d.count / totalDeviceVisitors) * 100)}%</b>
+                    </li>
+                  ))
+                )}
+              </ul>
+            </>
+          )}
         </div>
 
         {/* Velocidad del sitio */}
@@ -1044,7 +1170,7 @@ export function DashboardOverview() {
             </svg>
             <div>
               <b className="block text-xs font-medium text-foreground">Excelente</b>
-              <p className="text-[11px] text-muted-foreground">Speed Insights en Vercel Edge</p>
+              <p className="text-[11px] text-muted-foreground">Métricas de rendimiento web</p>
             </div>
           </div>
           <ul className="space-y-1.5 text-xs border-t border-border/50 pt-2">
@@ -1110,7 +1236,20 @@ export function DashboardOverview() {
           </div>
 
           <ul className="divide-y divide-border text-xs">
-            {displayedMsgs.length === 0 ? (
+            {dbLoading ? (
+              <div className="space-y-3 py-1">
+                {[1, 2, 3, 4].map((k) => (
+                  <div key={k} className="py-2.5 flex items-start gap-3">
+                    <Skeleton className="size-8 rounded-full shrink-0" />
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <Skeleton className="h-3.5 w-28" />
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-3 w-1/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : displayedMsgs.length === 0 ? (
               <li className="py-6 text-center text-muted-foreground">No hay mensajes en esta vista.</li>
             ) : (
               displayedMsgs.slice(0, 4).map((m) => {
@@ -1167,7 +1306,20 @@ export function DashboardOverview() {
             </div>
 
             <ul className="divide-y divide-border text-xs">
-              {upcomingHorarios.length === 0 ? (
+              {dbLoading ? (
+                <div className="space-y-3 py-1">
+                  {[1, 2, 3].map((k) => (
+                    <div key={k} className="py-2 flex items-center gap-3">
+                      <Skeleton className="size-10 rounded-lg shrink-0" />
+                      <div className="min-w-0 flex-1 space-y-1.5">
+                        <Skeleton className="h-3.5 w-32" />
+                        <Skeleton className="h-3 w-20" />
+                      </div>
+                      <Skeleton className="h-3 w-12" />
+                    </div>
+                  ))}
+                </div>
+              ) : upcomingHorarios.length === 0 ? (
                 <li className="py-6 text-center text-muted-foreground">No hay actividades programadas esta semana.</li>
               ) : (
                 upcomingHorarios.map((h) => {
