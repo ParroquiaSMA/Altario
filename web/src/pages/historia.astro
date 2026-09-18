@@ -71,126 +71,169 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
   </section>
 
   <!-- ===== 2. CRONOLOGÍA ===== -->
-  <section class="seccion seccion--oscura">
+  <section class="seccion seccion--oscura seccion--cronologia">
     <div class="contenedor">
-      <p class="antetitulo">Línea de tiempo</p>
-      <h2>Los hitos, en orden</h2>
-      <p class="divisor"><i aria-hidden="true"></i></p>
+      <div class="cronologia-cabecera">
+        <div>
+          <p class="antetitulo">Línea de tiempo</p>
+          <h2>Los hitos, en orden</h2>
+          <p class="divisor"><i aria-hidden="true"></i></p>
+        </div>
+        <div class="cronologia-controles">
+          <span class="cronologia-controles__hint">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+            Deslizá para recorrer
+          </span>
+          <div class="cronologia-controles__botones">
+            <button type="button" class="museo-btn" id="btn-crono-prev" aria-label="Hito anterior">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="museo-btn" id="btn-crono-next" aria-label="Hito siguiente">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
 
-      <ol class="cronologia">
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1839</span>
-          <div class="cronologia__cuerpo">
-            <h3>Autorización de la primera capilla</h3>
-            <p>El gobierno accede a la solicitud de Domingo Ramela para levantar una capilla pública bajo la advocación de San Juan Bautista.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1857</span>
-          <div class="cronologia__cuerpo">
-            <h3>Inauguración y primer nombre</h3>
-            <p>Se abre el oratorio en Chile y Perú como “Dulce Nombre de María” y semanas después pasa a llamarse “Santa María del Cerro”. Se fijan los límites y se consagra como el quinto templo más antiguo de la Arquidiócesis de Montevideo.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1867</span>
-          <div class="cronologia__cuerpo">
-            <h3>Piedra fundamental del templo actual</h3>
-            <p>El 17 de diciembre se coloca la piedra fundamental apadrinada por el Brigadier Gral. Venancio Flores y María García Zamora. El Pbro. Juan Bautista Laphitz celebra misa bajo toldos encerados.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1870</span>
-          <div class="cronologia__cuerpo">
-            <h3>La “Capilla Vieja” en calle Chile</h3>
-            <p>Dieciséis feligreses vascos levantan un austero galpón de madera y chapa de 8 por 15 metros para sostener el culto mientras avanza la obra definitiva.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1871</span>
-          <div class="cronologia__cuerpo">
-            <h3>Nuestra Señora de Aránzazu</h3>
-            <p>Por la impronta de la colectividad vasca, desde el 14 de enero la parroquia es conocida popularmente como Aránzazu. Consta en matrimonio de 1872 y en el sello parroquial de 1899: “Patrona del Cerro”.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1893</span>
-          <div class="cronologia__cuerpo">
-            <h3>Llega la Virgen de la Ayuda</h3>
-            <p>Marco Stoppa trae desde Busto Arsizio (Italia) la primera imagen de la Virgen de la Ayuda, sembrando una profunda devoción en las familias de la zona.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1923</span>
-          <div class="cronologia__cuerpo">
-            <h3>Cuadro en el templo del Cerro</h3>
-            <p>El Pbro. Gerardo Benincasa entroniza solemnemente un cuadro con la imagen de Nuestra Señora de la Ayuda en el templo parroquial.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1926</span>
-          <div class="cronologia__cuerpo">
-            <h3>Llegan los Capuchinos y restauración</h3>
-            <p>Asume la Orden de Frailes Menores Capuchinos. Tras una novena del P. Querubín de Ceriana, la familia Darnaud financia la restauración integral del templo deteriorado.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1930</span>
-          <div class="cronologia__cuerpo">
-            <h3>Santa María de la Ayuda, titular única</h3>
-            <p>Por decreto del 30 de marzo, Mons. Francisco Aragone nombra titular única a Santa María de la Ayuda por la transformación demográfica del barrio. Se bendice la talla de Ferdinando Stuflesser donada por Manuel Diz.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1935</span>
-          <div class="cronologia__cuerpo">
-            <h3>Consagración solemne del templo</h3>
-            <p>El 28 de diciembre Mons. Aragone consagra el templo y deposita en el altar reliquias del Velo de la Virgen, San Lorenzo, Santa Águeda, San Francisco y San José de Cupertino.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1957</span>
-          <div class="cronologia__cuerpo">
-            <h3>Centenario y frescos de Lino Dinetto</h3>
-            <p>Se inaugura el monumental fresco del “Juicio Final” en el presbiterio (declarado Monumento Histórico Nacional) y el mosaico de María Reina de la Paz en el atrio.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1968</span>
-          <div class="cronologia__cuerpo">
-            <h3>Piedra del Santuario de Aránzazu</h3>
-            <p>El 21 de abril se bendice la piedra fundamental del nuevo santuario (proyecto Arq. Vaia). La imagen colonial de Aránzazu recorre el Cerro en carreta tirada por bueyes junto al Nuncio Bruñera y coros vascos.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1991</span>
-          <div class="cronologia__cuerpo">
-            <h3>Retorno al clero secular</h3>
-            <p>En la Pascua de 1991 los Capuchinos concluyen 65 años de misión y el clero diocesano retoma la guía pastoral con sacerdotes como Bonilla, Silveira y Ulfe.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">1992</span>
-          <div class="cronologia__cuerpo">
-            <h3>Hitos marianos en el Cerro</h3>
-            <p>Llega la imagen auténtica de la Virgen de los Treinta y Tres en carreta recibida con la «Diana de Palleja» en la Fortaleza, y se celebra la «Noche Blanca» con la Virgen de Fátima.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">2007</span>
-          <div class="cronologia__cuerpo">
-            <h3>Sesquicentenario (150 años)</h3>
-            <p>Procesión jubilar de quince cuadras, misa conmemorativa de Mons. Tróccoli, bendición de placa de mármol y 150 hogares del barrio consagrados a la Virgen.</p>
-          </div>
-        </li>
-        <li class="cronologia__item">
-          <span class="cronologia__anio">Presente</span>
-          <div class="cronologia__cuerpo">
-            <h3>Misiones territoriales y Compañía de Jesús</h3>
-            <p>Tras las misiones populares con la Sociedad de San Juan y la Sagrada Familia, la animación comunitaria y pastoral se encuentra confiada a los sacerdotes Jesuitas.</p>
-          </div>
-        </li>
-      </ol>
+      <div class="cronologia-envoltorio">
+        <ol class="cronologia" id="cronologia-track" data-scroll="start" tabindex="0" role="region" aria-label="Línea de tiempo histórica deslizable">
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1839</span>
+            <div class="cronologia__cuerpo">
+              <h3>Autorización de la primera capilla</h3>
+              <p>El gobierno accede a la solicitud de Domingo Ramela para levantar una capilla pública bajo la advocación de San Juan Bautista.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1857</span>
+            <div class="cronologia__cuerpo">
+              <h3>Inauguración y primer nombre</h3>
+              <p>Se abre el oratorio en Chile y Perú como “Dulce Nombre de María” y semanas después pasa a llamarse “Santa María del Cerro”. Se fijan los límites y se consagra como el quinto templo más antiguo de la Arquidiócesis de Montevideo.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1867</span>
+            <div class="cronologia__cuerpo">
+              <h3>Piedra fundamental del templo actual</h3>
+              <p>El 17 de diciembre se coloca la piedra fundamental apadrinada por el Brigadier Gral. Venancio Flores y María García Zamora. El Pbro. Juan Bautista Laphitz celebra misa bajo toldos encerados.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1870</span>
+            <div class="cronologia__cuerpo">
+              <h3>La “Capilla Vieja” en calle Chile</h3>
+              <p>Dieciséis feligreses vascos levantan un austero galpón de madera y chapa de 8 por 15 metros para sostener el culto mientras avanza la obra definitiva.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1871</span>
+            <div class="cronologia__cuerpo">
+              <h3>Nuestra Señora de Aránzazu</h3>
+              <p>Por la impronta de la colectividad vasca, desde el 14 de enero la parroquia es conocida popularmente como Aránzazu. Consta en matrimonio de 1872 y en el sello parroquial de 1899: “Patrona del Cerro”.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1893</span>
+            <div class="cronologia__cuerpo">
+              <h3>Llega la Virgen de la Ayuda</h3>
+              <p>Marco Stoppa trae desde Busto Arsizio (Italia) la primera imagen de la Virgen de la Ayuda, sembrando una profunda devoción en las familias de la zona.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1923</span>
+            <div class="cronologia__cuerpo">
+              <h3>Cuadro en el templo del Cerro</h3>
+              <p>El Pbro. Gerardo Benincasa entroniza solemnemente un cuadro con la imagen de Nuestra Señora de la Ayuda en el templo parroquial.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1926</span>
+            <div class="cronologia__cuerpo">
+              <h3>Llegan los Capuchinos y restauración</h3>
+              <p>Asume la Orden de Frailes Menores Capuchinos. Tras una novena del P. Querubín de Ceriana, la familia Darnaud financia la restauración integral del templo deteriorado.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1930</span>
+            <div class="cronologia__cuerpo">
+              <h3>Santa María de la Ayuda, titular única</h3>
+              <p>Por decreto del 30 de marzo, Mons. Francisco Aragone nombra titular única a Santa María de la Ayuda por la transformación demográfica del barrio. Se bendice la talla de Ferdinando Stuflesser donada por Manuel Diz.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1935</span>
+            <div class="cronologia__cuerpo">
+              <h3>Consagración solemne del templo</h3>
+              <p>El 28 de diciembre Mons. Aragone consagra el templo y deposita en el altar reliquias del Velo de la Virgen, San Lorenzo, Santa Águeda, San Francisco y San José de Cupertino.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1957</span>
+            <div class="cronologia__cuerpo">
+              <h3>Centenario y frescos de Lino Dinetto</h3>
+              <p>Se inaugura el monumental fresco del “Juicio Final” en el presbiterio (declarado Monumento Histórico Nacional) y el mosaico de María Reina de la Paz en el atrio.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1968</span>
+            <div class="cronologia__cuerpo">
+              <h3>Piedra del Santuario de Aránzazu</h3>
+              <p>El 21 de abril se bendice la piedra fundamental del nuevo santuario (proyecto Arq. Vaia). La imagen colonial de Aránzazu recorre el Cerro en carreta tirada por bueyes junto al Nuncio Bruñera y coros vascos.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1991</span>
+            <div class="cronologia__cuerpo">
+              <h3>Retorno al clero secular</h3>
+              <p>En la Pascua de 1991 los Capuchinos concluyen 65 años de misión y el clero diocesano retoma la guía pastoral con sacerdotes como Bonilla, Silveira y Ulfe.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">1992</span>
+            <div class="cronologia__cuerpo">
+              <h3>Hitos marianos en el Cerro</h3>
+              <p>Llega la imagen auténtica de la Virgen de los Treinta y Tres en carreta recibida con la «Diana de Palleja» en la Fortaleza, y se celebra la «Noche Blanca» con la Virgen de Fátima.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">2007</span>
+            <div class="cronologia__cuerpo">
+              <h3>Sesquicentenario (150 años)</h3>
+              <p>Procesión jubilar de quince cuadras, misa conmemorativa de Mons. Tróccoli, bendición de placa de mármol y 150 hogares del barrio consagrados a la Virgen.</p>
+            </div>
+          </li>
+          <li class="cronologia__item">
+            <span class="cronologia__nodo" aria-hidden="true"></span>
+            <span class="cronologia__anio">Presente</span>
+            <div class="cronologia__cuerpo">
+              <h3>Misiones territoriales y Compañía de Jesús</h3>
+              <p>Tras las misiones populares con la Sociedad de San Juan y la Sagrada Familia, la animación comunitaria y pastoral se encuentra confiada a los sacerdotes Jesuitas.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
     </div>
   </section>
 
@@ -279,9 +322,9 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
         </div>
       </div>
 
-      <div class="ficha tabla-envoltorio" style="margin-top:2.5rem">
+      <div class="tabla-envoltorio" style="margin-top:2.75rem">
         <div class="tabla-cabecera-fila">
-          <h3 class="ficha__titulo-seccion" style="margin:0;">Hitos de la devoción</h3>
+          <h3 class="tabla-titulo">Hitos de la devoción</h3>
           <span class="tabla-hint-movil">↔ Deslizá para ver completo</span>
         </div>
         <div class="tabla-scroll-area">
@@ -312,7 +355,7 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
       <h2>La etapa de los Capuchinos, el arte y el servicio social</h2>
       <p class="divisor"><i aria-hidden="true"></i></p>
 
-      <div class="fila-editorial">
+      <div class="fila-editorial fila-editorial--capuchinos">
         <div class="texto-historia">
           <p>Los Capuchinos asumieron el 21 de marzo de 1926 y el convenio del 5 de marzo de 1928 les entregó la administración pastoral a perpetuidad, guiando a la comunidad cerrense durante 65 años de profunda entrega. El Pbro. Querubín de Ceriana fue el alma impulsora para finalizar la casa parroquial y los colegios.</p>
           <p>El 28 de diciembre de 1935 se consagró solemnemente el templo. En la ara del altar mayor se depositaron reliquias del Velo de la Santísima Virgen, de San Lorenzo, Santa Águeda, San Francisco de Asís y San José de Cupertino.</p>
@@ -321,7 +364,7 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
 
         <!-- RECUADRO IMAGEN A LA DERECHA: CAPUCHINOS -->
         <div class="columna-lateral">
-          <figure class="foto-editorial">
+          <figure class="foto-editorial foto-editorial--capuchinos">
             <img
               src="/assets/img/historia/padre-querubin-de-ceriana.webp"
               alt="Pbro. Querubín de Ceriana"
@@ -430,7 +473,7 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
         </div>
       </div>
 
-      <div class="museo-galeria" id="galeria-tesoros" tabindex="0" role="region" aria-label="Galería de esculturas e imaginería sagrada">
+      <div class="museo-galeria" id="galeria-tesoros" data-scroll="start" tabindex="0" role="region" aria-label="Galería de esculturas e imaginería sagrada">
         <!-- 1. Beato Jacinto Vera -->
         <article class="museo-pieza">
           <div class="museo-pieza__escena">
@@ -711,6 +754,18 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     align-items: stretch;
     margin-bottom: 2rem;
   }
+  .fila-editorial--capuchinos {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+  .fila-editorial--capuchinos .texto-historia {
+    grid-column: span 2;
+    max-width: none;
+  }
+  .fila-editorial--capuchinos .columna-lateral {
+    grid-column: span 1;
+    height: 100%;
+  }
   .columna-lateral {
     display: flex;
     flex-direction: column;
@@ -774,55 +829,175 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   }
 
+  /* =========================================================
+     CRONOLOGÍA HORIZONTAL (Línea de tiempo con scroll)
+     ========================================================= */
+  .seccion--cronologia {
+    overflow: hidden;
+  }
+  .cronologia-cabecera {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .cronologia-controles {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .cronologia-controles__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: rgba(201, 169, 106, 0.9);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .cronologia-controles__botones {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .cronologia-envoltorio {
+    position: relative;
+    width: 100%;
+  }
   .cronologia {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 1.75rem 1.5rem 1.75rem;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 1.5rem;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x proximity;
+    scroll-padding: 0 1.5rem;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    box-sizing: border-box;
+    cursor: grab;
+    user-select: none;
+  }
+  .cronologia:active {
+    cursor: grabbing;
+  }
+  .cronologia::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
   .cronologia__item {
-    display: grid;
-    grid-template-columns: 5rem 1fr;
-    gap: 0 1.5rem;
-  }
-  .cronologia__anio {
-    font-weight: 700;
-    color: var(--colorOro, #C9A96A);
-    padding-top: 0.05rem;
-    letter-spacing: 0.01em;
-  }
-  .cronologia__cuerpo {
+    flex: 0 0 310px !important;
+    width: 310px !important;
+    min-width: 310px !important;
+    max-width: 310px !important;
+    scroll-snap-align: start;
+    display: flex !important;
+    flex-direction: column !important;
     position: relative;
-    border-left: 1px solid rgba(201, 169, 106, 0.35);
-    padding: 0 0 1.9rem 1.6rem;
+    padding-top: 1.75rem;
+    box-sizing: border-box;
   }
-  .cronologia__item:last-child .cronologia__cuerpo {
-    border-left-color: transparent;
-    padding-bottom: 0;
-  }
-  .cronologia__cuerpo::before {
+  /* Línea horizontal de tiempo continua */
+  .cronologia__item::before {
     content: "";
     position: absolute;
-    left: -5px;
-    top: 0.45rem;
-    width: 9px;
-    height: 9px;
+    top: 7px;
+    left: 0;
+    right: -1.5rem;
+    height: 2px;
+    background: rgba(201, 169, 106, 0.28);
+    z-index: 1;
+  }
+  .cronologia__item:first-child::before {
+    left: 1.25rem;
+  }
+  .cronologia__item:last-child::before {
+    right: 50%;
+  }
+  .cronologia__nodo {
+    position: absolute;
+    top: 2px;
+    left: 1.25rem;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: var(--colorOro, #C9A96A);
+    border: none;
+    box-shadow: 0 0 10px rgba(201, 169, 106, 0.75);
+    z-index: 2;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
-  .cronologia h3 {
-    margin: 0 0 0.3rem;
-    font-size: 1.05rem;
+  .cronologia__item:hover .cronologia__nodo {
+    transform: scale(1.4);
+    box-shadow: 0 0 16px rgba(201, 169, 106, 1);
+  }
+  .cronologia__anio {
+    display: block;
+    font-size: 1.45rem;
+    font-family: var(--display, Marcellus);
+    font-weight: 700;
+    color: var(--colorOro, #C9A96A);
+    letter-spacing: 0.02em;
+    margin-bottom: 0.75rem;
+  }
+  .cronologia__cuerpo {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(201, 169, 106, 0.22);
+    border-radius: 8px;
+    padding: 1.4rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid rgba(201, 169, 106, 0.22);
+    transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .cronologia__cuerpo::before {
+    display: none !important;
+  }
+  .cronologia__item:hover .cronologia__cuerpo {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(201, 169, 106, 0.55);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  }
+  .cronologia__cuerpo h3 {
+    margin: 0 0 0.55rem;
+    font-size: 1.15rem;
+    font-family: var(--display, Marcellus);
     color: #ffffff;
+    line-height: 1.35;
+    font-weight: 600;
   }
-  .cronologia p {
+  .cronologia__cuerpo p {
     margin: 0;
     color: rgba(255, 255, 255, 0.82);
-    max-width: 58ch;
+    font-size: 0.92rem;
+    line-height: 1.55;
   }
 
   /* ---------- Tabla de Hitos Deslizable ---------- */
+  /* ---------- Tabla de Hitos Deslizable ---------- */
   .tabla-envoltorio {
     position: relative;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+  .tabla-titulo {
+    font-family: var(--display, Marcellus);
+    font-size: 1.35rem;
+    color: var(--lapis, #16244A);
+    margin: 0;
   }
   .tabla-cabecera-fila {
     display: flex;
@@ -830,9 +1005,9 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 1.25rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid rgba(201, 169, 106, 0.25);
+    margin-bottom: 0.85rem;
+    padding-bottom: 0;
+    border-bottom: none !important;
   }
   .tabla-hint-movil {
     display: none;
@@ -875,42 +1050,55 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     min-width: 560px;
     border-collapse: collapse;
     text-align: left;
-  }
-  .tabla-hitos th,
-  .tabla-hitos td {
-    padding: 0.85rem 1rem 0.85rem 0;
-    border-bottom: 1px solid rgba(22, 36, 74, 0.1);
-    vertical-align: top;
-    line-height: 1.45;
+    background: transparent !important;
+    border: none !important;
   }
   .tabla-hitos thead th {
+    background: transparent !important;
     color: var(--colorOro, #C9A96A);
-    font-size: 0.82rem;
-    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     font-weight: 700;
-    padding-bottom: 0.75rem;
+    padding: 0.75rem 1rem 0.75rem 0;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 1.5px solid rgba(201, 169, 106, 0.4) !important;
+  }
+  .tabla-hitos tbody th,
+  .tabla-hitos tbody td {
+    padding: 0.95rem 1rem 0.95rem 0;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(22, 36, 74, 0.08) !important;
+    vertical-align: top;
+    line-height: 1.5;
   }
   .tabla-hitos tbody th {
     width: 5.5rem;
     min-width: 5.5rem;
     font-weight: 700;
+    font-family: var(--display, Marcellus);
     white-space: nowrap;
     color: var(--lapis, #16244A);
-    font-size: 1.05rem;
+    font-size: 1.15rem;
   }
   .tabla-hitos td:nth-child(2) {
     min-width: 260px;
     padding-right: 1.5rem;
+    color: var(--tinta, #111111);
+    font-size: 0.96rem;
   }
   .tabla-hitos td:nth-child(3) {
     min-width: 180px;
     color: var(--gris, #5A626A);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
   }
   .tabla-hitos tr:last-child th,
   .tabla-hitos tr:last-child td {
-    border-bottom: 0;
+    border-bottom: none !important;
   }
 
   /* ---------- Foto Editorial (ocupa todo el div, sin recuadro blanco) ---------- */
@@ -968,6 +1156,26 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     font-size: 0.86rem;
     line-height: 1.45;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Imagen Padre Querubín en Capuchinos: proporción estilizada y encuadre */
+  .foto-editorial--capuchinos {
+    min-height: 480px;
+    height: 100%;
+  }
+  .foto-editorial--capuchinos .foto-editorial__img {
+    object-position: center 6%;
+  }
+  .foto-editorial--capuchinos .foto-editorial__pie {
+    padding: 2.2rem 1.25rem 1.15rem;
+    background: linear-gradient(to top, rgba(16, 24, 48, 0.96) 0%, rgba(16, 24, 48, 0.55) 42%, transparent 100%);
+  }
+  .foto-editorial--capuchinos .foto-editorial__pie strong {
+    font-size: 0.98rem;
+  }
+  .foto-editorial--capuchinos .foto-editorial__pie span {
+    font-size: 0.83rem;
+    line-height: 1.4;
   }
 
   /* ---------- Grilla Colegios (fotos a sangre completa, sin recuadro blanco) ---------- */
@@ -1157,11 +1365,47 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
     box-sizing: border-box;
+    cursor: grab;
+    user-select: none;
+  }
+  .museo-galeria:active {
+    cursor: grabbing;
   }
   .museo-galeria::-webkit-scrollbar {
     display: none !important;
     width: 0 !important;
     height: 0 !important;
+  }
+
+  /* Estados de scroll fade para Cronología y Museo */
+  .cronologia,
+  .museo-galeria {
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 72px), transparent 100%);
+    mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 72px), transparent 100%);
+  }
+
+  .cronologia[data-scroll="start"],
+  .museo-galeria[data-scroll="start"] {
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 72px), transparent 100%);
+    mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 72px), transparent 100%);
+  }
+
+  .cronologia[data-scroll="middle"],
+  .museo-galeria[data-scroll="middle"] {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 72px, #000 calc(100% - 72px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 72px, #000 calc(100% - 72px), transparent 100%);
+  }
+
+  .cronologia[data-scroll="end"],
+  .museo-galeria[data-scroll="end"] {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 72px, #000 100%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 72px, #000 100%);
+  }
+
+  .cronologia[data-scroll="none"],
+  .museo-galeria[data-scroll="none"] {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
   }
 
   /* PIEZA INDIVIDUAL DE MUSEO (ESTATUA) */
@@ -1293,22 +1537,33 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
       grid-template-columns: 1fr;
       gap: 1.75rem;
     }
+    .fila-editorial--capuchinos {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+    .fila-editorial--capuchinos .texto-historia {
+      grid-column: span 1;
+    }
     .foto-editorial {
       min-height: 380px;
     }
+    .foto-editorial--capuchinos {
+      min-height: 420px;
+    }
+    .cronologia-cabecera {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    .cronologia-controles {
+      width: 100%;
+      justify-content: space-between;
+    }
     .cronologia__item {
-      grid-template-columns: 1fr;
-    }
-    .cronologia__anio {
-      margin-bottom: 0.2rem;
-    }
-    .cronologia__cuerpo {
-      border-left: 0;
-      padding-left: 0;
-      padding-bottom: 1.6rem;
-    }
-    .cronologia__cuerpo::before {
-      display: none;
+      flex: 0 0 270px !important;
+      width: 270px !important;
+      min-width: 270px !important;
+      max-width: 270px !important;
     }
     .museo-cabecera {
       flex-direction: column;
@@ -1337,55 +1592,129 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
 </style>
 
 <script>
+  function setupScrollFade(el: HTMLElement | null) {
+    if (!el) return;
+    const target: HTMLElement = el;
+
+    function updateMask() {
+      const maxScroll = target.scrollWidth - target.clientWidth;
+      if (maxScroll <= 12) {
+        target.dataset.scroll = 'none';
+        return;
+      }
+
+      const atStart = target.scrollLeft <= 36;
+      const atEnd = target.scrollLeft >= maxScroll - 36;
+
+      if (atStart) {
+        target.dataset.scroll = 'start';
+      } else if (atEnd) {
+        target.dataset.scroll = 'end';
+      } else {
+        target.dataset.scroll = 'middle';
+      }
+    }
+
+    target.addEventListener('scroll', updateMask, { passive: true });
+    window.addEventListener('resize', updateMask, { passive: true });
+    updateMask();
+  }
+
+  function setupDragScroll(el: HTMLElement | null) {
+    if (!el) return;
+    const target: HTMLElement = el;
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    target.addEventListener('mousedown', (e) => {
+      isDown = true;
+      target.style.cursor = 'grabbing';
+      target.style.scrollBehavior = 'auto';
+      target.style.scrollSnapType = 'none';
+      startX = e.pageX - target.offsetLeft;
+      scrollLeft = target.scrollLeft;
+    });
+
+    const endDrag = () => {
+      if (!isDown) return;
+      isDown = false;
+      target.style.cursor = 'grab';
+      target.style.scrollBehavior = 'smooth';
+      target.style.scrollSnapType = '';
+    };
+
+    window.addEventListener('mouseup', endDrag);
+    target.addEventListener('mouseleave', endDrag);
+
+    target.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - target.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      target.scrollLeft = scrollLeft - walk;
+    });
+  }
+
   function setupMuseoScroll() {
     const galeria = document.getElementById('galeria-tesoros');
     const prevBtn = document.getElementById('btn-museo-prev');
     const nextBtn = document.getElementById('btn-museo-next');
 
-    if (galeria && prevBtn && nextBtn) {
-      prevBtn.addEventListener('click', () => {
-        galeria.scrollBy({ left: -340, behavior: 'smooth' });
-      });
-      nextBtn.addEventListener('click', () => {
-        galeria.scrollBy({ left: 340, behavior: 'smooth' });
-      });
+    if (galeria) {
+      setupScrollFade(galeria);
+      setupDragScroll(galeria);
+      if (prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', () => {
+          if (galeria.scrollLeft <= 360) {
+            galeria.scrollTo({ left: 0, behavior: 'smooth' });
+          } else {
+            galeria.scrollBy({ left: -340, behavior: 'smooth' });
+          }
+        });
+        nextBtn.addEventListener('click', () => {
+          galeria.scrollBy({ left: 340, behavior: 'smooth' });
+        });
+      }
+    }
+  }
+
+  function setupCronologiaScroll() {
+    const track = document.getElementById('cronologia-track');
+    const prevBtn = document.getElementById('btn-crono-prev');
+    const nextBtn = document.getElementById('btn-crono-next');
+
+    if (track) {
+      setupScrollFade(track);
+      setupDragScroll(track);
+      if (prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', () => {
+          if (track.scrollLeft <= 360) {
+            track.scrollTo({ left: 0, behavior: 'smooth' });
+          } else {
+            track.scrollBy({ left: -330, behavior: 'smooth' });
+          }
+        });
+        nextBtn.addEventListener('click', () => {
+          track.scrollBy({ left: 330, behavior: 'smooth' });
+        });
+      }
     }
   }
 
   function setupTablaScroll() {
     const scrollArea = document.querySelector('.tabla-scroll-area');
     if (scrollArea instanceof HTMLElement) {
-      let isDown = false;
-      let startX = 0;
-      let scrollLeft = 0;
-
-      scrollArea.addEventListener('mousedown', (e) => {
-        isDown = true;
-        scrollArea.style.cursor = 'grabbing';
-        startX = e.pageX - scrollArea.offsetLeft;
-        scrollLeft = scrollArea.scrollLeft;
-      });
-
-      window.addEventListener('mouseup', () => {
-        if (!isDown) return;
-        isDown = false;
-        if (scrollArea) scrollArea.style.cursor = 'grab';
-      });
-
-      scrollArea.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - scrollArea.offsetLeft;
-        const walk = (x - startX) * 1.5;
-        scrollArea.scrollLeft = scrollLeft - walk;
-      });
+      setupDragScroll(scrollArea);
     }
   }
 
-  setupMuseoScroll();
-  setupTablaScroll();
-  document.addEventListener('astro:page-load', () => {
+  function initHistoria() {
     setupMuseoScroll();
+    setupCronologiaScroll();
     setupTablaScroll();
-  });
+  }
+
+  initHistoria();
+  document.addEventListener('astro:page-load', initHistoria);
 </script>
