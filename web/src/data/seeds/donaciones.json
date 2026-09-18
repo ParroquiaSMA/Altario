@@ -14,7 +14,8 @@
     "datos_adicionales": {
       "preapproval_id": "25b55a4f0a144f9782b6a33cc7fb692c",
       "frequency": 1
-    }
+    },
+    "archivada": true
   },
   {
     "id": "don-3091e7cac8bc",
@@ -31,7 +32,8 @@
     "datos_adicionales": {
       "card_last_four": "0604",
       "frecuencia": "mensual"
-    }
+    },
+    "archivada": true
   },
   {
     "id": "don-001",
@@ -48,7 +50,8 @@
     "datos_adicionales": {
       "card_last_four": "4242",
       "frecuencia": "mensual"
-    }
+    },
+    "archivada": true
   },
   {
     "id": "don-002",
@@ -64,7 +67,8 @@
     "metodo_pago": "Mastercard Crédito",
     "datos_adicionales": {
       "card_last_four": "1098"
-    }
+    },
+    "archivada": true
   },
   {
     "id": "don-003",
@@ -81,7 +85,8 @@
     "datos_adicionales": {
       "card_last_four": "8812",
       "frecuencia": "mensual"
-    }
+    },
+    "archivada": true
   },
   {
     "id": "don-004",
@@ -97,7 +102,8 @@
     "metodo_pago": "Abitab (Efectivo)",
     "datos_adicionales": {
       "ticket_url": "https://www.mercadopago.com.uy/payments/97812034/ticket"
-    }
+    },
+    "archivada": true
   },
   {
     "id": "don-005",
@@ -114,7 +120,8 @@
     "datos_adicionales": {
       "card_last_four": "3321",
       "frecuencia": "mensual"
-    }
+    },
+    "archivada": true
   },
   {
     "id": "don-006",
@@ -130,6 +137,7 @@
     "metodo_pago": "Transferencia Bancaria",
     "datos_adicionales": {
       "banco": "BROU"
-    }
+    },
+    "archivada": true
   }
 ]
