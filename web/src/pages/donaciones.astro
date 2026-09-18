@@ -1,0 +1,1045 @@
+---
+import Layout from '../layouts/Layout.astro';
+import FondoDecorativo from '../components/FondoDecorativo.astro';
+import { getSiteConfig } from '../lib/supabase';
+
+const siteConfig = await getSiteConfig();
+const { parroquia, donaciones } = siteConfig;
+
+const mpActivo = donaciones?.mercadopago?.activo ?? true;
+const mpPublicKey = donaciones?.mercadopago?.public_key || import.meta.env.PUBLIC_MERCADO_PAGO_KEY || 'APP_USR-3e91a063-54aa-4430-b99f-f0b2f36027ef';
+const tituloPagina = donaciones?.titulo_seccion || 'Tu aporte sostiene nuestra comunidad';
+const mensajeBajada = donaciones?.mensaje || 'La vida de la parroquia, el cuidado de nuestro templo histórico y la ayuda concreta a las familias más vulnerables del barrio dependen del compromiso generoso de cada uno de nosotros.';
+---
+
+<Layout title={`Donaciones y Sostenimiento — ${parroquia.nombre}`} currentPage="donaciones">
+  <!-- Portada -->
+  <section class="portada">
+    <FondoDecorativo />
+    <div class="contenedor">
+      <p class="miga"><a href="/">Inicio</a><span aria-hidden="true">›</span>Donaciones</p>
+      <p class="antetitulo">Sostenimiento parroquial</p>
+      <h1>{tituloPagina}</h1>
+      <p class="portada__bajada">
+        {mensajeBajada}
+      </p>
+    </div>
+  </section>
+
+  <!-- Contenido Principal: Grid de Donaciones -->
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="donaciones-grid">
+        <!-- Columna 1: Donar en línea (Mercado Pago Bricks) -->
+        <div class="donaciones-card donaciones-card--principal" id="bloque-online" data-mp-public-key={mpPublicKey} data-mp-activo={mpActivo ? "true" : "false"}>
+          <div class="donaciones-card__cabecera">
+            <div>
+              <span class="donaciones-tag">En línea</span>
+              <h2 class="donaciones-card__titulo">Donar con tarjeta o efectivo</h2>
+              <p class="donaciones-card__subtitulo">
+                Podés colaborar de forma inmediata y 100% segura mediante tarjeta de débito, crédito o redes de cobranza.
+              </p>
+            </div>
+          </div>
+
+          <div class="donaciones-card__cuerpo">
+            <!-- Formulario de Donación Digital -->
+            <div id="mp-vista-formulario">
+              {mpActivo ? (
+                <>
+                  <!-- Frecuencia -->
+                  <div class="modal-donar__frecuencia" role="tablist" aria-label="Frecuencia de la donación">
+                    <button type="button" class="frecuencia-btn activo" id="btn-frecuencia-unica" data-frecuencia="unica">
+                      Por única vez
+                    </button>
+                    <button type="button" class="frecuencia-btn" id="btn-frecuencia-mensual" data-frecuencia="mensual">
+                      Aporte mensual recurrente
+                    </button>
+                  </div>
+
+                  <!-- Selector de Montos -->
+                  <div class="modal-donar__montos">
+                    <label class="modal-donar__label" id="label-monto">Seleccioná o ingresá un monto en Pesos Uruguayos:</label>
+                    <div class="montos-grid" role="group" aria-labelledby="label-monto">
+                      <button type="button" class="monto-chip" data-monto="200">$ 200</button>
+                      <button type="button" class="monto-chip activo" data-monto="500">$ 500</button>
+                      <button type="button" class="monto-chip" data-monto="1000">$ 1.000</button>
+                      <button type="button" class="monto-chip" data-monto="2000">$ 2.000</button>
+                    </div>
+
+                    <div class="monto-custom-wrap">
+                      <span class="monto-custom-moneda" aria-hidden="true">$</span>
+                      <input
+                        type="number"
+                        id="input-monto-custom"
+                        class="monto-custom-input"
+                        placeholder="Otro importe (ej. 350, 1500)"
+                        min="50"
+                        step="50"
+                        aria-label="Otro importe personalizado"
+                      />
+                      <span class="monto-custom-tag" aria-hidden="true">UYU</span>
+                    </div>
+                  </div>
+
+                  <!-- Mensaje de ayuda contextual -->
+                  <div id="mp-info-frecuencia" class="modal-donar__info-frecuencia">
+                    <span>✨ Donación puntual con tarjeta de crédito, débito o en efectivo vía Abitab / Redpagos.</span>
+                  </div>
+
+                  <!-- Alerta de Error si ocurre -->
+                  <div id="mp-error-alerta" class="mp-alerta-error" style="display:none" role="alert"></div>
+
+                  <!-- Contenedor del Payment Brick de Mercado Pago -->
+                  <div class="mp-brick-container-wrap">
+                    <div id="mp-brick-loading" class="mp-loading-skeleton">
+                      <div class="mp-spinner" aria-hidden="true"></div>
+                      <p>Cargando medios de pago seguros de Mercado Pago...</p>
+                    </div>
+                    <div id="paymentBrick_container"></div>
+                  </div>
+                </>
+              ) : (
+                <div class="donaciones-pausado">
+                  <div class="donaciones-pausado__icono">ℹ️</div>
+                  <h3>Donaciones en línea momentáneamente pausadas</h3>
+                  <p>
+                    Las donaciones automáticas con tarjeta están en mantenimiento. Podés colaborar mediante transferencia directa a nuestras cuentas bancarias o de forma presencial en las alcancías del templo.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <!-- Vista de Éxito tras confirmación -->
+            <div id="mp-vista-exito" class="mp-vista-exito" style="display:none">
+              <div class="mp-exito-icono" aria-hidden="true">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <h3 id="mp-exito-titulo">¡Muchas gracias por tu colaboración!</h3>
+              <p id="mp-exito-mensaje">Tu generosidad sostiene las obras y la vida fraterna de nuestra comunidad parroquial.</p>
+
+              <div class="mp-exito-detalle">
+                <div class="mp-exito-fila">
+                  <span>Monto aportado:</span>
+                  <strong id="mp-exito-monto">$ 500 UYU</strong>
+                </div>
+                <div class="mp-exito-fila">
+                  <span>Modalidad:</span>
+                  <strong id="mp-exito-modalidad">Donación puntual</strong>
+                </div>
+                <div class="mp-exito-fila" id="mp-exito-id-wrap">
+                  <span>N.º de comprobante:</span>
+                  <strong id="mp-exito-id">#--</strong>
+                </div>
+              </div>
+
+              <div id="mp-ticket-wrap" style="display:none; margin-top:1.25rem;">
+                <a id="mp-ticket-link" href="#" target="_blank" rel="noopener" class="boton boton--azul" style="display:inline-block; text-decoration:none;">
+                  Ver cupón de pago para Abitab / Redpagos
+                </a>
+              </div>
+
+              <div style="margin-top:1.75rem; text-align:center;">
+                <button type="button" class="boton boton--linea" id="btn-otra-donacion">
+                  Hacer otra donación
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="donaciones-card__pie">
+            <div class="mp-seguridad-badge">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+              <span>Pagos cifrados y procesados por <strong>Mercado Pago Uruguay</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna 2: Cuentas Bancarias y Otras Formas -->
+        <div class="donaciones-sidebar">
+          <!-- Cuentas Bancarias -->
+          <div class="donaciones-card">
+            <div class="donaciones-card__cabecera">
+              <span class="donaciones-tag donaciones-tag--banco">Transferencia Bancaria</span>
+              <h2 class="donaciones-card__titulo">Cuentas institucionales</h2>
+              <p class="donaciones-card__subtitulo">
+                Podés transferir directamente desde la app de tu banco (e-BROU, Santander, Itaú, BBVA, etc.) sin comisión.
+              </p>
+            </div>
+
+            <div class="donaciones-card__cuerpo">
+              {donaciones?.cuentas_bancarias && donaciones.cuentas_bancarias.length > 0 ? (
+                <div class="donaciones-cuentas-lista">
+                  {donaciones.cuentas_bancarias.map((c) => (
+                    <div class="cuenta-item">
+                      <div class="cuenta-item__top">
+                        <div class="cuenta-item__banco">
+                          <strong>{c.banco}</strong>
+                          <span class="cuenta-item__tipo">{c.tipo_cuenta}</span>
+                        </div>
+                        <button
+                          type="button"
+                          class="btn-copiar"
+                          data-copiar={c.numero_cuenta}
+                          aria-label={`Copiar número de cuenta de ${c.banco}`}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                          <span>Copiar</span>
+                        </button>
+                      </div>
+
+                      <div class="cuenta-item__numero">
+                        <span>N.º de cuenta:</span>
+                        <code>{c.numero_cuenta}</code>
+                      </div>
+
+                      <ul class="cuenta-item__datos">
+                        {c.titular && (
+                          <li>
+                            <span>Titular</span>
+                            <strong>{c.titular}</strong>
+                          </li>
+                        )}
+                        {c.identificacion_fiscal && (
+                          <li>
+                            <span>RUT / Doc</span>
+                            <strong>{c.identificacion_fiscal}</strong>
+                          </li>
+                        )}
+                        {c.referencia && (
+                          <li>
+                            <span>Referencia</span>
+                            <strong>{c.referencia}</strong>
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div class="cuenta-item">
+                  <div class="cuenta-item__banco">
+                    <strong>Banco de la República Oriental del Uruguay (BROU)</strong>
+                    <span class="cuenta-item__tipo">Caja de Ahorros Pesos</span>
+                  </div>
+                  <div class="cuenta-item__numero">
+                    <span>N.º de cuenta:</span>
+                    <code>001558234-00001</code>
+                  </div>
+                  <ul class="cuenta-item__datos">
+                    <li><span>Titular</span> <strong>Parroquia Santa María de la Ayuda</strong></li>
+                    <li><span>Referencia</span> <strong>DONACION PARROQUIA</strong></li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <!-- Otras formas de colaborar -->
+          <div class="donaciones-card">
+            <div class="donaciones-card__cabecera">
+              <span class="donaciones-tag donaciones-tag--solidaria">Comunidad y Ayuda Solidaria</span>
+              <h2 class="donaciones-card__titulo">Otras formas de colaborar</h2>
+              <p class="donaciones-card__subtitulo">
+                El sostenimiento parroquial también se construye con manos dispuestas y alimentos para quienes lo necesitan.
+              </p>
+            </div>
+
+            <div class="donaciones-card__cuerpo">
+              <div class="medios-grid">
+                {donaciones?.medios_donacion && donaciones.medios_donacion.length > 0 ? (
+                  donaciones.medios_donacion.map((m) => (
+                    <div class="medio-item">
+                      <h4>{m.titulo}</h4>
+                      <p>{m.descripcion}</p>
+                      {m.enlace && (
+                        <a class="boton boton--linea boton--sm" href={m.enlace} target="_blank" rel="noopener">
+                          {m.etiqueta_boton || 'Más información'}
+                        </a>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <div class="medio-item">
+                      <h4>Alcancías en las misas dominicales</h4>
+                      <p>
+                        Tu ofrenda en la canasta durante las celebraciones solventa los servicios básicos diarios y la acogida de la secretaría.
+                      </p>
+                    </div>
+                    <div class="medio-item">
+                      <h4>Alimentos no perecederos y ropa</h4>
+                      <p>
+                        Recibimos arroz, fideos, leche en polvo, aceite y abrigo para las canastas familiares de la Pastoral de Ayuda Social.
+                      </p>
+                    </div>
+                    <div class="medio-item">
+                      <h4>Tiempo y voluntariado</h4>
+                      <p>
+                        Sumate a los equipos de limpieza del templo, apoyo escolar, coro, catequesis o mantenimiento edilicio.
+                      </p>
+                      <a class="boton boton--linea boton--sm" href="/comunidad">
+                        Conocer los grupos
+                      </a>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección de Transparencia y Destino de Fondos -->
+  <section class="seccion seccion--papel">
+    <div class="contenedor">
+      <div class="transparencia-encabezado">
+        <p class="antetitulo">Transparencia y Mayordomía</p>
+        <h2>¿A qué se destina tu colaboración?</h2>
+        <p class="divisor"><i aria-hidden="true"></i></p>
+        <p class="transparencia-bajada">
+          Nuestra parroquia es económicamente autónoma. No recibe subsidios estatales: cada lamparilla encendida, cada canasta solidaria y cada misa celebrada se sustentan gracias a tu fe y compromiso.
+        </p>
+      </div>
+
+      <div class="rejilla" style="margin-top:2.5rem">
+        <article class="tarjeta tarjeta--transparencia">
+          <div class="tarjeta-icono" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v4M10 4h4"></path>
+              <path d="m4 10.5 8-6.5 8 6.5"></path>
+              <path d="M5 10v11h14V10"></path>
+              <path d="M10 21v-5a2 2 0 0 1 4 0v5"></path>
+              <circle cx="12" cy="10.5" r="1.5"></circle>
+            </svg>
+          </div>
+          <h3>Cuidado y Culto en el Templo</h3>
+          <p>
+            Mantenimiento edilicio del templo histórico del Cerro, energía eléctrica, agua, elementos litúrgicos (vino, hostias, cera de velas) y flores para el altar.
+          </p>
+        </article>
+
+        <article class="tarjeta tarjeta--transparencia">
+          <div class="tarjeta-icono" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+            </svg>
+          </div>
+          <h3>Acción Social y Solidaridad</h3>
+          <p>
+            Atención prioritaria a familias y personas en situación de vulnerabilidad en el barrio mediante canastas alimentarias, abrigo y contención fraterna.
+          </p>
+        </article>
+
+        <article class="tarjeta tarjeta--transparencia">
+          <div class="tarjeta-icono" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+          </div>
+          <h3>Pastoral, Catequesis y Misión</h3>
+          <p>
+            Libros y materiales formativos para niños, jóvenes y adultos, encuentros de oración, campamentos y actividades comunitarias abiertas a todos.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Franja Final -->
+  <section class="franja">
+    <div class="contenedor franja__fila">
+      <div>
+        <h2>¿Tenés preguntas o querés coordinar una donación especial?</h2>
+        <p>
+          Si representás a una empresa, querés hacer una donación en especies o coordinar un débito automático específico, escribinos a la secretaría.
+        </p>
+      </div>
+      <a class="boton boton--oro" href="/contacto">Escribinos a secretaría</a>
+    </div>
+  </section>
+
+  <!-- Script del SDK oficial de Mercado Pago -->
+  <script is:inline src="https://sdk.mercadopago.com/js/v2"></script>
+
+  <!-- Script de Interacción y Mercado Pago Bricks -->
+  <script is:inline>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Bloque Online Container
+      const bloqueOnline = document.getElementById("bloque-online");
+      const mpActivo = bloqueOnline?.getAttribute("data-mp-activo") === "true";
+      const publicKey = bloqueOnline?.getAttribute("data-mp-public-key") || "APP_USR-3e91a063-54aa-4430-b99f-f0b2f36027ef";
+
+      // Vistas y Controles
+      const vistaFormulario = document.getElementById("mp-vista-formulario");
+      const vistaExito = document.getElementById("mp-vista-exito");
+      const btnFrecUnica = document.getElementById("btn-frecuencia-unica");
+      const btnFrecMensual = document.getElementById("btn-frecuencia-mensual");
+      const infoFrecuencia = document.getElementById("mp-info-frecuencia");
+      const chipsMonto = document.querySelectorAll(".monto-chip");
+      const inputMontoCustom = document.getElementById("input-monto-custom");
+      const brickContainer = document.getElementById("paymentBrick_container");
+      const brickLoading = document.getElementById("mp-brick-loading");
+      const errorDiv = document.getElementById("mp-error-alerta");
+      const btnOtraDonacion = document.getElementById("btn-otra-donacion");
+
+      // Elementos de la vista de éxito
+      const exitoMonto = document.getElementById("mp-exito-monto");
+      const exitoModalidad = document.getElementById("mp-exito-modalidad");
+      const exitoId = document.getElementById("mp-exito-id");
+      const ticketWrap = document.getElementById("mp-ticket-wrap");
+      const ticketLink = document.getElementById("mp-ticket-link");
+
+      // Estado
+      let mpInstance = null;
+      let bricksBuilder = null;
+      let brickController = null;
+      let currentFrecuencia = "unica";
+      let currentMonto = 500;
+      let isRendering = false;
+
+      const formatearMonto = (m) => `$ ${Number(m).toLocaleString('es-UY')} UYU`;
+
+      const mostrarError = (msg) => {
+        if (!errorDiv) return;
+        errorDiv.textContent = msg;
+        errorDiv.style.display = "block";
+      };
+
+      const ocultarError = () => {
+        if (errorDiv) errorDiv.style.display = "none";
+      };
+
+      const renderBrick = async () => {
+        if (!mpInstance || !bricksBuilder || isRendering) return;
+        isRendering = true;
+        ocultarError();
+
+        if (brickLoading) brickLoading.style.display = "flex";
+
+        try {
+          if (brickController) {
+            await brickController.unmount();
+            brickController = null;
+          }
+
+          if (brickContainer) {
+            brickContainer.innerHTML = "";
+          }
+
+          const isMonthly = currentFrecuencia === "mensual";
+
+          const settings = {
+            initialization: {
+              amount: Number(currentMonto),
+            },
+            customization: {
+              paymentMethods: isMonthly
+                ? {
+                    creditCard: "all",
+                  }
+                : {
+                    creditCard: "all",
+                    debitCard: "all",
+                    ticket: "all",
+                  },
+              visual: {
+                style: {
+                  theme: "default",
+                  customVariables: {
+                    baseColor: "#16244A",
+                    borderRadiusMedium: "8px",
+                    inputVerticalPadding: "12px",
+                    inputHorizontalPadding: "12px",
+                    formPadding: "0px",
+                  },
+                },
+                hideFormTitle: true,
+                hideValue: true,
+                texts: {
+                  formSubmit: isMonthly ? "Confirmar aporte mensual" : "Confirmar donación",
+                },
+              },
+            },
+            callbacks: {
+              onReady: () => {
+                isRendering = false;
+                if (brickLoading) brickLoading.style.display = "none";
+              },
+              onSubmit: ({ formData }) => {
+                return new Promise((resolve, reject) => {
+                  ocultarError();
+
+                  const endpoint = isMonthly
+                    ? "/api/donaciones/suscribir"
+                    : "/api/donaciones/procesar-pago";
+
+                  const payload = isMonthly
+                    ? {
+                        card_token_id: formData.token,
+                        transaction_amount: Number(currentMonto),
+                        payer_email: formData.payer?.email || "donante@parroquiasma.uy",
+                        reason: "Sostenimiento mensual Parroquia Santa María de la Ayuda",
+                      }
+                    : {
+                        ...formData,
+                        transaction_amount: Number(currentMonto),
+                        description: "Donación Parroquia Santa María de la Ayuda",
+                      };
+
+                  fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                  })
+                    .then(async (res) => {
+                      const data = await res.json();
+                      if (data.status === "approved" || data.status === "authorized" || data.status === "pending") {
+                        mostrarExito(data, isMonthly, currentMonto);
+                        resolve();
+                      } else {
+                        const msg =
+                          data.message ||
+                          (data.cause && data.cause[0]?.description) ||
+                          "La transacción no pudo ser autorizada. Por favor, verifica los datos o intenta con otro medio.";
+                        mostrarError(msg);
+                        reject();
+                      }
+                    })
+                    .catch((err) => {
+                      console.error("Error al procesar donación:", err);
+                      mostrarError("Ocurrió un inconveniente al conectar con el servidor de pagos. Reintentá en unos momentos.");
+                      reject();
+                    });
+                });
+              },
+              onError: (error) => {
+                console.error("Error interno en Mercado Pago Brick:", error);
+                isRendering = false;
+                if (brickLoading) brickLoading.style.display = "none";
+                mostrarError("No se pudo inicializar la pasarela de pagos. Por favor refrescá la página.");
+              },
+            },
+          };
+
+          brickController = await bricksBuilder.create("payment", "paymentBrick_container", settings);
+        } catch (err) {
+          console.error("Error inicializando paymentBrick:", err);
+          isRendering = false;
+          if (brickLoading) brickLoading.style.display = "none";
+          mostrarError("Error al cargar los medios de pago. Intentá recargar la página.");
+        }
+      };
+
+      const mostrarExito = (data, isMonthly, monto) => {
+        if (vistaFormulario) vistaFormulario.style.display = "none";
+        if (vistaExito) vistaExito.style.display = "block";
+
+        if (exitoMonto) exitoMonto.textContent = formatearMonto(monto);
+        if (exitoModalidad) {
+          exitoModalidad.textContent = isMonthly ? "Aporte mensual recurrente" : "Donación por única vez";
+        }
+        if (exitoId) {
+          exitoId.textContent = `#${data.id || data.preapproval_id || "COMPROBANTE"}`;
+        }
+
+        // Si fue pago por ticket / efectivo (Abitab / Redpagos)
+        const ticketUrl = data.transaction_details?.external_resource_url || data.external_resource_url;
+        if (ticketWrap && ticketLink) {
+          if (ticketUrl) {
+            ticketLink.href = ticketUrl;
+            ticketWrap.style.display = "block";
+          } else {
+            ticketWrap.style.display = "none";
+          }
+        }
+
+        // Scroll suave al inicio de la tarjeta de éxito
+        bloqueOnline?.scrollIntoView({ behavior: "smooth", block: "start" });
+      };
+
+      // Reiniciar donación
+      btnOtraDonacion?.addEventListener("click", () => {
+        if (vistaExito) vistaExito.style.display = "none";
+        if (vistaFormulario) vistaFormulario.style.display = "block";
+        renderBrick();
+      });
+
+      // Inicializar Mercado Pago
+      if (mpActivo && window.MercadoPago) {
+        try {
+          mpInstance = new window.MercadoPago(publicKey, { locale: "es-UY" });
+          bricksBuilder = mpInstance.bricks();
+          renderBrick();
+        } catch (e) {
+          console.warn("Mercado Pago SDK no inicializado:", e);
+        }
+      }
+
+      // Eventos Frecuencia
+      btnFrecUnica?.addEventListener("click", () => {
+        if (currentFrecuencia === "unica") return;
+        currentFrecuencia = "unica";
+        btnFrecUnica.classList.add("activo");
+        btnFrecMensual?.classList.remove("activo");
+        if (infoFrecuencia) {
+          infoFrecuencia.innerHTML = "<span>✨ Donación puntual con tarjeta de crédito, débito o en efectivo vía Abitab / Redpagos.</span>";
+        }
+        renderBrick();
+      });
+
+      btnFrecMensual?.addEventListener("click", () => {
+        if (currentFrecuencia === "mensual") return;
+        currentFrecuencia = "mensual";
+        btnFrecMensual.classList.add("activo");
+        btnFrecUnica?.classList.remove("activo");
+        if (infoFrecuencia) {
+          infoFrecuencia.innerHTML = "<span>🔄 Débito mensual automático con tarjeta de crédito para el sostenimiento continuo.</span>";
+        }
+        renderBrick();
+      });
+
+      // Eventos Montos Predeterminados
+      chipsMonto.forEach((chip) => {
+        chip.addEventListener("click", () => {
+          chipsMonto.forEach((c) => c.classList.remove("activo"));
+          chip.classList.add("activo");
+          if (inputMontoCustom) inputMontoCustom.value = "";
+          currentMonto = Number(chip.getAttribute("data-monto"));
+          renderBrick();
+        });
+      });
+
+      // Evento Monto Personalizado con debounce
+      let debounceTimeout = null;
+      inputMontoCustom?.addEventListener("input", (e) => {
+        chipsMonto.forEach((c) => c.classList.remove("activo"));
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+          const val = Number(e.target.value);
+          if (val && val >= 50) {
+            currentMonto = val;
+            renderBrick();
+          }
+        }, 650);
+      });
+
+      // Botones para Copiar Número de Cuenta Bancaria
+      const copyButtons = document.querySelectorAll(".btn-copiar");
+      copyButtons.forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const texto = btn.getAttribute("data-copiar");
+          if (!texto) return;
+
+          try {
+            await navigator.clipboard.writeText(texto);
+            const span = btn.querySelector("span");
+            const originalText = span ? span.textContent : "Copiar";
+            btn.classList.add("copiado");
+            if (span) span.textContent = "¡Copiado!";
+            setTimeout(() => {
+              btn.classList.remove("copiado");
+              if (span) span.textContent = originalText;
+            }, 2000);
+          } catch (err) {
+            console.error("Error al copiar al portapapeles:", err);
+          }
+        });
+      });
+    });
+  </script>
+</Layout>
+
+<style>
+  .donaciones-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .donaciones-grid {
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 2.5rem;
+    }
+  }
+
+  .donaciones-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .donaciones-card {
+    background: var(--papel, #ffffff);
+    border: 1px solid var(--linea, #e2e8f0);
+    border-radius: var(--radio, 12px);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .donaciones-card--principal {
+    border-color: rgba(22, 36, 74, 0.2);
+    box-shadow: 0 8px 30px rgba(22, 36, 74, 0.08);
+  }
+
+  .donaciones-card__cabecera {
+    padding: 1.5rem 1.75rem 1.25rem;
+    border-bottom: 1px solid var(--linea, #e2e8f0);
+    background: var(--papel, #ffffff);
+  }
+
+  .donaciones-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.725rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(22, 36, 74, 0.08);
+    color: var(--lapis-claro, #16244A);
+    border: 1px solid rgba(22, 36, 74, 0.18);
+    margin-bottom: 0.65rem;
+  }
+
+  .donaciones-tag--banco {
+    background: rgba(201, 169, 106, 0.15);
+    color: var(--oro-texto, #7A5C24);
+    border: 1px solid rgba(201, 169, 106, 0.36);
+  }
+
+  .donaciones-tag--solidaria {
+    background: rgba(30, 95, 60, 0.09);
+    color: #1a5336;
+    border: 1px solid rgba(30, 95, 60, 0.24);
+  }
+
+  .donaciones-card__titulo {
+    font-size: 1.35rem;
+    color: var(--lapis-claro, #16244A);
+    margin: 0 0 0.35rem;
+    line-height: 1.3;
+  }
+
+  .donaciones-card__subtitulo {
+    font-size: 0.875rem;
+    color: var(--gris, #64748b);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .donaciones-card__cuerpo {
+    padding: 1.5rem 1.75rem;
+  }
+
+  .donaciones-card__pie {
+    padding: 1rem 1.75rem;
+    background: var(--cal, #f8fafc);
+    border-top: 1px solid var(--linea, #e2e8f0);
+  }
+
+  /* Estado pausado */
+  .donaciones-pausado {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    background: var(--cal, #f8fafc);
+    border-radius: 10px;
+    border: 1px dashed var(--linea, #cbd5e1);
+  }
+
+  .donaciones-pausado__icono {
+    font-size: 2.2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .donaciones-pausado h3 {
+    font-size: 1.15rem;
+    color: var(--lapis, #16244A);
+    margin: 0 0 0.5rem;
+  }
+
+  .donaciones-pausado p {
+    font-size: 0.875rem;
+    color: var(--gris, #64748b);
+    margin: 0;
+    max-width: 480px;
+    margin-inline: auto;
+    line-height: 1.5;
+  }
+
+  /* Cuentas Bancarias */
+  .donaciones-cuentas-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .cuenta-item {
+    background: var(--cal, #f8fafc);
+    border: 1px solid var(--linea, #e2e8f0);
+    border-radius: 10px;
+    padding: 1.15rem 1.25rem;
+    transition: border-color 0.2s ease;
+  }
+
+  .cuenta-item:hover {
+    border-color: var(--lapis-claro, #22366B);
+  }
+
+  .cuenta-item__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--linea, #e2e8f0);
+  }
+
+  .cuenta-item__banco strong {
+    display: block;
+    font-size: 1rem;
+    color: var(--lapis-claro, #16244A);
+  }
+
+  .cuenta-item__tipo {
+    font-size: 0.8rem;
+    color: var(--oro-texto, #854d0e);
+    font-weight: 600;
+  }
+
+  .btn-copiar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #ffffff;
+    border: 1px solid var(--linea, #cbd5e1);
+    border-radius: 6px;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.775rem;
+    font-weight: 600;
+    color: var(--tinta, #1e293b);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .btn-copiar:hover {
+    background: var(--cal, #f1f5f9);
+    border-color: var(--lapis, #16244A);
+    color: var(--lapis, #16244A);
+  }
+
+  .btn-copiar.copiado {
+    background: #dcfce7;
+    border-color: #86efac;
+    color: #166534;
+  }
+
+  .cuenta-item__numero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
+    padding: 0.6rem 0.85rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .cuenta-item__numero span {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--gris, #64748b);
+  }
+
+  .cuenta-item__numero code {
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--lapis-claro, #16244A);
+    letter-spacing: 0.02em;
+  }
+
+  .cuenta-item__datos {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.825rem;
+  }
+
+  .cuenta-item__datos li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .cuenta-item__datos li span {
+    color: var(--gris, #64748b);
+  }
+
+  .cuenta-item__datos li strong {
+    color: var(--tinta, #1e293b);
+    text-align: right;
+  }
+
+  /* Medios alternativos */
+  .medios-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .medio-item {
+    background: var(--cal, #f8fafc);
+    border: 1px solid var(--linea, #e2e8f0);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+  }
+
+  .medio-item h4 {
+    margin: 0 0 0.35rem;
+    font-size: 0.95rem;
+    color: var(--lapis-claro, #16244A);
+  }
+
+  .medio-item p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--gris, #64748b);
+    line-height: 1.45;
+  }
+
+  .medio-item .boton {
+    margin-top: 0.75rem;
+  }
+
+  .boton--sm {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.8125rem;
+  }
+
+  /* Transparencia */
+  .transparencia-encabezado {
+    text-align: center;
+    max-width: 680px;
+    margin-inline: auto;
+  }
+
+  .transparencia-bajada {
+    font-size: 1.05rem;
+    color: var(--gris, #64748b);
+    line-height: 1.6;
+    margin-top: 1rem;
+  }
+
+  .tarjeta--transparencia {
+    text-align: left;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .tarjeta-icono {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: var(--cal, #f1f4f9);
+    border: 1px solid var(--linea, #cbd5e1);
+    color: var(--lapis, #16244A);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.15rem;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+  }
+
+  .tarjeta--transparencia:hover .tarjeta-icono {
+    background: var(--lapis, #16244A);
+    border-color: var(--lapis, #16244A);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(22, 36, 74, 0.2);
+  }
+
+  .tarjeta--transparencia h3 {
+    font-size: 1.15rem;
+    margin: 0 0 0.6rem;
+    color: var(--lapis-claro, #16244A);
+  }
+
+  .tarjeta--transparencia p {
+    font-size: 0.9rem;
+    color: var(--gris, #64748b);
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .donaciones-grid {
+      gap: 1.25rem;
+    }
+
+    .donaciones-card__cabecera {
+      padding: 1.15rem 0.95rem 0.85rem;
+    }
+
+    .donaciones-card__cuerpo {
+      padding: 1.15rem 0.75rem;
+    }
+
+    .donaciones-card__pie {
+      padding: 0.75rem 0.85rem;
+    }
+
+    .modal-donar__montos {
+      margin-bottom: 0.85rem;
+    }
+
+    .montos-grid {
+      gap: 0.4rem;
+    }
+
+    .monto-chip {
+      min-height: 46px;
+      font-size: 0.95rem;
+      padding: 0.5rem 0.25rem;
+    }
+
+    .monto-custom-input {
+      height: 46px;
+      font-size: 0.9rem;
+      padding: 0.5rem 2.8rem 0.5rem 2rem;
+    }
+
+    .cuenta-item {
+      padding: 1rem 0.85rem;
+    }
+
+    .medio-item {
+      padding: 0.95rem 0.85rem;
+    }
+
+    .tarjeta--transparencia {
+      padding: 1.35rem 1rem;
+    }
+  }
+</style>

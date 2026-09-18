@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import FondoDecorativo from '../components/FondoDecorativo.astro';
 import { getSiteConfig } from '../lib/supabase';
 
 const siteConfig = await getSiteConfig();
@@ -16,17 +17,7 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bahÃ
 >
   <!-- ===== PORTADA ===== -->
   <section class="portada">
-    <svg class="portada__fondo" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
-      <g fill="none" stroke="#C9A96A">
-        <circle cx="980" cy="150" r="60"></circle>
-        <circle cx="980" cy="150" r="110"></circle>
-        <circle cx="980" cy="150" r="160"></circle>
-        <circle cx="980" cy="150" r="215"></circle>
-        <path d="M980 -70 V370 M760 150 H1200"></path>
-        <path d="M825 -5 L1135 305 M1135 -5 L825 305"></path>
-        <path d="M200 300 V170 a60 60 0 0 1 120 0 V300"></path>
-      </g>
-    </svg>
+    <FondoDecorativo />
     <div class="contenedor">
       <p class="miga"><a href="/">Inicio</a><span aria-hidden="true">â€º</span>Historia</p>
       <p class="antetitulo">Nuestra historia</p>

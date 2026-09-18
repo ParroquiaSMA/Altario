@@ -54,20 +54,14 @@ function getLocalSeed(name: CatalogName): CatalogOption[] {
   return seeds[name] || []
 }
 
-/** Obtiene los ítems del catálogo desde la base de datos o almacenamiento */
+const catalogMemory: Record<string, CatalogOption[]> = {}
+
+/** Obtiene los ítems del catálogo desde memoria o seed */
 export function getCatalog(name: CatalogName): CatalogOption[] {
-  if (typeof window === "undefined") return getLocalSeed(name)
-  try {
-    const raw = localStorage.getItem(storageKey(name))
-    if (!raw) {
-      const seed = getLocalSeed(name)
-      localStorage.setItem(storageKey(name), JSON.stringify(seed))
-      return seed
-    }
-    return JSON.parse(raw) as CatalogOption[]
-  } catch {
-    return getLocalSeed(name)
+  if (!catalogMemory[name]) {
+    catalogMemory[name] = getLocalSeed(name)
   }
+  return catalogMemory[name]
 }
 
 /** Consulta asíncrona hacia Supabase con fallback reactivo */
@@ -96,10 +90,9 @@ export function getActiveCatalogOptions(name: CatalogName): CatalogOption[] {
   return getCatalog(name).filter((item) => item.activo)
 }
 
-/** Guarda la colección completa */
+/** Guarda la colección completa en memoria */
 export function setCatalog(name: CatalogName, items: CatalogOption[]): void {
-  if (typeof window === "undefined") return
-  localStorage.setItem(storageKey(name), JSON.stringify(items))
+  catalogMemory[name] = items
 }
 
 /** Agrega una nueva opción */
@@ -171,7 +164,5 @@ export async function deleteCatalogItem(name: CatalogName, id: string): Promise<
 
 /** Restablece a los valores del archivo seed */
 export function resetCatalog(name: CatalogName): void {
-  if (typeof window === "undefined") return
-  const seed = getLocalSeed(name)
-  localStorage.setItem(storageKey(name), JSON.stringify(seed))
+  catalogMemory[name] = getLocalSeed(name)
 }

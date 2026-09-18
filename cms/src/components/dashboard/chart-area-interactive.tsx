@@ -277,7 +277,7 @@ export function ChartAreaInteractive() {
               <Tooltip
                 content={({ active, payload, label }) => {
                   if (!active || !payload || !payload.length) return null
-                  const dateStr = new Date(label).toLocaleDateString("es-UY", {
+                  const dateStr = new Date(label ?? "").toLocaleDateString("es-UY", {
                     weekday: "short",
                     day: "numeric",
                     month: "long",

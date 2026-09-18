@@ -56,7 +56,75 @@ const initials = parroquia.logo_iniciales || getAutoInitials(parroquia.nombre);
       <a href="/comunidad" aria-current={currentPage === 'comunidad' ? 'page' : undefined}>Comunidad</a>
       <a href="/historia" aria-current={currentPage === 'historia' ? 'page' : undefined}>Historia</a>
       <a href="/galeria" aria-current={currentPage === 'galeria' ? 'page' : undefined}>Galería</a>
+      <a href="/donaciones" aria-current={currentPage === 'donaciones' ? 'page' : undefined}>Donaciones</a>
       <a class="boton boton--oro" href="/contacto">Contacto</a>
     </nav>
   </div>
 </header>
+
+<style>
+  .marca__logo {
+    height: 42px !important;
+    max-height: 42px !important;
+    width: auto !important;
+    max-width: 220px !important;
+    object-fit: contain !important;
+    display: block !important;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const cabecera = document.querySelector('.cabecera');
+    const btn = document.querySelector('.menu-btn');
+    const nav = document.getElementById('nav-principal');
+
+    if (cabecera) {
+      const onScroll = () => {
+        const scrolled = window.scrollY > 20;
+        cabecera.classList.toggle('cabecera--scrolled', scrolled);
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    if (btn && nav && !btn.dataset.menuReady) {
+      btn.dataset.menuReady = 'true';
+
+      const toggleMenu = (forzarEstado) => {
+        const abiertoActual = nav.getAttribute('data-abierto') === 'true';
+        const nuevoEstado = typeof forzarEstado === 'boolean' ? forzarEstado : !abiertoActual;
+        nav.setAttribute('data-abierto', String(nuevoEstado));
+        btn.setAttribute('aria-expanded', String(nuevoEstado));
+        if (cabecera) {
+          cabecera.classList.toggle('cabecera--abierta', nuevoEstado);
+        }
+      };
+
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleMenu();
+      });
+
+      nav.addEventListener('click', (e) => {
+        if (e.target.closest('a') && window.innerWidth <= 1000) {
+          toggleMenu(false);
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!nav.contains(e.target) && !btn.contains(e.target)) {
+          toggleMenu(false);
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          toggleMenu(false);
+          btn.focus();
+        }
+      });
+    }
+  })();
+</script>

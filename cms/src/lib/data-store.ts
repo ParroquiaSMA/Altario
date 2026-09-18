@@ -10,6 +10,7 @@ import seedDonaciones from "@/data/seeds/donaciones.json"
 export interface HorarioItem {
   id: string
   dia_semana: number
+  dias_semana?: number[]
   categoria: string
   hora_inicio: string
   hora_fin?: string | null
@@ -127,31 +128,39 @@ function deduplicateItems<T>(key: string, items: T[]): T[] {
   return Array.from(map.values()) as T[]
 }
 
-function getStore<T>(key: string, seed: T[]): T[] {
-  if (typeof window === "undefined") return seed
-  try {
-    const raw = localStorage.getItem(`altario:db:${key}`)
-    if (!raw) {
-      localStorage.setItem(`altario:db:${key}`, JSON.stringify(seed))
-      return seed
-    }
-    const local = JSON.parse(raw) as T[]
-    if (!Array.isArray(local)) return seed
+// Memoria en tiempo de ejecución (sin localStorage para evitar duplicaciones y estados desfasados)
+const inMemoryStores: Record<string, any[]> = {
+  horarios: seedHorarios,
+  avisos: seedAvisos,
+  sacramentos: seedSacramentos,
+  grupos: seedGrupos,
+  galeria: seedFotos,
+  mensajes: seedMensajes,
+}
 
-    // Limpia cualquier residuo de duplicados que haya quedado en localStorage
-    const cleaned = deduplicateItems<T>(key, local)
-    if (cleaned.length !== local.length) {
-      localStorage.setItem(`altario:db:${key}`, JSON.stringify(cleaned))
+// Limpia cualquier residuo viejo de datos en localStorage, PRESERVANDO preferencias de usuario como 'theme'
+if (typeof window !== "undefined") {
+  try {
+    const toRemove: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key && key !== "theme") {
+        toRemove.push(key)
+      }
     }
-    return cleaned
-  } catch {
-    return seed
+    toRemove.forEach((k) => localStorage.removeItem(k))
+  } catch {}
+}
+
+function getStore<T>(key: string, seed: T[]): T[] {
+  if (!inMemoryStores[key]) {
+    inMemoryStores[key] = deduplicateItems<T>(key, seed)
   }
+  return inMemoryStores[key] as T[]
 }
 
 function setStore<T>(key: string, items: T[]): void {
-  if (typeof window === "undefined") return
-  localStorage.setItem(`altario:db:${key}`, JSON.stringify(items))
+  inMemoryStores[key] = deduplicateItems<T>(key, items)
 }
 
 function syncStoreToFiles(store: string, data: any): void {
@@ -187,7 +196,13 @@ export async function addHorario(item: Omit<HorarioItem, "id">): Promise<Horario
   if (supabase) {
     try {
       const { data, error } = await supabase.from("horarios").insert([item]).select()
-      if (!error && data?.[0]) nuevoId = data[0].id
+      if (!error && data?.[0]) {
+        nuevoId = data[0].id
+      } else if (error) {
+        const { dias_semana, ...fallbackItem } = item as any
+        const { data: fbData } = await supabase.from("horarios").insert([fallbackItem]).select()
+        if (fbData?.[0]) nuevoId = fbData[0].id
+      }
     } catch (e) {
       console.warn("[DB] Error al insertar horario en Supabase:", e)
     }
@@ -203,7 +218,11 @@ export async function addHorario(item: Omit<HorarioItem, "id">): Promise<Horario
 export async function updateHorario(id: string, updates: Partial<HorarioItem>): Promise<void> {
   if (supabase) {
     try {
-      await supabase.from("horarios").update(updates).eq("id", id)
+      const { error } = await supabase.from("horarios").update(updates).eq("id", id)
+      if (error) {
+        const { dias_semana, ...fallbackUpdates } = updates as any
+        await supabase.from("horarios").update(fallbackUpdates).eq("id", id)
+      }
     } catch (e) {
       console.warn("[DB] Error al actualizar horario en Supabase:", e)
     }
@@ -223,6 +242,24 @@ export async function deleteHorario(id: string): Promise<void> {
     }
   }
   const updated = getHorarios().filter(i => i.id !== id)
+  saveHorarios(updated)
+  syncStoreToFiles("horarios", updated)
+}
+
+export async function deleteHorarios(ids: string[]): Promise<void> {
+  if (!ids || ids.length === 0) return
+  if (supabase) {
+    try {
+      const { error } = await supabase.from("horarios").delete().in("id", ids)
+      if (error) {
+        console.error("[DB] Error al eliminar horarios en Supabase:", error)
+      }
+    } catch (e) {
+      console.warn("[DB] Error al eliminar horarios en Supabase:", e)
+    }
+  }
+  const idSet = new Set(ids)
+  const updated = getHorarios().filter(i => !idSet.has(i.id))
   saveHorarios(updated)
   syncStoreToFiles("horarios", updated)
 }

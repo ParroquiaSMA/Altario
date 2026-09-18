@@ -26,7 +26,7 @@
         root.style.setProperty("--oro", oro);
         root.style.setProperty("--oro-texto", oro);
 
-        document.querySelectorAll(".cabecera, .hero, .portada, .seccion--oscura, .pie").forEach(function (el) {
+        document.querySelectorAll(".hero, .portada, .seccion--oscura, .pie").forEach(function (el) {
           el.style.backgroundColor = lapis;
         });
 
@@ -118,22 +118,7 @@
         if (indexSec) indexSec.textContent = cfg.contacto.horario_secretaria;
       }
 
-      // Save locally to this origin too
-      try {
-        localStorage.setItem("altario:site_config_live", JSON.stringify(cfg));
-      } catch (e) {}
-    } catch (err) {
-      console.warn("Live config sync error:", err);
-    }
-  }
 
-  // Check saved live config on mount
-  try {
-    var savedLive = localStorage.getItem("altario:site_config_live");
-    if (savedLive) {
-      applyLiveConfig(JSON.parse(savedLive));
-    }
-  } catch (e) {}
 
   // Listen to BroadcastChannel for real-time live sync across tabs
   if (typeof BroadcastChannel !== "undefined") {
@@ -152,25 +137,42 @@
      ========================================================== */
   var btn = document.querySelector(".menu-btn");
   var nav = document.getElementById("nav-principal");
+  var cabecera = document.querySelector(".cabecera");
 
-  if (btn && nav) {
-    btn.addEventListener("click", function () {
+  if (btn && nav && !btn.dataset.menuReady) {
+    btn.dataset.menuReady = "true";
+
+    var toggleMenu = function (forzarEstado) {
       var abierto = nav.getAttribute("data-abierto") === "true";
-      nav.setAttribute("data-abierto", String(!abierto));
-      btn.setAttribute("aria-expanded", String(!abierto));
+      var nuevoEstado = typeof forzarEstado === "boolean" ? forzarEstado : !abierto;
+      nav.setAttribute("data-abierto", String(nuevoEstado));
+      btn.setAttribute("aria-expanded", String(nuevoEstado));
+      if (cabecera) {
+        cabecera.classList.toggle("cabecera--abierta", nuevoEstado);
+      }
+    };
+
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleMenu();
     });
 
     nav.addEventListener("click", function (e) {
-      if (e.target.tagName === "A" && window.innerWidth <= 1000) {
-        nav.setAttribute("data-abierto", "false");
-        btn.setAttribute("aria-expanded", "false");
+      if (e.target.closest("a") && window.innerWidth <= 1000) {
+        toggleMenu(false);
+      }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!nav.contains(e.target) && !btn.contains(e.target)) {
+        toggleMenu(false);
       }
     });
 
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && nav.getAttribute("data-abierto") === "true") {
-        nav.setAttribute("data-abierto", "false");
-        btn.setAttribute("aria-expanded", "false");
+        toggleMenu(false);
         btn.focus();
       }
     });
@@ -370,15 +372,7 @@
           console.warn("[Contacto] Fallback offline:", err);
         }
 
-        try {
-          var localKey = "altario:db:mensajes";
-          var existing = JSON.parse(localStorage.getItem(localKey) || "[]");
-          existing.unshift(Object.assign({}, payload, {
-            id: "m-" + Date.now(),
-            created_at: new Date().toISOString()
-          }));
-          localStorage.setItem(localKey, JSON.stringify(existing));
-        } catch (e) {}
+
 
         var ok = document.getElementById("form-ok");
         if (ok) {

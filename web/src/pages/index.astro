@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import FondoDecorativo from '../components/FondoDecorativo.astro';
 import {
   getSiteConfig,
   getGaleria,
@@ -43,20 +44,7 @@ const misasScriptData = misas.map((m) => ({
 <Layout title={`${parroquia.nombre} — Horarios de misa y sacramentos`} currentPage="inicio">
   <!-- ===== HERO ===== -->
   <section class="hero">
-    <svg class="hero__fondo" viewBox="0 0 1200 620" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
-      <g fill="none" stroke="#C9A96A">
-        <circle cx="960" cy="250" r="70"></circle>
-        <circle cx="960" cy="250" r="130"></circle>
-        <circle cx="960" cy="250" r="190"></circle>
-        <circle cx="960" cy="250" r="250"></circle>
-        <path d="M960 0 V620 M650 250 H1270"></path>
-        <path d="M741 31 L1179 469 M1179 31 L741 469"></path>
-        <path d="M840 6 L1080 494 M1080 6 L840 494"></path>
-        <path d="M716 130 L1204 370 M1204 130 L716 370"></path>
-        <path d="M180 620 V330 a110 110 0 0 1 220 0 V620"></path>
-        <path d="M230 620 V345 a60 60 0 0 1 120 0 V620"></path>
-      </g>
-    </svg>
+    <FondoDecorativo variant="hero" />
 
     <div class="contenedor">
       <div class="hero__grilla">
@@ -107,7 +95,15 @@ const misasScriptData = misas.map((m) => ({
             {misas.length > 0 ? (
               misas.map((h) => {
                 const hora = `${h.hora_inicio.slice(0, 5)}${h.hora_fin ? ` a ${h.hora_fin.slice(0, 5)} hs` : ' hs'}`;
-                const dia = DIAS_SEMANA[h.dia_semana] || 'Día a coordinar';
+                const dias = Array.isArray((h as any).dias_semana) && (h as any).dias_semana.length > 0
+                  ? (h as any).dias_semana
+                  : [h.dia_semana];
+                let dia = DIAS_SEMANA[dias[0]] || 'Día a coordinar';
+                if (dias.length === 7) dia = 'Todos los días';
+                else if (dias.length === 5 && [1, 2, 3, 4, 5].every((d: number) => dias.includes(d))) dia = 'Lunes a Viernes';
+                else if (dias.length === 2 && dias.includes(0) && dias.includes(6)) dia = 'Sábado y Domingo';
+                else if (dias.length > 1) dia = dias.sort().map((d: number) => DIAS_CORTOS[d]).join(', ');
+
                 let subtitulo = h.titulo ? h.titulo.replace(/^Misa(\s+(de\s+|y\s+|dominical\s+))?/i, '').trim() : '';
                 subtitulo = subtitulo.replace(/^\((.+)\)$/, '$1');
                 return (
@@ -269,7 +265,7 @@ const misasScriptData = misas.map((m) => ({
         <h2>{donaciones?.titulo_seccion || 'La parroquia se sostiene entre todos'}</h2>
         <p>{donaciones?.mensaje || 'La colecta del domingo y el aporte de los socios pagan la luz, los materiales de catequesis y la ayuda a las familias del barrio.'}</p>
       </div>
-      <a class="boton boton--azul" href="/contacto#colaborar">Quiero colaborar</a>
+      <a class="boton boton--azul" href="/donaciones">Quiero colaborar</a>
     </div>
   </section>
 </Layout>

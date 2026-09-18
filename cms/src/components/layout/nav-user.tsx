@@ -30,6 +30,7 @@ import {
   MoonIcon,
   LaptopIcon,
   ExternalLinkIcon,
+  CheckIcon,
 } from "lucide-react"
 import { logout } from "@/lib/auth"
 
@@ -46,18 +47,40 @@ function getInitials(name: string) {
   return name.substring(0, 2).toUpperCase()
 }
 
-function setTheme(theme: "light" | "dark" | "system") {
+export function applyTheme(theme: "light" | "dark" | "system") {
+  if (typeof window === "undefined") return
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+
   const html = document.documentElement
-  if (theme === "dark") {
+  if (isDark) {
     html.classList.add("dark")
   } else {
     html.classList.remove("dark")
   }
-  localStorage.setItem("theme", theme)
+}
+
+export function setTheme(theme: "light" | "dark" | "system") {
+  applyTheme(theme)
+  try {
+    localStorage.setItem("theme", theme)
+  } catch {}
 }
 
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar()
+  const [currentTheme, setCurrentTheme] = React.useState<"light" | "dark" | "system">("dark")
+
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem("theme") as "light" | "dark" | "system" | null
+      if (saved) {
+        setCurrentTheme(saved)
+        applyTheme(saved)
+      }
+    } catch {}
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -125,17 +148,44 @@ export function NavUser({ user }: { user: User }) {
                   <span className="ms-2">Tema</span>
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={() => setTheme("light")}>
-                    <SunIcon />
-                    Claro
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setTheme("light")
+                      setCurrentTheme("light")
+                    }}
+                    className="flex items-center justify-between cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <SunIcon className="size-4" />
+                      <span>Claro</span>
+                    </div>
+                    {currentTheme === "light" && <CheckIcon className="size-4" />}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTheme("dark")}>
-                    <MoonIcon />
-                    Oscuro
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setTheme("dark")
+                      setCurrentTheme("dark")
+                    }}
+                    className="flex items-center justify-between cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <MoonIcon className="size-4" />
+                      <span>Oscuro</span>
+                    </div>
+                    {currentTheme === "dark" && <CheckIcon className="size-4" />}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTheme("system")}>
-                    <LaptopIcon />
-                    Sistema
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setTheme("system")
+                      setCurrentTheme("system")
+                    }}
+                    className="flex items-center justify-between cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <LaptopIcon className="size-4" />
+                      <span>Sistema</span>
+                    </div>
+                    {currentTheme === "system" && <CheckIcon className="size-4" />}
                   </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>

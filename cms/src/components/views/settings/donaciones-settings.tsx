@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
+import { Switch } from "@/components/ui/switch"
 import {
   Table,
   TableHeader,
@@ -281,27 +282,26 @@ export function DonacionesSettings() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-medium cursor-pointer flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 cursor-pointer"
-                    checked={config.donaciones?.mercadopago?.activo ?? true}
-                    onChange={(e) => {
-                      const mp = config.donaciones?.mercadopago || {
-                        activo: true,
-                        modo: "sandbox",
-                        public_key: "",
-                        access_token: "",
-                      }
-                      updateSection("donaciones", "mercadopago", {
-                        ...mp,
-                        activo: e.target.checked,
-                      })
-                    }}
-                  />
-                  <span className="text-xs font-semibold">Habilitar en la web</span>
-                </label>
+              <div className="flex items-center gap-2.5">
+                <Switch
+                  id="mp-activo-switch"
+                  checked={config.donaciones?.mercadopago?.activo ?? true}
+                  onCheckedChange={(checked) => {
+                    const mp = config.donaciones?.mercadopago || {
+                      activo: true,
+                      modo: "sandbox",
+                      public_key: "",
+                      access_token: "",
+                    }
+                    updateSection("donaciones", "mercadopago", {
+                      ...mp,
+                      activo: checked,
+                    })
+                  }}
+                />
+                <Label htmlFor="mp-activo-switch" className="text-xs font-semibold cursor-pointer">
+                  Habilitar en la web
+                </Label>
               </div>
             </div>
 
@@ -366,7 +366,7 @@ export function DonacionesSettings() {
                     updateSection("donaciones", "mercadopago", { ...mp, public_key: e.target.value.trim() })
                   }}
                   placeholder="APP_USR-xxxx-xxxx-xxxx-xxxx"
-                  className="font-mono text-xs"
+                  className="text-xs"
                 />
                 <p className="text-[11px] text-muted-foreground">
                   Se utiliza para renderizar el formulario seguro de Payment Bricks en el navegador.
@@ -398,7 +398,7 @@ export function DonacionesSettings() {
                     updateSection("donaciones", "mercadopago", { ...mp, access_token: e.target.value.trim() })
                   }}
                   placeholder="APP_USR-xxxx..."
-                  className="font-mono text-xs"
+                  className="text-xs"
                 />
                 <p className="text-[11px] text-muted-foreground">
                   Clave privada protegida para autorizar las transacciones en el servidor.

@@ -26,9 +26,9 @@ export function SettingsView() {
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden flex-1 min-h-0">
       {/* ── 2-Column Split Workspace ──────────────────────────── */}
-      <div className="flex-1 flex flex-col md:flex-row min-h-full h-full items-stretch overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row min-h-0 h-full items-stretch overflow-hidden">
         {/* Left Settings Submenu (Sizing identical to donaciones) */}
-        <aside className="w-full md:w-56 lg:w-64 shrink-0 border-r bg-muted/10 p-4 lg:p-6 flex flex-col justify-between overflow-y-auto min-h-0">
+        <aside className="w-full md:w-56 lg:w-64 shrink-0 border-r bg-muted/10 p-4 lg:p-6 flex flex-col justify-between overflow-y-auto min-h-0 h-full">
           <div className="space-y-4">
             <nav className="space-y-1">
               {NAV_ITEMS.map((item) => {
@@ -61,7 +61,7 @@ export function SettingsView() {
         </aside>
 
         {/* Right Settings Content */}
-        <main className="flex-1 w-full min-w-0 overflow-hidden flex flex-col bg-background">
+        <main className="flex-1 w-full min-w-0 overflow-hidden flex flex-col bg-background h-full min-h-0">
           {activeSection === "catalogos" && <CatalogosSettings />}
           {activeSection === "usuarios" && <UsuariosSettings />}
           {activeSection === "donaciones" && <DonacionesSettings />}

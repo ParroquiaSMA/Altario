@@ -115,36 +115,17 @@ export interface SiteConfig {
   dominio: DominioConfig
 }
 
-const CONFIG_STORAGE_KEY = "altario:cms:site_config:v1"
+let configMemory: SiteConfig | null = null
 
 export function getLocalConfig(): SiteConfig {
-  if (typeof window === "undefined") return seedConfig as unknown as SiteConfig
-  try {
-    const stored = localStorage.getItem(CONFIG_STORAGE_KEY)
-    if (!stored) {
-      localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(seedConfig))
-      return seedConfig as unknown as SiteConfig
-    }
-    const parsed = JSON.parse(stored) as Partial<SiteConfig>
-    return {
-      parroquia: { ...seedConfig.parroquia, ...(parsed.parroquia || {}) },
-      parroco: { ...seedConfig.parroco, ...(parsed.parroco || {}) },
-      contacto: { ...seedConfig.contacto, ...(parsed.contacto || {}) },
-      donaciones: { ...seedConfig.donaciones, ...(parsed.donaciones || {}) },
-      redes: { ...seedConfig.redes, ...(parsed.redes || {}) },
-      historia: { ...seedConfig.historia, ...(parsed.historia || {}) },
-      seo: { ...seedConfig.seo, ...(parsed.seo || {}) },
-      apariencia: { ...seedConfig.apariencia, ...(parsed.apariencia || {}) },
-      dominio: { ...seedConfig.dominio, ...(parsed.dominio || {}) },
-    } as SiteConfig
-  } catch {
-    return seedConfig as unknown as SiteConfig
+  if (!configMemory) {
+    configMemory = seedConfig as unknown as SiteConfig
   }
+  return configMemory
 }
 
 export function saveLocalConfig(config: SiteConfig): void {
-  if (typeof window === "undefined") return
-  localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config))
+  configMemory = config
 }
 
 export async function fetchSiteConfigFromDb(): Promise<SiteConfig> {

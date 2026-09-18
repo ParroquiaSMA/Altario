@@ -82,7 +82,7 @@ const ogImageUrl = seo?.og_image_url || parroquia.logo_url || undefined;
     <style define:vars={{
       colorLapis: apariencia?.color_fondo_hero || '#111111',
       colorLapisClaro: apariencia?.color_primario || '#229ED9',
-      colorOro: apariencia?.color_acento || '#746141',
+      colorOro: apariencia?.color_acento || '#C9A96A',
     }}>
       :root {
         --lapis: var(--colorLapis);
@@ -91,13 +91,51 @@ const ogImageUrl = seo?.og_image_url || parroquia.logo_url || undefined;
         --oro-texto: var(--colorOro);
       }
       .cabecera {
-        background-color: var(--colorLapis) !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 100;
+        transition: background-color 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease, backdrop-filter 0.28s ease;
+      }
+      .cabecera:not(.cabecera--scrolled) {
+        background-color: transparent !important;
+        background: transparent !important;
+        border-bottom-color: transparent !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+      }
+      .cabecera:not(.cabecera--scrolled).cabecera--abierta,
+      .cabecera:not(.cabecera--scrolled):has(.nav[data-abierto="true"]) {
+        background-color: var(--colorLapis, #16244A) !important;
+        background: var(--colorLapis, #16244A) !important;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25) !important;
+      }
+      .cabecera.cabecera--scrolled {
+        background-color: rgba(255, 255, 255, 0.96) !important;
+        background: rgba(255, 255, 255, 0.96) !important;
+        backdrop-filter: blur(14px) saturate(160%) !important;
+        border-bottom: 1px solid var(--linea, #E6E3DC) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
       }
       .hero, .portada, .seccion--oscura, .pie {
         background-color: var(--colorLapis) !important;
       }
       .hero__fondo g, .portada__fondo g {
-        stroke: var(--colorOro) !important;
+        stroke: var(--colorOro, #C9A96A) !important;
+      }
+      @media (max-width: 768px) {
+        .hero__fondo {
+          opacity: 0.07 !important;
+        }
+        .portada__fondo {
+          opacity: 0.09 !important;
+        }
+        .hero__fondo g, .portada__fondo g {
+          stroke: #FFFFFF !important;
+          stroke-width: 0.95px !important;
+        }
       }
       .boton--oro, .pildora--oro {
         background-color: var(--colorOro) !important;

@@ -191,9 +191,9 @@ export function CatalogosSettings() {
   const currentMeta = CATALOG_ITEMS.find((d) => d.id === activeCatalog)
 
   return (
-    <div className="flex flex-col md:flex-row min-h-full h-full items-stretch">
+    <div className="flex flex-col md:flex-row h-full min-h-0 items-stretch overflow-hidden flex-1">
       {/* ─── Left Sidebar ─── */}
-      <aside className="w-full md:w-56 lg:w-64 shrink-0 border-r bg-muted/10 p-4 lg:p-6 flex flex-col justify-between">
+      <aside className="w-full md:w-56 lg:w-64 shrink-0 border-r bg-muted/10 p-4 lg:p-6 flex flex-col justify-between overflow-y-auto h-full min-h-0">
         <div className="space-y-4">
           <div className="border-b pb-4">
             <h2 className="text-base font-semibold text-foreground">Catálogos</h2>
@@ -233,7 +233,7 @@ export function CatalogosSettings() {
       </aside>
 
       {/* ─── Right Content Panel ─── */}
-      <main className="flex-1 w-full min-w-0 p-4 lg:p-6 space-y-4 overflow-y-auto">
+      <main className="flex-1 w-full min-w-0 p-4 lg:p-6 space-y-4 overflow-y-auto h-full min-h-0">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4 min-h-[57px]">
           <div>

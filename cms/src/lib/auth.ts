@@ -25,23 +25,14 @@ export function verifyPassword(password: string, hash: string): boolean {
   return hashPassword(password) === hash
 }
 
+let usersMemory: CMSUser[] = seedUsuarios as CMSUser[]
+
 export function getUsers(): CMSUser[] {
-  if (typeof window === "undefined") return seedUsuarios as CMSUser[]
-  try {
-    const stored = localStorage.getItem(USERS_STORAGE_KEY)
-    if (!stored) {
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(seedUsuarios))
-      return seedUsuarios as CMSUser[]
-    }
-    return JSON.parse(stored) as CMSUser[]
-  } catch {
-    return seedUsuarios as CMSUser[]
-  }
+  return usersMemory
 }
 
 export function saveUsers(users: CMSUser[]): void {
-  if (typeof window === "undefined") return
-  localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users))
+  usersMemory = users
 }
 
 export function addUser(user: Omit<CMSUser, "id" | "passwordHash"> & { password: string }): CMSUser {
@@ -110,23 +101,23 @@ export function login(email: string, password: string): { ok: boolean; error?: s
     expiresAt: Date.now() + SESSION_DURATION_MS,
   }
 
-  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session))
+  sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session))
   return { ok: true }
 }
 
 export function logout(): void {
   if (typeof window === "undefined") return
-  localStorage.removeItem(SESSION_STORAGE_KEY)
+  sessionStorage.removeItem(SESSION_STORAGE_KEY)
 }
 
 export function getSession(): Session | null {
   if (typeof window === "undefined") return null
   try {
-    const stored = localStorage.getItem(SESSION_STORAGE_KEY)
+    const stored = sessionStorage.getItem(SESSION_STORAGE_KEY)
     if (!stored) return null
     const session = JSON.parse(stored) as Session
     if (Date.now() > session.expiresAt) {
-      localStorage.removeItem(SESSION_STORAGE_KEY)
+      sessionStorage.removeItem(SESSION_STORAGE_KEY)
       return null
     }
     return session

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
@@ -16,13 +17,14 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
-import { PlusIcon, SearchIcon, Trash2Icon, Edit3Icon, EllipsisVerticalIcon } from "lucide-react"
+import { PlusIcon, SearchIcon, Trash2Icon, Edit3Icon, EllipsisVerticalIcon, XIcon, CheckCheckIcon } from "lucide-react"
 import {
   getHorarios,
   fetchHorariosFromDb,
   addHorario,
   updateHorario,
   deleteHorario,
+  deleteHorarios,
   type HorarioItem,
 } from "@/lib/data-store"
 import { fetchCatalogFromDb, type CatalogOption } from "@/lib/catalog"
@@ -44,6 +46,10 @@ export function HorariosView() {
   const [searchTerm, setSearchTerm] = React.useState("")
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const [editingItem, setEditingItem] = React.useState<HorarioItem | null>(null)
+
+  const [selectedIds, setSelectedIds] = React.useState<string[]>([])
+  const [isConfirmBulkOpen, setIsConfirmBulkOpen] = React.useState(false)
+  const [isBulkDeleting, setIsBulkDeleting] = React.useState(false)
 
   const [selectedDias, setSelectedDias] = React.useState<number[]>([0])
   const [horaInicio, setHoraInicio] = React.useState("09:00")
@@ -108,7 +114,10 @@ export function HorariosView() {
     setLugaresCatalogo(lugares.filter((l) => l.activo))
 
     setEditingItem(item)
-    setSelectedDias([item.dia_semana])
+    const dias = Array.isArray(item.dias_semana) && item.dias_semana.length > 0
+      ? item.dias_semana
+      : [item.dia_semana]
+    setSelectedDias(dias)
     setHoraInicio(item.hora_inicio || "09:00")
     setHoraFin(item.hora_fin || "")
     setCategoria(item.categoria || "misa")
@@ -122,7 +131,8 @@ export function HorariosView() {
     e.preventDefault()
     if (!titulo.trim() || selectedDias.length === 0) return
 
-    const baseData = {
+    const sortedDias = [...selectedDias].sort((a, b) => a - b)
+    const itemData = {
       hora_inicio: horaInicio,
       hora_fin: horaFin || null,
       categoria,
@@ -130,40 +140,58 @@ export function HorariosView() {
       lugar: lugar.trim(),
       descripcion: descripcion.trim(),
       activo: true,
+      dia_semana: sortedDias[0] ?? 0,
+      dias_semana: sortedDias,
     }
 
     if (editingItem) {
-      // Update primary day
-      await updateHorario(editingItem.id, {
-        ...baseData,
-        dia_semana: selectedDias[0],
-      })
-      // If user selected multiple days when editing, create extra entries for other days
-      if (selectedDias.length > 1) {
-        for (let i = 1; i < selectedDias.length; i++) {
-          await addHorario({
-            ...baseData,
-            dia_semana: selectedDias[i],
-            orden: horarios.length + i,
-          })
-        }
-      }
+      await updateHorario(editingItem.id, itemData)
     } else {
-      // Create entries for each selected day
-      for (let i = 0; i < selectedDias.length; i++) {
-        await addHorario({
-          ...baseData,
-          dia_semana: selectedDias[i],
-          orden: horarios.length + i + 1,
-        })
-      }
+      await addHorario({
+        ...itemData,
+        orden: horarios.length + 1,
+      })
     }
     refresh()
     setIsDialogOpen(false)
   }
 
+  const allFilteredIds = React.useMemo(() => filtered.map((h) => h.id), [filtered])
+  const isAllSelected = filtered.length > 0 && allFilteredIds.every((id) => selectedIds.includes(id))
+  const isSomeSelected = filtered.some((h) => selectedIds.includes(h.id)) && !isAllSelected
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !allFilteredIds.includes(id)))
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...allFilteredIds])))
+    }
+  }
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    )
+  }
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return
+    setIsBulkDeleting(true)
+    try {
+      await deleteHorarios(selectedIds)
+      setSelectedIds([])
+      setIsConfirmBulkOpen(false)
+      await refresh()
+    } catch (e) {
+      console.error("[Horarios] Error al eliminar horarios seleccionados:", e)
+    } finally {
+      setIsBulkDeleting(false)
+    }
+  }
+
   const handleDelete = async (id: string) => {
     await deleteHorario(id)
+    setSelectedIds((prev) => prev.filter((x) => x !== id))
     setHorarios((prev) => prev.filter((h) => h.id !== id))
   }
 
@@ -172,13 +200,22 @@ export function HorariosView() {
     return found ? found.nombre : code
   }
 
-  const getDiaLabel = (diaNum: number | string) => {
-    const found = DIAS.find((d) => d.value === String(diaNum))
-    return found ? found.label : "Domingo"
+  const getDiaLabel = (item: HorarioItem) => {
+    const dias = Array.isArray(item.dias_semana) && item.dias_semana.length > 0
+      ? item.dias_semana
+      : [item.dia_semana]
+
+    if (dias.length === 7) return "Todos los días"
+    if (dias.length === 5 && [1, 2, 3, 4, 5].every((d) => dias.includes(d))) return "Lunes a Viernes"
+    if (dias.length === 2 && dias.includes(0) && dias.includes(6)) return "Sábado y Domingo"
+
+    const sorted = [...dias].sort((a, b) => a - b)
+    const DIAS_CORTOS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
+    return sorted.map((d) => DIAS_CORTOS[d] ?? "").filter(Boolean).join(", ")
   }
 
   return (
-    <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+    <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 pb-20">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 lg:px-6">
         <div className="relative w-full sm:w-80">
           <SearchIcon className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
@@ -198,8 +235,16 @@ export function HorariosView() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30 hover:bg-muted/30">
+                    <TableHead className="w-12 px-3 text-center">
+                      <Checkbox
+                        checked={isAllSelected}
+                        indeterminate={isSomeSelected}
+                        onCheckedChange={toggleSelectAll}
+                        aria-label="Seleccionar todos"
+                      />
+                    </TableHead>
                     <TableHead className="px-4">Celebración</TableHead>
-                    <TableHead className="px-4">Día</TableHead>
+                    <TableHead className="px-4">Día(s)</TableHead>
                     <TableHead className="px-4">Horario</TableHead>
                     <TableHead className="px-4 hidden md:table-cell">Lugar</TableHead>
                     <TableHead className="px-4">Tipo</TableHead>
@@ -207,36 +252,58 @@ export function HorariosView() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map((h) => (
-                    <TableRow key={h.id} className="cursor-pointer" onClick={() => handleOpenEdit(h)}>
-                      <TableCell className="px-4 py-3">
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium">{h.titulo}</span>
-                          {h.descripcion && <span className="text-xs text-muted-foreground truncate max-w-xs">{h.descripcion}</span>}
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm whitespace-nowrap">{getDiaLabel(h.dia_semana)}</TableCell>
-                      <TableCell className="px-4 py-3 text-sm whitespace-nowrap">{h.hora_inicio}{h.hora_fin ? ` - ${h.hora_fin}` : ""}</TableCell>
-                      <TableCell className="px-4 py-3 hidden md:table-cell text-sm text-muted-foreground whitespace-nowrap">{h.lugar}</TableCell>
-                      <TableCell className="px-4 py-3">
-                        <Badge variant="secondary" className="text-xs font-normal capitalize">
-                          {getCategoriaLabel(h.categoria)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />}>
-                            <EllipsisVerticalIcon className="size-4" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-36">
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(h)}><Edit3Icon />Editar</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(h.id)}><Trash2Icon />Eliminar</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {filtered.map((h) => {
+                    const isSelected = selectedIds.includes(h.id)
+                    return (
+                      <TableRow
+                        key={h.id}
+                        data-state={isSelected ? "selected" : undefined}
+                        className={`cursor-pointer transition-colors ${
+                          isSelected ? "bg-muted/40 hover:bg-muted/60" : ""
+                        }`}
+                        onClick={() => handleOpenEdit(h)}
+                      >
+                        <TableCell
+                          className="w-12 px-3 text-center"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                          }}
+                        >
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() => toggleSelectOne(h.id)}
+                            aria-label={`Seleccionar ${h.titulo}`}
+                          />
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium">{h.titulo}</span>
+                            {h.descripcion && <span className="text-xs text-muted-foreground truncate max-w-xs">{h.descripcion}</span>}
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-sm font-medium whitespace-nowrap">{getDiaLabel(h)}</TableCell>
+                        <TableCell className="px-4 py-3 text-sm whitespace-nowrap">{h.hora_inicio}{h.hora_fin ? ` - ${h.hora_fin}` : ""}</TableCell>
+                        <TableCell className="px-4 py-3 hidden md:table-cell text-sm text-muted-foreground whitespace-nowrap">{h.lugar}</TableCell>
+                        <TableCell className="px-4 py-3">
+                          <Badge variant="secondary" className="text-xs font-normal capitalize">
+                            {getCategoriaLabel(h.categoria)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />}>
+                              <EllipsisVerticalIcon className="size-4" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-36">
+                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(h)}><Edit3Icon />Editar</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(h.id)}><Trash2Icon />Eliminar</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
                 </TableBody>
               </Table>
             )}
@@ -370,6 +437,108 @@ export function HorariosView() {
               <Button type="submit" disabled={selectedDias.length === 0} className="cursor-pointer">Guardar</Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Barra flotante de acciones masivas */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-5 duration-200">
+          <div className="flex items-center gap-2 sm:gap-3 rounded-full border border-border/80 bg-background/95 px-4 py-2 shadow-2xl backdrop-blur-md">
+            <div className="flex items-center gap-2 pl-1">
+              <Badge variant="default" className="rounded-full px-2 py-0.5 text-xs font-bold">
+                {selectedIds.length}
+              </Badge>
+              <span className="text-xs font-medium text-foreground whitespace-nowrap hidden sm:inline">
+                {selectedIds.length === 1 ? "seleccionado" : "seleccionados"}
+              </span>
+            </div>
+
+            <div className="h-4 w-px bg-border" />
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleSelectAll}
+              className="h-8 text-xs cursor-pointer px-2.5"
+            >
+              <CheckCheckIcon className="size-3.5 mr-1" />
+              {isAllSelected ? "Deseleccionar" : `Todos (${filtered.length})`}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedIds([])}
+              className="h-8 text-xs text-muted-foreground hover:text-foreground cursor-pointer px-2.5"
+            >
+              <XIcon className="size-3.5 mr-1" />
+              Limpiar
+            </Button>
+
+            <div className="h-4 w-px bg-border" />
+
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setIsConfirmBulkOpen(true)}
+              className="h-8 gap-1.5 text-xs font-medium cursor-pointer shadow-xs px-3"
+            >
+              <Trash2Icon className="size-3.5" />
+              Borrar seleccionados ({selectedIds.length})
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Diálogo de confirmación para borrado masivo */}
+      <Dialog open={isConfirmBulkOpen} onOpenChange={setIsConfirmBulkOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2Icon className="size-5" />
+              ¿Eliminar {selectedIds.length} {selectedIds.length === 1 ? "horario" : "horarios"}?
+            </DialogTitle>
+            <DialogDescription>
+              Esta acción no se puede deshacer. Se eliminarán permanentemente de la base de datos los siguientes horarios:
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="max-h-48 overflow-y-auto rounded-lg border divide-y bg-muted/20 text-xs">
+            {horarios
+              .filter((h) => selectedIds.includes(h.id))
+              .map((h) => (
+                <div key={h.id} className="flex items-center justify-between p-2.5 hover:bg-muted/40">
+                  <div className="flex flex-col truncate pr-2">
+                    <span className="font-medium text-foreground truncate">{h.titulo}</span>
+                    <span className="text-muted-foreground text-[11px]">{h.lugar}</span>
+                  </div>
+                  <span className="text-muted-foreground font-mono text-[11px] whitespace-nowrap">
+                    {getDiaLabel(h)} - {h.hora_inicio}
+                  </span>
+                </div>
+              ))}
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0 mt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsConfirmBulkOpen(false)}
+              disabled={isBulkDeleting}
+              className="cursor-pointer"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleBulkDelete}
+              disabled={isBulkDeleting}
+              className="gap-2 cursor-pointer"
+            >
+              {isBulkDeleting ? "Eliminando..." : `Sí, eliminar (${selectedIds.length})`}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
