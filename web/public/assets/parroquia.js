@@ -117,8 +117,116 @@
         var indexSec = document.querySelector(".horarios dl dd");
         if (indexSec) indexSec.textContent = cfg.contacto.horario_secretaria;
       }
+    } catch (e) {}
+  }
 
+  // Carga y sincronización dinámica desde Supabase en el cliente
+  var SUPABASE_REST_URL = "https://eucgxnnnmheqhptcxldp.supabase.co/rest/v1";
+  var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1Y2d4bm5ubWhlcWhwdGN4bGRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjc1MjAsImV4cCI6MjEwMzIwMzUyMH0.Mf-7XI5ZMlnPYj3LGE2_HqiNcKFGHSunPnCDgnWTFqw";
 
+  function fetchLiveSupabaseData() {
+    var headers = {
+      "apikey": SUPABASE_ANON,
+      "Authorization": "Bearer " + SUPABASE_ANON
+    };
+
+    // 1. Horarios en vivo
+    fetch(SUPABASE_REST_URL + "/horarios?activo=eq.true&order=orden.asc", { headers: headers })
+      .then(function(res) { return res.ok ? res.json() : null; })
+      .then(function(horarios) {
+        if (!Array.isArray(horarios) || horarios.length === 0) return;
+
+        var misas = horarios.filter(function(h) {
+          return h.categoria === "misa" || h.categoria === "adoracion" || !h.categoria;
+        });
+
+        // Actualizar datos para el cálculo de Próxima Misa
+        var misasData = [];
+        misas.forEach(function(m) {
+          var hora = (m.hora_inicio || "").slice(0, 5);
+          var nota = m.titulo || m.descripcion || "Misa";
+          var dias = Array.isArray(m.dias_semana) && m.dias_semana.length > 0 ? m.dias_semana : [m.dia_semana];
+          dias.forEach(function(d) {
+            misasData.push({ dia: Number(d), hora: hora, nota: nota });
+          });
+        });
+        if (misasData.length > 0) {
+          MISAS = misasData;
+          actualizarProximaMisa();
+        }
+
+        // Actualizar lista visual de Misas en la página de inicio
+        var misasContenedor = document.querySelector(".misas-lista");
+        if (misasContenedor && misas.length > 0) {
+          var DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+          var DIAS_CORTOS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+          var html = misas.map(function(h) {
+            var hora = (h.hora_inicio || "").slice(0, 5) + (h.hora_fin ? " a " + h.hora_fin.slice(0, 5) + " hs" : " hs");
+            var dias = Array.isArray(h.dias_semana) && h.dias_semana.length > 0 ? h.dias_semana : [h.dia_semana];
+            var dia = DIAS_SEMANA[dias[0]] || 'Día a coordinar';
+            if (dias.length === 7) dia = 'Todos los días';
+            else if (dias.length === 5 && [1, 2, 3, 4, 5].every(function(d) { return dias.indexOf(d) !== -1; })) dia = 'Lunes a Viernes';
+            else if (dias.length === 2 && dias.indexOf(0) !== -1 && dias.indexOf(6) !== -1) dia = 'Sábado y Domingo';
+            else if (dias.length > 1) dia = dias.slice().sort().map(function(d) { return DIAS_CORTOS[d]; }).join(', ');
+
+            var subtitulo = h.titulo ? h.titulo.replace(/^Misa(\s+(de\s+|y\s+|dominical\s+))?/i, '').trim() : '';
+            subtitulo = subtitulo.replace(/^\((.+)\)$/, '$1');
+            var subHtml = (subtitulo && subtitulo.toLowerCase() !== dia.toLowerCase())
+              ? '<span class="misa-item__subtitulo">(' + subtitulo + ')</span>'
+              : '';
+            var descHtml = h.descripcion ? '<p class="misa-item__nota">' + h.descripcion + '</p>' : '';
+
+            return '<div class="misa-item">' +
+              '<div class="misa-item__cabecera">' +
+                '<strong class="misa-item__dia">' + dia + ' ' + subHtml + '</strong>' +
+                '<span class="misa-item__hora">' + hora + '</span>' +
+              '</div>' +
+              descHtml +
+            '</div>';
+          }).join("");
+
+          misasContenedor.innerHTML = html;
+        }
+
+        // Actualizar horarios de atención / secretaría
+        var atencion = horarios.filter(function(h) {
+          return h.categoria === "secretaria" || h.categoria === "confesion";
+        });
+        var atencionDl = document.querySelector(".horarios .ficha:nth-child(2) dl");
+        if (atencionDl && atencion.length > 0) {
+          var DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+          var DIAS_CORTOS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+          var dlHtml = atencion.map(function(a) {
+            var diaTexto = DIAS_CORTOS[a.dia_semana] || DIAS_SEMANA[a.dia_semana];
+            var horaTexto = (a.hora_inicio || "").slice(0, 5) + (a.hora_fin ? " – " + a.hora_fin.slice(0, 5) : "");
+            return '<dt>' + diaTexto + '</dt><dd>' + horaTexto + '</dd>';
+          }).join("");
+          atencionDl.innerHTML = dlHtml;
+        }
+      })
+      .catch(function(e) {});
+
+    // 2. Configuración general en vivo (nombre, lema, colores, datos de contacto)
+    fetch(SUPABASE_REST_URL + "/configuracion?select=clave,valor", { headers: headers })
+      .then(function(res) { return res.ok ? res.json() : null; })
+      .then(function(data) {
+        if (!Array.isArray(data) || data.length === 0) return;
+        var cfg = {};
+        data.forEach(function(row) { cfg[row.clave] = row.valor; });
+        applyLiveConfig(cfg);
+      })
+      .catch(function(e) {});
+  }
+
+  // Ejecutar carga dinámica al iniciar
+  if (typeof window !== "undefined") {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", fetchLiveSupabaseData);
+    } else {
+      fetchLiveSupabaseData();
+    }
+  }
 
   // Listen to BroadcastChannel for real-time live sync across tabs
   if (typeof BroadcastChannel !== "undefined") {
