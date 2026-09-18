@@ -653,10 +653,13 @@ export async function fetchMensajesFromDb(): Promise<MensajeItem[]> {
 
 export async function updateMensaje(id: string, updates: Partial<MensajeItem>): Promise<void> {
   if (supabase) {
-    const { error } = await supabase.from("mensajes_contacto").update(updates).eq("id", id)
-    if (error) {
-      console.error("[DB] Error al actualizar mensaje en Supabase:", error)
-      throw new Error(error.message)
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    if (isUuid) {
+      const { error } = await supabase.from("mensajes_contacto").update(updates).eq("id", id)
+      if (error) {
+        console.error("[DB] Error al actualizar mensaje en Supabase:", error)
+        throw new Error(error.message)
+      }
     }
   }
   const items = getMensajes()
@@ -667,10 +670,13 @@ export async function updateMensaje(id: string, updates: Partial<MensajeItem>): 
 
 export async function deleteMensaje(id: string): Promise<void> {
   if (supabase) {
-    const { error } = await supabase.from("mensajes_contacto").delete().eq("id", id)
-    if (error) {
-      console.error("[DB] Error al eliminar mensaje en Supabase:", error)
-      throw new Error(error.message)
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    if (isUuid) {
+      const { error } = await supabase.from("mensajes_contacto").delete().eq("id", id)
+      if (error) {
+        console.error("[DB] Error al eliminar mensaje en Supabase:", error)
+        throw new Error(error.message)
+      }
     }
   }
   const updated = getMensajes().filter(i => i.id !== id)
@@ -743,10 +749,25 @@ export async function fetchDonacionesFromDb(): Promise<DonacionItem[]> {
 
 export async function toggleArchivarDonacion(id: string, archivada: boolean): Promise<void> {
   if (supabase) {
-    const { error } = await supabase.from("donaciones").update({ archivada }).eq("id", id)
-    if (error) {
-      console.error("[DB] Error al archivar/desarchivar donacion en Supabase:", error)
-      throw new Error(error.message)
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    let query = supabase.from("donaciones").update({ archivada })
+    if (isUuid) {
+      query = query.eq("id", id)
+      const { error } = await query
+      if (error) {
+        console.error("[DB] Error al archivar/desarchivar donacion en Supabase:", error)
+        throw new Error(error.message)
+      }
+    } else {
+      const item = getDonaciones().find(i => i.id === id)
+      if (item?.mp_payment_id) {
+        query = query.eq("mp_payment_id", item.mp_payment_id)
+        const { error } = await query
+        if (error) {
+          console.error("[DB] Error al archivar/desarchivar donacion en Supabase:", error)
+          throw new Error(error.message)
+        }
+      }
     }
   }
   const updated = getDonaciones().map((i) =>
@@ -758,10 +779,25 @@ export async function toggleArchivarDonacion(id: string, archivada: boolean): Pr
 
 export async function deleteDonacion(id: string): Promise<void> {
   if (supabase) {
-    const { error } = await supabase.from("donaciones").delete().eq("id", id)
-    if (error) {
-      console.error("[DB] Error al eliminar donacion en Supabase:", error)
-      throw new Error(error.message)
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    let query = supabase.from("donaciones").delete()
+    if (isUuid) {
+      query = query.eq("id", id)
+      const { error } = await query
+      if (error) {
+        console.error("[DB] Error al eliminar donacion en Supabase:", error)
+        throw new Error(error.message)
+      }
+    } else {
+      const item = getDonaciones().find(i => i.id === id)
+      if (item?.mp_payment_id) {
+        query = query.eq("mp_payment_id", item.mp_payment_id)
+        const { error } = await query
+        if (error) {
+          console.error("[DB] Error al eliminar donacion en Supabase:", error)
+          throw new Error(error.message)
+        }
+      }
     }
   }
   const updated = getDonaciones().filter(i => i.id !== id)
