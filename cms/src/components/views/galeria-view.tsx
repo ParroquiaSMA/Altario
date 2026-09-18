@@ -86,14 +86,25 @@ export function GaleriaView() {
       orden: fotos.length + 1,
     }
 
-    await addFoto(nueva)
-    refresh()
-    setIsDialogOpen(false)
+    try {
+      await addFoto(nueva)
+      refresh()
+      setIsDialogOpen(false)
+    } catch (err: any) {
+      console.error("[Galería] Error al guardar foto:", err)
+      alert("Error al guardar foto en la base de datos: " + (err.message || err))
+    }
   }
 
   const handleDelete = async (id: string) => {
-    await deleteFoto(id)
-    setFotos((prev) => prev.filter((f) => f.id !== id))
+    if (!confirm("¿Seguro que deseas eliminar esta foto?")) return
+    try {
+      await deleteFoto(id)
+      setFotos((prev) => prev.filter((f) => f.id !== id))
+    } catch (err: any) {
+      console.error("[Galería] Error al eliminar foto:", err)
+      alert("Error al eliminar foto de la base de datos: " + (err.message || err))
+    }
   }
 
   const getCategoriaLabel = (code: string) => {

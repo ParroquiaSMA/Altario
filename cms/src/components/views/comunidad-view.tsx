@@ -96,29 +96,39 @@ export function ComunidadView() {
     e.preventDefault()
     if (!nombre.trim() || !descripcion.trim()) return
 
-    if (editingItem) {
-      await updateGrupo(editingItem.id, {
-        nombre: nombre.trim(),
-        descripcion: descripcion.trim(),
-        horario_encuentro: horarioEncuentro.trim(),
-      })
-    } else {
-      await addGrupo({
-        nombre: nombre.trim(),
-        descripcion: descripcion.trim(),
-        horario_encuentro: horarioEncuentro.trim(),
-        orden: items.length + 1,
-      })
-    }
+    try {
+      if (editingItem) {
+        await updateGrupo(editingItem.id, {
+          nombre: nombre.trim(),
+          descripcion: descripcion.trim(),
+          horario_encuentro: horarioEncuentro.trim(),
+        })
+      } else {
+        await addGrupo({
+          nombre: nombre.trim(),
+          descripcion: descripcion.trim(),
+          horario_encuentro: horarioEncuentro.trim(),
+          orden: items.length + 1,
+        })
+      }
 
-    refresh()
-    setIsDialogOpen(false)
+      refresh()
+      setIsDialogOpen(false)
+    } catch (err: any) {
+      console.error("[Comunidad] Error al guardar grupo:", err)
+      alert("Error al guardar grupo en la base de datos: " + (err.message || err))
+    }
   }
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Seguro que deseas eliminar este grupo parroquial?")) return
-    await deleteGrupo(id)
-    setItems((prev) => prev.filter((i) => i.id !== id))
+    try {
+      await deleteGrupo(id)
+      setItems((prev) => prev.filter((i) => i.id !== id))
+    } catch (err: any) {
+      console.error("[Comunidad] Error al eliminar grupo:", err)
+      alert("Error al eliminar grupo de la base de datos: " + (err.message || err))
+    }
   }
 
   return (

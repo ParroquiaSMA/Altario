@@ -33,6 +33,18 @@ import {
   CheckIcon,
 } from "lucide-react"
 import { logout } from "@/lib/auth"
+import { getLocalConfig } from "@/lib/config"
+
+function getPublicWebUrl(): string {
+  if (typeof window !== "undefined") {
+    const config = getLocalConfig()
+    const dom = config?.dominio?.dominio_web
+    if (dom) {
+      return dom.startsWith("http") ? dom : `https://${dom}`
+    }
+  }
+  return "https://santamariadelaayuda.org"
+}
 
 interface User {
   name: string
@@ -71,6 +83,7 @@ export function setTheme(theme: "light" | "dark" | "system") {
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar()
   const [currentTheme, setCurrentTheme] = React.useState<"light" | "dark" | "system">("dark")
+  const [webUrl, setWebUrl] = React.useState("https://santamariadelaayuda.org")
 
   React.useEffect(() => {
     try {
@@ -80,6 +93,7 @@ export function NavUser({ user }: { user: User }) {
         applyTheme(saved)
       }
     } catch {}
+    setWebUrl(getPublicWebUrl())
   }, [])
 
   const handleLogout = () => {
@@ -91,26 +105,27 @@ export function NavUser({ user }: { user: User }) {
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <SidebarMenuButton size="lg" tooltip={user.name} className="aria-expanded:bg-sidebar-accent" />
-            }
-          >
-            <Avatar className="size-8 rounded-lg shrink-0">
-              {user.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
-              <AvatarFallback className="rounded-lg font-medium">
-                {getInitials(user.name)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="grid flex-1 text-start text-sm leading-tight group-data-[collapsible=icon]:hidden">
-              <span className="truncate font-medium">{user.name}</span>
-              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-            </div>
-            <EllipsisVerticalIcon className="ms-auto size-4 group-data-[collapsible=icon]:hidden" />
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
+              <Avatar className="size-8 rounded-lg">
+                {user.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
+                <AvatarFallback className="rounded-lg font-medium">
+                  {getInitials(user.name)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 text-start text-sm leading-tight">
+                <span className="truncate font-medium">{user.name}</span>
+                <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+              </div>
+              <EllipsisVerticalIcon className="ms-auto size-4" />
+            </SidebarMenuButton>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
-            className="min-w-56"
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -133,7 +148,7 @@ export function NavUser({ user }: { user: User }) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem render={<a href="http://localhost:4321" target="_blank" rel="noreferrer" />}>
+              <DropdownMenuItem render={<a href={webUrl} target="_blank" rel="noreferrer" />}>
                 <ExternalLinkIcon />
                 Ver Web Pública
               </DropdownMenuItem>

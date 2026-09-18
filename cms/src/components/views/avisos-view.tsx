@@ -87,21 +87,32 @@ export function AvisosView() {
     setIsDialogOpen(true)
   }
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!titulo.trim() || !fecha) return
-    if (editingItem) {
-      updateAviso(editingItem.id, { fecha, titulo: titulo.trim(), descripcion: descripcion.trim() })
-    } else {
-      addAviso({ fecha, titulo: titulo.trim(), descripcion: descripcion.trim(), activo: true, orden: avisos.length + 1 })
+    try {
+      if (editingItem) {
+        await updateAviso(editingItem.id, { fecha, titulo: titulo.trim(), descripcion: descripcion.trim() })
+      } else {
+        await addAviso({ fecha, titulo: titulo.trim(), descripcion: descripcion.trim(), activo: true, orden: avisos.length + 1 })
+      }
+      refresh()
+      setIsDialogOpen(false)
+    } catch (err: any) {
+      console.error("[Avisos] Error al guardar:", err)
+      alert("Error al guardar en la base de datos: " + (err.message || err))
     }
-    refresh()
-    setIsDialogOpen(false)
   }
 
-  const handleDelete = (id: string) => {
-    deleteAviso(id)
-    setAvisos((prev) => prev.filter((a) => a.id !== id))
+  const handleDelete = async (id: string) => {
+    if (!confirm("¿Seguro que deseas eliminar este aviso?")) return
+    try {
+      await deleteAviso(id)
+      setAvisos((prev) => prev.filter((a) => a.id !== id))
+    } catch (err: any) {
+      console.error("[Avisos] Error al eliminar:", err)
+      alert("Error al eliminar de la base de datos: " + (err.message || err))
+    }
   }
 
   return (

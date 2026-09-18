@@ -144,16 +144,21 @@ export function HorariosView() {
       dias_semana: sortedDias,
     }
 
-    if (editingItem) {
-      await updateHorario(editingItem.id, itemData)
-    } else {
-      await addHorario({
-        ...itemData,
-        orden: horarios.length + 1,
-      })
+    try {
+      if (editingItem) {
+        await updateHorario(editingItem.id, itemData)
+      } else {
+        await addHorario({
+          ...itemData,
+          orden: horarios.length + 1,
+        })
+      }
+      refresh()
+      setIsDialogOpen(false)
+    } catch (err: any) {
+      console.error("[Horarios] Error al guardar:", err)
+      alert("Error al guardar en la base de datos: " + (err.message || err))
     }
-    refresh()
-    setIsDialogOpen(false)
   }
 
   const allFilteredIds = React.useMemo(() => filtered.map((h) => h.id), [filtered])
@@ -182,17 +187,24 @@ export function HorariosView() {
       setSelectedIds([])
       setIsConfirmBulkOpen(false)
       await refresh()
-    } catch (e) {
+    } catch (e: any) {
       console.error("[Horarios] Error al eliminar horarios seleccionados:", e)
+      alert("Error al eliminar horarios: " + (e.message || e))
     } finally {
       setIsBulkDeleting(false)
     }
   }
 
   const handleDelete = async (id: string) => {
-    await deleteHorario(id)
-    setSelectedIds((prev) => prev.filter((x) => x !== id))
-    setHorarios((prev) => prev.filter((h) => h.id !== id))
+    if (!confirm("¿Seguro que deseas eliminar este horario?")) return
+    try {
+      await deleteHorario(id)
+      setSelectedIds((prev) => prev.filter((x) => x !== id))
+      setHorarios((prev) => prev.filter((h) => h.id !== id))
+    } catch (err: any) {
+      console.error("[Horarios] Error al eliminar:", err)
+      alert("Error al eliminar horario: " + (err.message || err))
+    }
   }
 
   const getCategoriaLabel = (code: string) => {

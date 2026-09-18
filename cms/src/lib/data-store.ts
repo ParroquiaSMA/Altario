@@ -138,29 +138,34 @@ const inMemoryStores: Record<string, any[]> = {
   mensajes: seedMensajes,
 }
 
-// Limpia cualquier residuo viejo de datos en localStorage, PRESERVANDO preferencias de usuario como 'theme'
-if (typeof window !== "undefined") {
-  try {
-    const toRemove: string[] = []
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i)
-      if (key && key !== "theme") {
-        toRemove.push(key)
-      }
-    }
-    toRemove.forEach((k) => localStorage.removeItem(k))
-  } catch {}
-}
-
 function getStore<T>(key: string, seed: T[]): T[] {
-  if (!inMemoryStores[key]) {
-    inMemoryStores[key] = deduplicateItems<T>(key, seed)
+  if (inMemoryStores[key]) {
+    return inMemoryStores[key] as T[]
   }
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(`altario_store_${key}`)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          inMemoryStores[key] = deduplicateItems<T>(key, parsed)
+          return inMemoryStores[key] as T[]
+        }
+      }
+    } catch {}
+  }
+  inMemoryStores[key] = deduplicateItems<T>(key, seed)
   return inMemoryStores[key] as T[]
 }
 
 function setStore<T>(key: string, items: T[]): void {
-  inMemoryStores[key] = deduplicateItems<T>(key, items)
+  const deduped = deduplicateItems<T>(key, items)
+  inMemoryStores[key] = deduped
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(`altario_store_${key}`, JSON.stringify(deduped))
+    } catch {}
+  }
 }
 
 function syncStoreToFiles(store: string, data: any): void {
@@ -192,39 +197,44 @@ export async function fetchHorariosFromDb(): Promise<HorarioItem[]> {
 }
 
 export async function addHorario(item: Omit<HorarioItem, "id">): Promise<HorarioItem> {
-  let nuevoId = `h-${Date.now()}`
-  if (supabase) {
-    try {
-      const { data, error } = await supabase.from("horarios").insert([item]).select()
-      if (!error && data?.[0]) {
-        nuevoId = data[0].id
-      } else if (error) {
-        const { dias_semana, ...fallbackItem } = item as any
-        const { data: fbData } = await supabase.from("horarios").insert([fallbackItem]).select()
-        if (fbData?.[0]) nuevoId = fbData[0].id
-      }
-    } catch (e) {
-      console.warn("[DB] Error al insertar horario en Supabase:", e)
-    }
+  if (!supabase) {
+    throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
   }
-  const nuevo = { ...item, id: nuevoId }
+  const { data, error } = await supabase.from("horarios").insert([item]).select()
+  if (error) {
+    const { dias_semana, ...fallbackItem } = item as any
+    const { data: fbData, error: fbError } = await supabase.from("horarios").insert([fallbackItem]).select()
+    if (fbError || !fbData?.[0]) {
+      console.error("[DB] Error al insertar horario en Supabase:", fbError || error)
+      throw new Error((fbError || error).message || "Error al insertar horario en la base de datos")
+    }
+    const nuevo = fbData[0] as HorarioItem
+    const items = getHorarios()
+    const updated = [nuevo, ...items.filter(i => i.id !== nuevo.id)]
+    saveHorarios(updated)
+    syncStoreToFiles("horarios", updated)
+    return nuevo
+  }
+  if (!data?.[0]) {
+    throw new Error("La base de datos no devolvió el registro insertado.")
+  }
+  const nuevo = data[0] as HorarioItem
   const items = getHorarios()
-  const updated = [nuevo, ...items.filter(i => i.id !== nuevoId)]
+  const updated = [nuevo, ...items.filter(i => i.id !== nuevo.id)]
   saveHorarios(updated)
   syncStoreToFiles("horarios", updated)
   return nuevo
 }
 
 export async function updateHorario(id: string, updates: Partial<HorarioItem>): Promise<void> {
-  if (supabase) {
-    try {
-      const { error } = await supabase.from("horarios").update(updates).eq("id", id)
-      if (error) {
-        const { dias_semana, ...fallbackUpdates } = updates as any
-        await supabase.from("horarios").update(fallbackUpdates).eq("id", id)
-      }
-    } catch (e) {
-      console.warn("[DB] Error al actualizar horario en Supabase:", e)
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const { error } = await supabase.from("horarios").update(updates).eq("id", id)
+  if (error) {
+    const { dias_semana, ...fallbackUpdates } = updates as any
+    const { error: fbError } = await supabase.from("horarios").update(fallbackUpdates).eq("id", id)
+    if (fbError) {
+      console.error("[DB] Error al actualizar horario en Supabase:", fbError)
+      throw new Error(fbError.message)
     }
   }
   const items = getHorarios()
@@ -234,12 +244,11 @@ export async function updateHorario(id: string, updates: Partial<HorarioItem>): 
 }
 
 export async function deleteHorario(id: string): Promise<void> {
-  if (supabase) {
-    try {
-      await supabase.from("horarios").delete().eq("id", id)
-    } catch (e) {
-      console.warn("[DB] Error al eliminar horario en Supabase:", e)
-    }
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const { error } = await supabase.from("horarios").delete().eq("id", id)
+  if (error) {
+    console.error("[DB] Error al eliminar horario en Supabase:", error)
+    throw new Error(error.message)
   }
   const updated = getHorarios().filter(i => i.id !== id)
   saveHorarios(updated)
@@ -248,15 +257,11 @@ export async function deleteHorario(id: string): Promise<void> {
 
 export async function deleteHorarios(ids: string[]): Promise<void> {
   if (!ids || ids.length === 0) return
-  if (supabase) {
-    try {
-      const { error } = await supabase.from("horarios").delete().in("id", ids)
-      if (error) {
-        console.error("[DB] Error al eliminar horarios en Supabase:", error)
-      }
-    } catch (e) {
-      console.warn("[DB] Error al eliminar horarios en Supabase:", e)
-    }
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const { error } = await supabase.from("horarios").delete().in("id", ids)
+  if (error) {
+    console.error("[DB] Error al eliminar horarios en Supabase:", error)
+    throw new Error(error.message)
   }
   const idSet = new Set(ids)
   const updated = getHorarios().filter(i => !idSet.has(i.id))
@@ -284,30 +289,26 @@ export async function fetchAvisosFromDb(): Promise<AvisoItem[]> {
 }
 
 export async function addAviso(item: Omit<AvisoItem, "id">): Promise<AvisoItem> {
-  let nuevoId = `a-${Date.now()}`
-  if (supabase) {
-    try {
-      const { data, error } = await supabase.from("avisos").insert([item]).select()
-      if (!error && data?.[0]) nuevoId = data[0].id
-    } catch (e) {
-      console.warn("[DB] Error al insertar aviso en Supabase:", e)
-    }
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const { data, error } = await supabase.from("avisos").insert([item]).select()
+  if (error || !data?.[0]) {
+    console.error("[DB] Error al insertar aviso en Supabase:", error)
+    throw new Error(error?.message || "Error al insertar aviso en la base de datos")
   }
-  const nuevo = { ...item, id: nuevoId }
+  const nuevo = data[0] as AvisoItem
   const items = getAvisos()
-  const updated = [nuevo, ...items.filter(i => i.id !== nuevoId)]
+  const updated = [nuevo, ...items.filter(i => i.id !== nuevo.id)]
   saveAvisos(updated)
   syncStoreToFiles("avisos", updated)
   return nuevo
 }
 
 export async function updateAviso(id: string, updates: Partial<AvisoItem>): Promise<void> {
-  if (supabase) {
-    try {
-      await supabase.from("avisos").update(updates).eq("id", id)
-    } catch (e) {
-      console.warn("[DB] Error al actualizar aviso en Supabase:", e)
-    }
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const { error } = await supabase.from("avisos").update(updates).eq("id", id)
+  if (error) {
+    console.error("[DB] Error al actualizar aviso en Supabase:", error)
+    throw new Error(error.message)
   }
   const items = getAvisos()
   const updated = items.map(i => (i.id === id ? { ...i, ...updates } : i))
@@ -316,12 +317,11 @@ export async function updateAviso(id: string, updates: Partial<AvisoItem>): Prom
 }
 
 export async function deleteAviso(id: string): Promise<void> {
-  if (supabase) {
-    try {
-      await supabase.from("avisos").delete().eq("id", id)
-    } catch (e) {
-      console.warn("[DB] Error al eliminar aviso en Supabase:", e)
-    }
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const { error } = await supabase.from("avisos").delete().eq("id", id)
+  if (error) {
+    console.error("[DB] Error al eliminar aviso en Supabase:", error)
+    throw new Error(error.message)
   }
   const updated = getAvisos().filter(i => i.id !== id)
   saveAvisos(updated)
@@ -361,50 +361,60 @@ export async function fetchFotosFromDb(): Promise<FotoItem[]> {
 }
 
 export async function addFoto(item: Omit<FotoItem, "id">): Promise<FotoItem> {
-  let nuevoId = `f-${Date.now()}`
-  if (supabase) {
-    try {
-      const { data, error } = await supabase
-        .from("galeria")
-        .insert([{
-          titulo: item.titulo,
-          categoria: item.categoria,
-          descripcion: item.descripcion || null,
-          imagen_url: item.imagen_url,
-          es_destacado: item.es_destacado ?? false,
-          activo: item.activo ?? true,
-          orden: item.orden ?? 0,
-        }])
-        .select()
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const { data, error } = await supabase
+    .from("galeria")
+    .insert([{
+      titulo: item.titulo,
+      categoria: item.categoria,
+      descripcion: item.descripcion || null,
+      imagen_url: item.imagen_url,
+      es_destacado: item.es_destacado ?? false,
+      activo: item.activo ?? true,
+      orden: item.orden ?? 0,
+    }])
+    .select()
 
-      if (error) {
-        console.error("[DB] Error al insertar foto en Supabase:", error)
-      } else if (data?.[0]) {
-        nuevoId = data[0].id
-      }
-    } catch (e) {
-      console.warn("[DB] Error al insertar foto en Supabase:", e)
-    }
+  if (error || !data?.[0]) {
+    console.error("[DB] Error al insertar foto en Supabase:", error)
+    throw new Error(error?.message || "Error al insertar foto en la base de datos")
   }
 
-  const nuevo: FotoItem = { ...item, id: nuevoId }
+  const nuevo: FotoItem = {
+    id: data[0].id,
+    titulo: data[0].titulo,
+    categoria: data[0].categoria,
+    imagen_url: data[0].imagen_url,
+    descripcion: data[0].descripcion || "",
+    es_destacado: Boolean(data[0].es_destacado),
+    activo: Boolean(data[0].activo),
+    orden: data[0].orden ?? 0,
+  }
   const items = getFotos()
-  const updated = [nuevo, ...items.filter(i => i.id !== nuevoId)]
+  const updated = [nuevo, ...items.filter(i => i.id !== nuevo.id)]
   saveFotos(updated)
   syncStoreToFiles("galeria", updated)
   return nuevo
 }
 
 export async function updateFoto(id: string, updates: Partial<FotoItem>): Promise<void> {
-  if (supabase) {
-    try {
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-      if (isUuid) {
-        await supabase.from("galeria").update(updates).eq("id", id)
-      }
-    } catch (e) {
-      console.warn("[DB] Error al actualizar foto en Supabase:", e)
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  let query = supabase.from("galeria").update(updates)
+  if (isUuid) {
+    query = query.eq("id", id)
+  } else {
+    const item = getFotos().find(i => i.id === id)
+    if (item?.titulo) {
+      query = query.eq("titulo", item.titulo)
+    } else {
+      query = query.eq("id", id)
     }
+  }
+  const { error } = await query
+  if (error) {
+    console.error("[DB] Error al actualizar foto en Supabase:", error)
+    throw new Error(error.message)
   }
   const items = getFotos()
   const updated = items.map(i => (i.id === id ? { ...i, ...updates } : i))
@@ -413,20 +423,23 @@ export async function updateFoto(id: string, updates: Partial<FotoItem>): Promis
 }
 
 export async function deleteFoto(id: string): Promise<void> {
-  if (supabase) {
-    try {
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-      if (isUuid) {
-        await supabase.from("galeria").delete().eq("id", id)
-      } else {
-        const item = getFotos().find(i => i.id === id)
-        if (item?.titulo) {
-          await supabase.from("galeria").delete().eq("titulo", item.titulo)
-        }
-      }
-    } catch (e) {
-      console.warn("[DB] Error al eliminar foto en Supabase:", e)
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  let query = supabase.from("galeria").delete()
+  if (isUuid) {
+    query = query.eq("id", id)
+  } else {
+    const item = getFotos().find(i => i.id === id)
+    if (item?.titulo) {
+      query = query.eq("titulo", item.titulo)
+    } else {
+      query = query.eq("id", id)
     }
+  }
+  const { error } = await query
+  if (error) {
+    console.error("[DB] Error al eliminar foto en Supabase:", error)
+    throw new Error(error.message)
   }
   const updated = getFotos().filter(i => i.id !== id)
   saveFotos(updated)
@@ -453,38 +466,38 @@ export async function fetchSacramentosFromDb(): Promise<SacramentoItem[]> {
 }
 
 export async function addSacramento(item: Omit<SacramentoItem, "id">): Promise<SacramentoItem> {
-  let nuevoId = `s-${Date.now()}`
-  if (supabase) {
-    try {
-      const { data, error } = await supabase.from("sacramentos").insert([item]).select()
-      if (!error && data?.[0]) nuevoId = data[0].id
-    } catch (e) {
-      console.warn("[DB] Error al insertar sacramento en Supabase:", e)
-    }
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const { data, error } = await supabase.from("sacramentos").insert([item]).select()
+  if (error || !data?.[0]) {
+    console.error("[DB] Error al insertar sacramento en Supabase:", error)
+    throw new Error(error?.message || "Error al insertar sacramento en la base de datos")
   }
-  const nuevo = { ...item, id: nuevoId }
+  const nuevo = data[0] as SacramentoItem
   const items = getSacramentos()
-  const updated = [nuevo, ...items.filter(i => i.id !== nuevoId)]
+  const updated = [nuevo, ...items.filter(i => i.id !== nuevo.id)]
   saveSacramentos(updated)
   syncStoreToFiles("sacramentos", updated)
   return nuevo
 }
 
 export async function updateSacramento(id: string, updates: Partial<SacramentoItem>): Promise<void> {
-  if (supabase) {
-    try {
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-      if (isUuid) {
-        await supabase.from("sacramentos").update(updates).eq("id", id)
-      } else {
-        const item = getSacramentos().find(i => i.id === id)
-        if (item?.slug) {
-          await supabase.from("sacramentos").update(updates).eq("slug", item.slug)
-        }
-      }
-    } catch (e) {
-      console.warn("[DB] Error al actualizar sacramento en Supabase:", e)
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  let query = supabase.from("sacramentos").update(updates)
+  if (isUuid) {
+    query = query.eq("id", id)
+  } else {
+    const item = getSacramentos().find(i => i.id === id)
+    if (item?.slug) {
+      query = query.eq("slug", item.slug)
+    } else {
+      query = query.eq("id", id)
     }
+  }
+  const { error } = await query
+  if (error) {
+    console.error("[DB] Error al actualizar sacramento en Supabase:", error)
+    throw new Error(error.message)
   }
   const items = getSacramentos()
   const updated = items.map(i => (i.id === id ? { ...i, ...updates } : i))
@@ -493,20 +506,23 @@ export async function updateSacramento(id: string, updates: Partial<SacramentoIt
 }
 
 export async function deleteSacramento(id: string): Promise<void> {
-  if (supabase) {
-    try {
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-      if (isUuid) {
-        await supabase.from("sacramentos").delete().eq("id", id)
-      } else {
-        const item = getSacramentos().find(i => i.id === id)
-        if (item?.slug) {
-          await supabase.from("sacramentos").delete().eq("slug", item.slug)
-        }
-      }
-    } catch (e) {
-      console.warn("[DB] Error al eliminar sacramento en Supabase:", e)
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  let query = supabase.from("sacramentos").delete()
+  if (isUuid) {
+    query = query.eq("id", id)
+  } else {
+    const item = getSacramentos().find(i => i.id === id)
+    if (item?.slug) {
+      query = query.eq("slug", item.slug)
+    } else {
+      query = query.eq("id", id)
     }
+  }
+  const { error } = await query
+  if (error) {
+    console.error("[DB] Error al eliminar sacramento en Supabase:", error)
+    throw new Error(error.message)
   }
   const updated = getSacramentos().filter(i => i.id !== id)
   saveSacramentos(updated)
@@ -533,38 +549,38 @@ export async function fetchGruposFromDb(): Promise<GrupoItem[]> {
 }
 
 export async function addGrupo(item: Omit<GrupoItem, "id">): Promise<GrupoItem> {
-  let nuevoId = `g-${Date.now()}`
-  if (supabase) {
-    try {
-      const { data, error } = await supabase.from("grupos").insert([item]).select()
-      if (!error && data?.[0]) nuevoId = data[0].id
-    } catch (e) {
-      console.warn("[DB] Error al insertar grupo en Supabase:", e)
-    }
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const { data, error } = await supabase.from("grupos").insert([item]).select()
+  if (error || !data?.[0]) {
+    console.error("[DB] Error al insertar grupo en Supabase:", error)
+    throw new Error(error?.message || "Error al insertar grupo en la base de datos")
   }
-  const nuevo = { ...item, id: nuevoId }
+  const nuevo = data[0] as GrupoItem
   const items = getGrupos()
-  const updated = [nuevo, ...items.filter(i => i.id !== nuevoId)]
+  const updated = [nuevo, ...items.filter(i => i.id !== nuevo.id)]
   saveGrupos(updated)
   syncStoreToFiles("grupos", updated)
   return nuevo
 }
 
 export async function updateGrupo(id: string, updates: Partial<GrupoItem>): Promise<void> {
-  if (supabase) {
-    try {
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-      if (isUuid) {
-        await supabase.from("grupos").update(updates).eq("id", id)
-      } else {
-        const item = getGrupos().find(i => i.id === id)
-        if (item?.nombre) {
-          await supabase.from("grupos").update(updates).eq("nombre", item.nombre)
-        }
-      }
-    } catch (e) {
-      console.warn("[DB] Error al actualizar grupo en Supabase:", e)
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  let query = supabase.from("grupos").update(updates)
+  if (isUuid) {
+    query = query.eq("id", id)
+  } else {
+    const item = getGrupos().find(i => i.id === id)
+    if (item?.nombre) {
+      query = query.eq("nombre", item.nombre)
+    } else {
+      query = query.eq("id", id)
     }
+  }
+  const { error } = await query
+  if (error) {
+    console.error("[DB] Error al actualizar grupo en Supabase:", error)
+    throw new Error(error.message)
   }
   const items = getGrupos()
   const updated = items.map(i => (i.id === id ? { ...i, ...updates } : i))
@@ -573,26 +589,28 @@ export async function updateGrupo(id: string, updates: Partial<GrupoItem>): Prom
 }
 
 export async function deleteGrupo(id: string): Promise<void> {
-  if (supabase) {
-    try {
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-      if (isUuid) {
-        await supabase.from("grupos").delete().eq("id", id)
-      } else {
-        const item = getGrupos().find(i => i.id === id)
-        if (item?.nombre) {
-          await supabase.from("grupos").delete().eq("nombre", item.nombre)
-        }
-      }
-    } catch (e) {
-      console.warn("[DB] Error al eliminar grupo en Supabase:", e)
+  if (!supabase) throw new Error("No hay conexión con la base de datos (Supabase no configurado).")
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  let query = supabase.from("grupos").delete()
+  if (isUuid) {
+    query = query.eq("id", id)
+  } else {
+    const item = getGrupos().find(i => i.id === id)
+    if (item?.nombre) {
+      query = query.eq("nombre", item.nombre)
+    } else {
+      query = query.eq("id", id)
     }
+  }
+  const { error } = await query
+  if (error) {
+    console.error("[DB] Error al eliminar grupo en Supabase:", error)
+    throw new Error(error.message)
   }
   const updated = getGrupos().filter(i => i.id !== id)
   saveGrupos(updated)
   syncStoreToFiles("grupos", updated)
 }
-
 // ──────────────────────────────────────────────
 // MENSAJES
 // ──────────────────────────────────────────────
@@ -631,10 +649,10 @@ export async function fetchMensajesFromDb(): Promise<MensajeItem[]> {
 
 export async function updateMensaje(id: string, updates: Partial<MensajeItem>): Promise<void> {
   if (supabase) {
-    try {
-      await supabase.from("mensajes_contacto").update(updates).eq("id", id)
-    } catch (e) {
-      console.warn("[DB] Error al actualizar mensaje en Supabase:", e)
+    const { error } = await supabase.from("mensajes_contacto").update(updates).eq("id", id)
+    if (error) {
+      console.error("[DB] Error al actualizar mensaje en Supabase:", error)
+      throw new Error(error.message)
     }
   }
   const items = getMensajes()
@@ -645,10 +663,10 @@ export async function updateMensaje(id: string, updates: Partial<MensajeItem>): 
 
 export async function deleteMensaje(id: string): Promise<void> {
   if (supabase) {
-    try {
-      await supabase.from("mensajes_contacto").delete().eq("id", id)
-    } catch (e) {
-      console.warn("[DB] Error al eliminar mensaje en Supabase:", e)
+    const { error } = await supabase.from("mensajes_contacto").delete().eq("id", id)
+    if (error) {
+      console.error("[DB] Error al eliminar mensaje en Supabase:", error)
+      throw new Error(error.message)
     }
   }
   const updated = getMensajes().filter(i => i.id !== id)
@@ -716,28 +734,15 @@ export async function fetchDonacionesFromDb(): Promise<DonacionItem[]> {
     }
   }
 
-  // Fallback a archivos locales si Supabase no está configurado o falla
-  try {
-    const res = await fetch("/api/read-store?store=donaciones")
-    if (res.ok) {
-      const fileData = (await res.json()) as DonacionItem[]
-      if (Array.isArray(fileData) && fileData.length > 0) {
-        const deduped = deduplicateItems("donaciones", fileData)
-        saveDonaciones(deduped)
-        return deduped
-      }
-    }
-  } catch {}
-
   return local
 }
 
 export async function toggleArchivarDonacion(id: string, archivada: boolean): Promise<void> {
   if (supabase) {
-    try {
-      await supabase.from("donaciones").update({ archivada }).eq("id", id)
-    } catch (e) {
-      console.warn("[DB] Error al archivar/desarchivar donacion en Supabase:", e)
+    const { error } = await supabase.from("donaciones").update({ archivada }).eq("id", id)
+    if (error) {
+      console.error("[DB] Error al archivar/desarchivar donacion en Supabase:", error)
+      throw new Error(error.message)
     }
   }
   const updated = getDonaciones().map((i) =>
@@ -749,14 +754,13 @@ export async function toggleArchivarDonacion(id: string, archivada: boolean): Pr
 
 export async function deleteDonacion(id: string): Promise<void> {
   if (supabase) {
-    try {
-      await supabase.from("donaciones").delete().eq("id", id)
-    } catch (e) {
-      console.warn("[DB] Error al eliminar donacion en Supabase:", e)
+    const { error } = await supabase.from("donaciones").delete().eq("id", id)
+    if (error) {
+      console.error("[DB] Error al eliminar donacion en Supabase:", error)
+      throw new Error(error.message)
     }
   }
   const updated = getDonaciones().filter(i => i.id !== id)
   saveDonaciones(updated)
   syncStoreToFiles("donaciones", updated)
 }
-

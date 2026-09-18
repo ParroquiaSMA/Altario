@@ -13,6 +13,15 @@
     "sacerdote_encargado": null,
     "es_destacado": false,
     "activo": true,
-    "orden": 1
+    "orden": 1,
+    "dias_semana": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
   }
 ]

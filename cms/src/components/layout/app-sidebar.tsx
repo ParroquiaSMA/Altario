@@ -41,10 +41,18 @@ const NAV_SITIO_WEB = [
   { name: "Ajustes web", url: "/settings-web", icon: <LayoutTemplate /> },
 ]
 
-const NAV_SECONDARY = [
-  { title: "Ver web", url: "http://localhost:4321", icon: <ExternalLinkIcon />, target: "_blank" },
-  { title: "Ajustes", url: "/settings", icon: <SettingsIcon /> },
-]
+import { getLocalConfig } from "@/lib/config"
+
+function getPublicWebUrl(): string {
+  if (typeof window !== "undefined") {
+    const config = getLocalConfig()
+    const dom = config?.dominio?.dominio_web
+    if (dom) {
+      return dom.startsWith("http") ? dom : `https://${dom}`
+    }
+  }
+  return "https://santamariadelaayuda.org"
+}
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   currentPath?: string
@@ -56,6 +64,17 @@ export function AppSidebar({
   user,
   ...props
 }: AppSidebarProps) {
+  const [webUrl, setWebUrl] = React.useState("https://santamariadelaayuda.org")
+
+  React.useEffect(() => {
+    setWebUrl(getPublicWebUrl())
+  }, [])
+
+  const navSecondary = [
+    { title: "Ver web", url: webUrl, icon: <ExternalLinkIcon />, target: "_blank" },
+    { title: "Ajustes", url: "/settings", icon: <SettingsIcon /> },
+  ]
+
   const resolvedUser = user ?? {
     name: "Secretaría Parroquial",
     email: "secretaria@santamariadelaayuda.org",
@@ -82,7 +101,7 @@ export function AppSidebar({
       <SidebarContent>
         <NavMain items={NAV_MAIN} currentPath={currentPath} />
         <NavDocuments items={NAV_SITIO_WEB} title="Sitio web" currentPath={currentPath} />
-        <NavSecondary items={NAV_SECONDARY} currentPath={currentPath} className="mt-auto" />
+        <NavSecondary items={navSecondary} currentPath={currentPath} className="mt-auto" />
       </SidebarContent>
 
       <SidebarFooter>

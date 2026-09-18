@@ -118,33 +118,43 @@ export function SacramentosView() {
 
     const generatedSlug = slug.trim() || titulo.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
 
-    if (editingItem) {
-      await updateSacramento(editingItem.id, {
-        titulo: titulo.trim(),
-        slug: generatedSlug,
-        categoria,
-        descripcion: descripcion.trim(),
-        requisitos: requisitos.trim(),
-      })
-    } else {
-      await addSacramento({
-        titulo: titulo.trim(),
-        slug: generatedSlug,
-        categoria,
-        descripcion: descripcion.trim(),
-        requisitos: requisitos.trim(),
-        orden: items.length + 1,
-      })
-    }
+    try {
+      if (editingItem) {
+        await updateSacramento(editingItem.id, {
+          titulo: titulo.trim(),
+          slug: generatedSlug,
+          categoria,
+          descripcion: descripcion.trim(),
+          requisitos: requisitos.trim(),
+        })
+      } else {
+        await addSacramento({
+          titulo: titulo.trim(),
+          slug: generatedSlug,
+          categoria,
+          descripcion: descripcion.trim(),
+          requisitos: requisitos.trim(),
+          orden: items.length + 1,
+        })
+      }
 
-    refresh()
-    setIsDialogOpen(false)
+      refresh()
+      setIsDialogOpen(false)
+    } catch (err: any) {
+      console.error("[Sacramentos] Error al guardar sacramento:", err)
+      alert("Error al guardar sacramento en la base de datos: " + (err.message || err))
+    }
   }
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Seguro que deseas eliminar este sacramento?")) return
-    await deleteSacramento(id)
-    setItems((prev) => prev.filter((i) => i.id !== id))
+    try {
+      await deleteSacramento(id)
+      setItems((prev) => prev.filter((i) => i.id !== id))
+    } catch (err: any) {
+      console.error("[Sacramentos] Error al eliminar sacramento:", err)
+      alert("Error al eliminar sacramento de la base de datos: " + (err.message || err))
+    }
   }
 
   const getCategoriaLabel = (cat: string) => {
