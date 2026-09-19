@@ -11,6 +11,12 @@ const mpActivo = donaciones?.mercadopago?.activo ?? true;
 const mpPublicKey = donaciones?.mercadopago?.public_key || import.meta.env.PUBLIC_MERCADO_PAGO_KEY || 'APP_USR-3e91a063-54aa-4430-b99f-f0b2f36027ef';
 const tituloPagina = donaciones?.titulo_seccion || 'Tu aporte sostiene nuestra comunidad';
 const mensajeBajada = donaciones?.mensaje || 'La vida de la parroquia, el cuidado de nuestro templo histórico y la ayuda concreta a las familias más vulnerables del barrio dependen del compromiso generoso de cada uno de nosotros.';
+
+const cuentasBancarias = donaciones?.cuentas_bancarias || [];
+const mediosDonacion = donaciones?.medios_donacion || [];
+const tieneCuentas = cuentasBancarias.length > 0;
+const tieneMedios = mediosDonacion.length > 0;
+const tieneSidebar = tieneCuentas || tieneMedios;
 ---
 
 <Layout title={`Donaciones y Sostenimiento — ${parroquia.nombre}`} currentPage="donaciones">
@@ -30,13 +36,13 @@ const mensajeBajada = donaciones?.mensaje || 'La vida de la parroquia, el cuidad
   <!-- Contenido Principal: Grid de Donaciones -->
   <section class="seccion">
     <div class="contenedor">
-      <div class="donaciones-grid">
+      <div class:list={["donaciones-grid", { "donaciones-grid--sin-sidebar": !tieneSidebar }]}>
         <!-- Columna 1: Donar en línea (Mercado Pago Bricks) -->
         <div class="donaciones-card donaciones-card--principal" id="bloque-online">
           <div class="donaciones-card__cabecera">
             <div>
-              <span class="donaciones-tag">En línea</span>
-              <h2 class="donaciones-card__titulo">Donar con tarjeta o efectivo</h2>
+              <span class="donaciones-tag donaciones-tag--mp">Mercado Pago Uruguay</span>
+              <h2 class="donaciones-card__titulo">Donar en línea con tarjeta</h2>
               <p class="donaciones-card__subtitulo">
                 Podés colaborar de forma inmediata y 100% segura mediante tarjeta de débito, crédito o redes de cobranza.
               </p>
@@ -62,138 +68,101 @@ const mensajeBajada = donaciones?.mensaje || 'La vida de la parroquia, el cuidad
         </div>
 
         <!-- Columna 2: Cuentas Bancarias y Otras Formas -->
-        <div class="donaciones-sidebar">
-          <!-- Cuentas Bancarias -->
-          <div class="donaciones-card">
-            <div class="donaciones-card__cabecera">
-              <span class="donaciones-tag donaciones-tag--banco">Transferencia Bancaria</span>
-              <h2 class="donaciones-card__titulo">Cuentas institucionales</h2>
-              <p class="donaciones-card__subtitulo">
-                Podés transferir directamente desde la app de tu banco (e-BROU, Santander, Itaú, BBVA, etc.) sin comisión.
-              </p>
-            </div>
+        {tieneSidebar && (
+          <div class="donaciones-sidebar">
+            <!-- Cuentas Bancarias -->
+            {tieneCuentas && (
+              <div class="donaciones-card">
+                <div class="donaciones-card__cabecera">
+                  <span class="donaciones-tag donaciones-tag--banco">Transferencia Bancaria</span>
+                  <h2 class="donaciones-card__titulo">Cuentas institucionales</h2>
+                  <p class="donaciones-card__subtitulo">
+                    Podés transferir directamente desde la app de tu banco (e-BROU, Santander, Itaú, BBVA, etc.) sin comisión.
+                  </p>
+                </div>
 
-            <div class="donaciones-card__cuerpo">
-              {donaciones?.cuentas_bancarias && donaciones.cuentas_bancarias.length > 0 ? (
-                <div class="donaciones-cuentas-lista">
-                  {donaciones.cuentas_bancarias.map((c) => (
-                    <div class="cuenta-item">
-                      <div class="cuenta-item__top">
-                        <div class="cuenta-item__banco">
-                          <strong>{c.banco}</strong>
-                          <span class="cuenta-item__tipo">{c.tipo_cuenta}</span>
+                <div class="donaciones-card__cuerpo">
+                  <div class="donaciones-cuentas-lista">
+                    {cuentasBancarias.map((c) => (
+                      <div class="cuenta-item">
+                        <div class="cuenta-item__top">
+                          <div class="cuenta-item__banco">
+                            <strong>{c.banco}</strong>
+                            <span class="cuenta-item__tipo">{c.tipo_cuenta}</span>
+                          </div>
+                          <button
+                            type="button"
+                            class="btn-copiar"
+                            data-copiar={c.numero_cuenta}
+                            aria-label={`Copiar número de cuenta de ${c.banco}`}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <span>Copiar</span>
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          class="btn-copiar"
-                          data-copiar={c.numero_cuenta}
-                          aria-label={`Copiar número de cuenta de ${c.banco}`}
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                          <span>Copiar</span>
-                        </button>
+
+                        <div class="cuenta-item__numero">
+                          <span>N.º de cuenta:</span>
+                          <code>{c.numero_cuenta}</code>
+                        </div>
+
+                        <ul class="cuenta-item__datos">
+                          {c.titular && (
+                            <li>
+                              <span>Titular</span>
+                              <strong>{c.titular}</strong>
+                            </li>
+                          )}
+                          {c.identificacion_fiscal && (
+                            <li>
+                              <span>RUT / Doc</span>
+                              <strong>{c.identificacion_fiscal}</strong>
+                            </li>
+                          )}
+                          {c.referencia && (
+                            <li>
+                              <span>Referencia</span>
+                              <strong>{c.referencia}</strong>
+                            </li>
+                          )}
+                        </ul>
                       </div>
-
-                      <div class="cuenta-item__numero">
-                        <span>N.º de cuenta:</span>
-                        <code>{c.numero_cuenta}</code>
-                      </div>
-
-                      <ul class="cuenta-item__datos">
-                        {c.titular && (
-                          <li>
-                            <span>Titular</span>
-                            <strong>{c.titular}</strong>
-                          </li>
-                        )}
-                        {c.identificacion_fiscal && (
-                          <li>
-                            <span>RUT / Doc</span>
-                            <strong>{c.identificacion_fiscal}</strong>
-                          </li>
-                        )}
-                        {c.referencia && (
-                          <li>
-                            <span>Referencia</span>
-                            <strong>{c.referencia}</strong>
-                          </li>
-                        )}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div class="cuenta-item">
-                  <div class="cuenta-item__banco">
-                    <strong>Banco de la República Oriental del Uruguay (BROU)</strong>
-                    <span class="cuenta-item__tipo">Caja de Ahorros Pesos</span>
+                    ))}
                   </div>
-                  <div class="cuenta-item__numero">
-                    <span>N.º de cuenta:</span>
-                    <code>001558234-00001</code>
-                  </div>
-                  <ul class="cuenta-item__datos">
-                    <li><span>Titular</span> <strong>Parroquia Santa María de la Ayuda</strong></li>
-                    <li><span>Referencia</span> <strong>DONACION PARROQUIA</strong></li>
-                  </ul>
                 </div>
-              )}
-            </div>
-          </div>
-
-          <!-- Otras formas de colaborar -->
-          <div class="donaciones-card">
-            <div class="donaciones-card__cabecera">
-              <span class="donaciones-tag donaciones-tag--solidaria">Comunidad y Ayuda Solidaria</span>
-              <h2 class="donaciones-card__titulo">Otras formas de colaborar</h2>
-              <p class="donaciones-card__subtitulo">
-                El sostenimiento parroquial también se construye con manos dispuestas y alimentos para quienes lo necesitan.
-              </p>
-            </div>
-
-            <div class="donaciones-card__cuerpo">
-              <div class="medios-grid">
-                {donaciones?.medios_donacion && donaciones.medios_donacion.length > 0 ? (
-                  donaciones.medios_donacion.map((m) => (
-                    <div class="medio-item">
-                      <h4>{m.titulo}</h4>
-                      <p>{m.descripcion}</p>
-                      {m.enlace && (
-                        <a class="boton boton--linea boton--sm" href={m.enlace} target="_blank" rel="noopener">
-                          {m.etiqueta_boton || 'Más información'}
-                        </a>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <>
-                    <div class="medio-item">
-                      <h4>Alcancías en las misas dominicales</h4>
-                      <p>
-                        Tu ofrenda en la canasta durante las celebraciones solventa los servicios básicos diarios y la acogida de la secretaría.
-                      </p>
-                    </div>
-                    <div class="medio-item">
-                      <h4>Alimentos no perecederos y ropa</h4>
-                      <p>
-                        Recibimos arroz, fideos, leche en polvo, aceite y abrigo para las canastas familiares de la Pastoral de Ayuda Social.
-                      </p>
-                    </div>
-                    <div class="medio-item">
-                      <h4>Tiempo y voluntariado</h4>
-                      <p>
-                        Sumate a los equipos de limpieza del templo, apoyo escolar, coro, catequesis o mantenimiento edilicio.
-                      </p>
-                      <a class="boton boton--linea boton--sm" href="/comunidad">
-                        Conocer los grupos
-                      </a>
-                    </div>
-                  </>
-                )}
               </div>
-            </div>
+            )}
+
+            <!-- Otras formas de colaborar -->
+            {tieneMedios && (
+              <div class="donaciones-card">
+                <div class="donaciones-card__cabecera">
+                  <span class="donaciones-tag donaciones-tag--solidaria">Comunidad y Ayuda Solidaria</span>
+                  <h2 class="donaciones-card__titulo">Otras formas de colaborar</h2>
+                  <p class="donaciones-card__subtitulo">
+                    El sostenimiento parroquial también se construye con manos dispuestas y alimentos para quienes lo necesitan.
+                  </p>
+                </div>
+
+                <div class="donaciones-card__cuerpo">
+                  <div class="medios-grid">
+                    {mediosDonacion.map((m) => (
+                      <div class="medio-item">
+                        <h4>{m.titulo}</h4>
+                        <p>{m.descripcion}</p>
+                        {m.enlace && (
+                          <a class="boton boton--linea boton--sm" href={m.enlace} target="_blank" rel="noopener">
+                            {m.etiqueta_boton || 'Más información'}
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   </section>
@@ -309,6 +278,12 @@ const mensajeBajada = donaciones?.mensaje || 'La vida de la parroquia, el cuidad
       grid-template-columns: 1.15fr 0.85fr;
       gap: 2.5rem;
     }
+
+    .donaciones-grid--sin-sidebar {
+      grid-template-columns: 1fr !important;
+      max-width: 680px;
+      margin: 0 auto;
+    }
   }
 
   .donaciones-sidebar {
@@ -321,14 +296,13 @@ const mensajeBajada = donaciones?.mensaje || 'La vida de la parroquia, el cuidad
     background: var(--papel, #ffffff);
     border: 1px solid var(--linea, #e2e8f0);
     border-radius: var(--radio, 12px);
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+    box-shadow: none;
     overflow: hidden;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
   .donaciones-card--principal {
     border-color: rgba(22, 36, 74, 0.2);
-    box-shadow: 0 8px 30px rgba(22, 36, 74, 0.08);
+    box-shadow: none;
   }
 
   .donaciones-card__cabecera {
@@ -612,13 +586,6 @@ const mensajeBajada = donaciones?.mensaje || 'La vida de la parroquia, el cuidad
     flex-shrink: 0;
   }
 
-  .tarjeta--transparencia:hover .tarjeta-icono {
-    background: var(--lapis, #16244A);
-    border-color: var(--lapis, #16244A);
-    color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(22, 36, 74, 0.2);
-  }
 
   .tarjeta--transparencia h3 {
     font-size: 1.15rem;

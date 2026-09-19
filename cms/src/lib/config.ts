@@ -1,4 +1,3 @@
-import seedConfig from "@/data/seeds/configuracion.json"
 import { supabase } from "@/lib/supabase"
 
 export interface ParroquiaConfig {
@@ -58,11 +57,10 @@ export interface CuentaBancariaItem {
   id: string
   banco: string
   titular: string
-  numero_cuenta: string
   tipo_cuenta: string
+  numero_cuenta: string
   identificacion_fiscal?: string
   referencia?: string
-  activo?: boolean
 }
 
 export interface MedioDonacionItem {
@@ -71,32 +69,29 @@ export interface MedioDonacionItem {
   descripcion: string
   enlace?: string
   etiqueta_boton?: string
-  activo?: boolean
-}
-
-export interface MercadoPagoConfig {
-  activo: boolean
-  modo: "sandbox" | "produccion"
-  public_key: string
-  access_token: string
 }
 
 export interface DonacionesConfig {
-  titulo_seccion?: string
-  mensaje?: string
-  mercadopago?: MercadoPagoConfig
-  cuentas_bancarias: CuentaBancariaItem[]
-  medios_donacion: MedioDonacionItem[]
+  mercadopago: {
+    public_key: string
+    access_token: string
+    activo: boolean
+  }
+  titulo_seccion: string
+  mensaje: string
+  cuentas_bancarias?: CuentaBancariaItem[]
+  medios_donacion?: MedioDonacionItem[]
 }
 
 export interface HistoriaConfig {
   titulo: string
-  bajada?: string
+  bajada: string
   contenido_markdown: string
 }
 
 export interface SeoConfig {
-  titulo_sitio?: string
+  meta_titulo?: string
+  meta_descripcion?: string
   descripcion?: string
   og_image_url?: string
   favicon_url?: string
@@ -115,11 +110,83 @@ export interface SiteConfig {
   dominio: DominioConfig
 }
 
+export const defaultSiteConfig: SiteConfig = {
+  parroquia: {
+    nombre: "",
+    diocesis: "",
+    lema: "",
+    descripcion: "",
+    logo_tipo: "monograma",
+    logo_iniciales: "",
+    logo_url: "",
+  },
+  parroco: {
+    nombre: "",
+    titulo: "",
+    email: "",
+    telefono: "",
+    biografia: "",
+    foto_url: "",
+  },
+  contacto: {
+    direccion: "",
+    telefono: "",
+    whatsapp: "",
+    email: "",
+    horario_secretaria: "",
+    como_llegar: "",
+  },
+  donaciones: {
+    mercadopago: {
+      public_key: "",
+      access_token: "",
+      activo: false,
+    },
+    titulo_seccion: "",
+    mensaje: "",
+    cuentas_bancarias: [],
+    medios_donacion: [],
+  },
+  redes: {
+    facebook: "",
+    instagram: "",
+    youtube: "",
+    whatsapp: "",
+    twitter: "",
+    spotify: "",
+  },
+  historia: {
+    titulo: "",
+    bajada: "",
+    contenido_markdown: "",
+  },
+  seo: {
+    meta_titulo: "",
+    meta_descripcion: "",
+    palabras_clave: "",
+    og_image_url: "",
+  },
+  apariencia: {
+    color_primario: "#16244A",
+    color_acento: "#C9A96A",
+    color_fondo_hero: "",
+    mostrar_banner_anuncio: false,
+  },
+  dominio: {
+    dominio_web: "",
+    subdominio_cms: "",
+    forzar_https: true,
+    proveedor_hosting: "vercel",
+    google_analytics_id: "",
+    google_search_console_id: "",
+  },
+}
+
 let configMemory: SiteConfig | null = null
 
 export function getLocalConfig(): SiteConfig {
   if (!configMemory) {
-    configMemory = seedConfig as unknown as SiteConfig
+    configMemory = { ...defaultSiteConfig }
   }
   return configMemory
 }
@@ -129,12 +196,12 @@ export function saveLocalConfig(config: SiteConfig): void {
 }
 
 export async function fetchSiteConfigFromDb(): Promise<SiteConfig> {
-  const local = getLocalConfig()
-  if (!supabase) return local
+  const fallback = getLocalConfig()
+  if (!supabase) return fallback
 
   try {
     const { data, error } = await supabase.from("configuracion").select("clave, valor")
-    if (error || !data || data.length === 0) return local
+    if (error || !data || data.length === 0) return fallback
 
     const configMap: Record<string, any> = {}
     data.forEach((row: any) => {
@@ -142,21 +209,21 @@ export async function fetchSiteConfigFromDb(): Promise<SiteConfig> {
     })
 
     const merged: SiteConfig = {
-      parroquia: { ...local.parroquia, ...(configMap["parroquia"] || {}) },
-      parroco: { ...local.parroco, ...(configMap["parroco"] || {}) },
-      contacto: { ...local.contacto, ...(configMap["contacto"] || {}) },
-      donaciones: { ...local.donaciones, ...(configMap["donaciones"] || {}) },
-      redes: { ...local.redes, ...(configMap["redes"] || {}) },
-      historia: { ...local.historia, ...(configMap["historia"] || {}) },
-      seo: { ...local.seo, ...(configMap["seo"] || {}) },
-      apariencia: { ...local.apariencia, ...(configMap["apariencia"] || {}) },
-      dominio: { ...local.dominio, ...(configMap["dominio"] || {}) },
+      parroquia: configMap["parroquia"] ? { ...configMap["parroquia"] } : { ...defaultSiteConfig.parroquia },
+      parroco: configMap["parroco"] ? { ...configMap["parroco"] } : { ...defaultSiteConfig.parroco },
+      contacto: configMap["contacto"] ? { ...configMap["contacto"] } : { ...defaultSiteConfig.contacto },
+      donaciones: configMap["donaciones"] ? { ...configMap["donaciones"] } : { ...defaultSiteConfig.donaciones },
+      redes: configMap["redes"] ? { ...configMap["redes"] } : { ...defaultSiteConfig.redes },
+      historia: configMap["historia"] ? { ...configMap["historia"] } : { ...defaultSiteConfig.historia },
+      seo: configMap["seo"] ? { ...configMap["seo"] } : { ...defaultSiteConfig.seo },
+      apariencia: configMap["apariencia"] ? { ...configMap["apariencia"] } : { ...defaultSiteConfig.apariencia },
+      dominio: configMap["dominio"] ? { ...configMap["dominio"] } : { ...defaultSiteConfig.dominio },
     }
 
     saveLocalConfig(merged)
     return merged
   } catch {
-    return local
+    return fallback
   }
 }
 

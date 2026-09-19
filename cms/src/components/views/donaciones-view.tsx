@@ -299,73 +299,73 @@ export function DonacionesView() {
       </div>
 
       {/* ── Toolbar: Search, Type Filter, Date Filter & Export ── */}
-      <div className="flex flex-col gap-2.5 px-3 sm:px-4 lg:px-6">
-        <div className="flex flex-col gap-2.5">
-          {/* Row 1 on mobile: Switcher + Export */}
-          <div className="flex items-center justify-between gap-2 w-full">
-            {/* Switcher Activas / Archivadas */}
-            <div className="flex items-center rounded-lg border border-border/70 p-0.5 bg-muted/40">
-              <button
-                type="button"
-                onClick={() => setVerArchivadas(false)}
-                className={cn(
-                  "px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer flex items-center gap-1.5",
-                  !verArchivadas
-                    ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <span>Activas</span>
-                <span className="rounded-full bg-primary/10 text-primary px-1.5 py-0.2 text-[10px] font-semibold">
-                  {donacionesActivas.length}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setVerArchivadas(true)}
-                className={cn(
-                  "px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer flex items-center gap-1.5",
-                  verArchivadas
-                    ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <ArchiveIcon className="size-3 text-muted-foreground" />
-                <span>Archivadas</span>
-                {donacionesArchivadas.length > 0 && (
-                  <span className="rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 px-1.5 py-0.2 text-[10px] font-semibold">
-                    {donacionesArchivadas.length}
-                  </span>
-                )}
-              </button>
-            </div>
-
-            {/* Botón Exportar */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExport}
-              className="gap-1.5 cursor-pointer text-xs h-8 sm:h-9 shrink-0"
+      <div className="flex flex-col gap-3 px-3 sm:px-4 lg:px-6">
+        {/* Row 1: Switcher Activas / Archivadas + Exportar */}
+        <div className="flex items-center justify-between gap-3 w-full">
+          {/* Switcher Activas / Archivadas */}
+          <div className="flex items-center rounded-lg border border-border/70 p-0.5 bg-muted/40">
+            <button
+              type="button"
+              onClick={() => setVerArchivadas(false)}
+              className={cn(
+                "px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer flex items-center gap-1.5",
+                !verArchivadas
+                  ? "bg-background text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
             >
-              <DownloadIcon className="size-3.5" />
-              <span className="hidden xs:inline">Exportar</span>
-            </Button>
+              <span>Activas</span>
+              <span className="rounded-full bg-primary/10 text-primary px-1.5 py-0.2 text-[10px] font-semibold">
+                {donacionesActivas.length}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setVerArchivadas(true)}
+              className={cn(
+                "px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer flex items-center gap-1.5",
+                verArchivadas
+                  ? "bg-background text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <ArchiveIcon className="size-3 text-muted-foreground" />
+              <span>Archivadas</span>
+              {donacionesArchivadas.length > 0 && (
+                <span className="rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 px-1.5 py-0.2 text-[10px] font-semibold">
+                  {donacionesArchivadas.length}
+                </span>
+              )}
+            </button>
           </div>
 
-          {/* Row 2: Search Input full width */}
-          <div className="relative w-full">
+          {/* Botón Exportar */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExport}
+            className="gap-1.5 cursor-pointer text-xs h-9 shrink-0"
+          >
+            <DownloadIcon className="size-3.5" />
+            <span>Exportar CSV</span>
+          </Button>
+        </div>
+
+        {/* Row 2: Search + Selects (aligned inline on desktop) */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full">
+          {/* Search Input */}
+          <div className="relative flex-1 min-w-0">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
               placeholder="Buscar por donante, email o ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 h-9 text-xs w-full"
+              className="pl-9 h-9 text-xs w-full bg-background"
             />
           </div>
 
-          {/* Row 3: 2 Select Dropdowns side-by-side on mobile, flex on desktop */}
-          <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:items-center">
-            {/* Select de Filtros de Estado/Tipo */}
+          {/* Select de Filtros de Estado/Tipo */}
+          <div className="w-full sm:w-52 shrink-0">
             <Select
               items={FILTER_OPTIONS}
               value={activeFilter}
@@ -373,8 +373,10 @@ export function DonacionesView() {
                 if (v !== null && v !== undefined) setActiveFilter(v)
               }}
             >
-              <SelectTrigger className="h-9 w-full sm:w-44 text-xs cursor-pointer">
-                <SelectValue placeholder="Estado..." />
+              <SelectTrigger className="h-9 w-full text-xs cursor-pointer bg-background">
+                <SelectValue>
+                  {FILTER_OPTIONS.find((o) => o.value === activeFilter)?.label || "Todas las donaciones"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {FILTER_OPTIONS.map((opt) => (
@@ -384,8 +386,10 @@ export function DonacionesView() {
                 ))}
               </SelectContent>
             </Select>
+          </div>
 
-            {/* Select de Filtro de Fecha */}
+          {/* Select de Filtro de Fecha */}
+          <div className="w-full sm:w-48 shrink-0">
             <Select
               items={DATE_FILTER_OPTIONS}
               value={dateFilter}
@@ -393,9 +397,11 @@ export function DonacionesView() {
                 if (v !== null && v !== undefined) setDateFilter(v)
               }}
             >
-              <SelectTrigger className="h-9 w-full sm:w-44 text-xs cursor-pointer gap-1.5">
+              <SelectTrigger className="h-9 w-full text-xs cursor-pointer gap-1.5 bg-background">
                 <CalendarIcon className="size-3.5 text-muted-foreground shrink-0" />
-                <SelectValue placeholder="Fecha..." />
+                <SelectValue>
+                  {DATE_FILTER_OPTIONS.find((o) => o.value === dateFilter)?.label || "Cualquier fecha"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {DATE_FILTER_OPTIONS.map((opt) => (
@@ -410,7 +416,7 @@ export function DonacionesView() {
 
         {/* Inputs personalizados si selecciona rango personalizado */}
         {dateFilter === "personalizado" && (
-          <div className="flex flex-wrap items-center gap-3 py-1.5 text-xs bg-muted/20 border border-border/50 rounded-lg px-3">
+          <div className="flex flex-wrap items-center gap-3 py-2 text-xs bg-muted/20 border border-border/50 rounded-lg px-3">
             <span className="text-muted-foreground font-medium flex items-center gap-1.5">
               <CalendarIcon className="size-3.5" /> Período:
             </span>
@@ -455,17 +461,39 @@ export function DonacionesView() {
         <Card className="p-0 overflow-hidden">
           <CardContent className="p-0">
             {filtered.length === 0 ? (
-              <div className="p-10 text-center text-sm text-muted-foreground space-y-2">
-                {verArchivadas ? (
-                  <>
-                    <ArchiveIcon className="size-8 mx-auto text-muted-foreground/50 stroke-1" />
-                    <p>No hay donaciones archivadas.</p>
-                  </>
-                ) : (
-                  <>
-                    <HeartHandshakeIcon className="size-8 mx-auto text-muted-foreground/50 stroke-1" />
-                    <p>No se encontraron donaciones activas con los filtros seleccionados.</p>
-                  </>
+              <div className="py-16 px-6 text-center space-y-3">
+                <div className="size-12 rounded-full bg-muted/60 flex items-center justify-center mx-auto text-muted-foreground">
+                  {verArchivadas ? (
+                    <ArchiveIcon className="size-6 stroke-1.5" />
+                  ) : (
+                    <HeartHandshakeIcon className="size-6 stroke-1.5" />
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {verArchivadas ? "No hay donaciones archivadas" : "No hay donaciones registradas"}
+                  </h3>
+                  <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                    {searchTerm || activeFilter !== "todos" || dateFilter !== "todas"
+                      ? "No se encontraron donaciones con los filtros seleccionados."
+                      : "Las donaciones realizadas a través de la web o transferencias bancarias aparecerán aquí."}
+                  </p>
+                </div>
+                {(searchTerm || activeFilter !== "todos" || dateFilter !== "todas") && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSearchTerm("")
+                      setActiveFilter("todos")
+                      setDateFilter("todas")
+                      setCustomStartDate("")
+                      setCustomEndDate("")
+                    }}
+                    className="text-xs cursor-pointer mt-1"
+                  >
+                    Restablecer filtros
+                  </Button>
                 )}
               </div>
             ) : (

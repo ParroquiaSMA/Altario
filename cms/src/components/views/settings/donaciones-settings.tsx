@@ -41,8 +41,14 @@ import {
 
 export function DonacionesSettings() {
   const [config, setConfig] = React.useState<SiteConfig>(getLocalConfig())
-  const [saving, setSaving] = React.useState(false)
-  const [savedSuccess, setSavedSuccess] = React.useState(false)
+  const [loading, setLoading] = React.useState(true)
+  const [savingMp, setSavingMp] = React.useState(false)
+  const [savedMpSuccess, setSavedMpSuccess] = React.useState(false)
+
+  const [savingMensaje, setSavingMensaje] = React.useState(false)
+  const [savedMensajeSuccess, setSavedMensajeSuccess] = React.useState(false)
+
+  const [savingTable, setSavingTable] = React.useState(false)
   const [showMpToken, setShowMpToken] = React.useState(false)
 
   // Diálogos de Cuentas Bancarias
@@ -66,6 +72,9 @@ export function DonacionesSettings() {
   React.useEffect(() => {
     fetchSiteConfigFromDb().then((dbConfig) => {
       if (dbConfig) setConfig(dbConfig)
+      setLoading(false)
+    }).catch(() => {
+      setLoading(false)
     })
   }, [])
 
@@ -79,14 +88,41 @@ export function DonacionesSettings() {
     }))
   }
 
-  const handleSave = async () => {
-    setSaving(true)
+  const persistConfig = async (nextConfig: SiteConfig) => {
+    setConfig(nextConfig)
+    setSavingTable(true)
+    try {
+      await saveFullSiteConfig(nextConfig)
+    } catch (err) {
+      console.error("Error al guardar configuración:", err)
+    } finally {
+      setSavingTable(false)
+    }
+  }
+
+  const handleSaveMp = async () => {
+    setSavingMp(true)
     try {
       await saveFullSiteConfig(config)
-      setSavedSuccess(true)
-      setTimeout(() => setSavedSuccess(false), 2500)
+      setSavedMpSuccess(true)
+      setTimeout(() => setSavedMpSuccess(false), 2500)
+    } catch (err) {
+      console.error("Error al guardar credenciales de Mercado Pago:", err)
     } finally {
-      setSaving(false)
+      setSavingMp(false)
+    }
+  }
+
+  const handleSaveMensaje = async () => {
+    setSavingMensaje(true)
+    try {
+      await saveFullSiteConfig(config)
+      setSavedMensajeSuccess(true)
+      setTimeout(() => setSavedMensajeSuccess(false), 2500)
+    } catch (err) {
+      console.error("Error al guardar mensaje:", err)
+    } finally {
+      setSavingMensaje(false)
     }
   }
 
@@ -113,13 +149,14 @@ export function DonacionesSettings() {
     setIsCuentaDialogOpen(true)
   }
 
-  const handleSaveCuenta = (e: React.FormEvent) => {
+  const handleSaveCuenta = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!cuentaBanco.trim() || !cuentaNumero.trim()) return
 
     const currentList = config.donaciones?.cuentas_bancarias || []
+    let updatedList: CuentaBancariaItem[]
     if (editingCuenta) {
-      const updated = currentList.map((c) =>
+      updatedList = currentList.map((c) =>
         c.id === editingCuenta.id
           ? {
               ...c,
@@ -132,7 +169,6 @@ export function DonacionesSettings() {
             }
           : c
       )
-      updateSection("donaciones", "cuentas_bancarias", updated)
     } else {
       const nueva: CuentaBancariaItem = {
         id: `cta-${Date.now()}`,
@@ -144,18 +180,31 @@ export function DonacionesSettings() {
         referencia: cuentaRef.trim() || undefined,
         activo: true,
       }
-      updateSection("donaciones", "cuentas_bancarias", [...currentList, nueva])
+      updatedList = [...currentList, nueva]
+    }
+
+    const nextConfig: SiteConfig = {
+      ...config,
+      donaciones: {
+        ...(config.donaciones || {}),
+        cuentas_bancarias: updatedList,
+      } as any,
     }
     setIsCuentaDialogOpen(false)
+    await persistConfig(nextConfig)
   }
 
-  const handleDeleteCuenta = (id: string) => {
+  const handleDeleteCuenta = async (id: string) => {
     const currentList = config.donaciones?.cuentas_bancarias || []
-    updateSection(
-      "donaciones",
-      "cuentas_bancarias",
-      currentList.filter((c) => c.id !== id)
-    )
+    const updatedList = currentList.filter((c) => c.id !== id)
+    const nextConfig: SiteConfig = {
+      ...config,
+      donaciones: {
+        ...(config.donaciones || {}),
+        cuentas_bancarias: updatedList,
+      } as any,
+    }
+    await persistConfig(nextConfig)
   }
 
   // Medios de Donación Handlers
@@ -177,13 +226,14 @@ export function DonacionesSettings() {
     setIsMedioDialogOpen(true)
   }
 
-  const handleSaveMedio = (e: React.FormEvent) => {
+  const handleSaveMedio = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!medioTitulo.trim()) return
 
     const currentList = config.donaciones?.medios_donacion || []
+    let updatedList: MedioDonacionItem[]
     if (editingMedio) {
-      const updated = currentList.map((m) =>
+      updatedList = currentList.map((m) =>
         m.id === editingMedio.id
           ? {
               ...m,
@@ -194,7 +244,6 @@ export function DonacionesSettings() {
             }
           : m
       )
-      updateSection("donaciones", "medios_donacion", updated)
     } else {
       const nuevo: MedioDonacionItem = {
         id: `md-${Date.now()}`,
@@ -204,17 +253,41 @@ export function DonacionesSettings() {
         etiqueta_boton: medioEtiqueta.trim() || undefined,
         activo: true,
       }
-      updateSection("donaciones", "medios_donacion", [...currentList, nuevo])
+      updatedList = [...currentList, nuevo]
+    }
+
+    const nextConfig: SiteConfig = {
+      ...config,
+      donaciones: {
+        ...(config.donaciones || {}),
+        medios_donacion: updatedList,
+      } as any,
     }
     setIsMedioDialogOpen(false)
+    await persistConfig(nextConfig)
   }
 
-  const handleDeleteMedio = (id: string) => {
+  const handleDeleteMedio = async (id: string) => {
     const currentList = config.donaciones?.medios_donacion || []
-    updateSection(
-      "donaciones",
-      "medios_donacion",
-      currentList.filter((m) => m.id !== id)
+    const updatedList = currentList.filter((m) => m.id !== id)
+    const nextConfig: SiteConfig = {
+      ...config,
+      donaciones: {
+        ...(config.donaciones || {}),
+        medios_donacion: updatedList,
+      } as any,
+    }
+    await persistConfig(nextConfig)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-12 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="size-2 rounded-full bg-primary animate-pulse" />
+          <span>Cargando configuración...</span>
+        </div>
+      </div>
     )
   }
 
@@ -230,35 +303,10 @@ export function DonacionesSettings() {
             Configuración de credenciales de Mercado Pago Uruguay, cuentas bancarias y medios de colaboración.
           </p>
         </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {savedSuccess && (
-            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1.5">
-              <span className="size-1.5 rounded-full bg-emerald-500" />
-              Guardado
-            </span>
-          )}
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            size="sm"
-            className="gap-1.5 cursor-pointer"
-          >
-            {saving ? (
-              "Guardando..."
-            ) : (
-              <>
-                <CheckIcon className="size-4" />
-                Guardar cambios
-              </>
-            )}
-          </Button>
-        </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6 pb-28 md:pb-6">
         {/* Mercado Pago Uruguay */}
         <Card className="p-0 border-primary/20 shadow-xs">
           <CardContent className="p-5 space-y-4">
@@ -286,10 +334,17 @@ export function DonacionesSettings() {
                       public_key: "",
                       access_token: "",
                     }
-                    updateSection("donaciones", "mercadopago", {
-                      ...mp,
-                      activo: checked,
-                    })
+                    const nextConfig: SiteConfig = {
+                      ...config,
+                      donaciones: {
+                        ...(config.donaciones || {}),
+                        mercadopago: {
+                          ...mp,
+                          activo: checked,
+                        },
+                      } as any,
+                    }
+                    persistConfig(nextConfig)
                   }}
                 />
                 <Label htmlFor="mp-activo-switch" className="text-xs font-semibold cursor-pointer">
@@ -397,6 +452,26 @@ export function DonacionesSettings() {
                   Clave privada protegida para autorizar las transacciones en el servidor.
                 </p>
               </div>
+
+              {/* Botón Guardar Mercado Pago */}
+              <div className="flex items-center justify-end gap-3 pt-3 border-t">
+                {savedMpSuccess && (
+                  <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1.5">
+                    <span className="size-1.5 rounded-full bg-emerald-500" />
+                    Credenciales guardadas
+                  </span>
+                )}
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleSaveMp}
+                  disabled={savingMp}
+                  className="gap-1.5 cursor-pointer text-xs"
+                >
+                  <CheckIcon className="size-3.5" />
+                  {savingMp ? "Guardando..." : "Guardar credenciales de Mercado Pago"}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -458,7 +533,8 @@ export function DonacionesSettings() {
                               type="button"
                               variant="ghost"
                               size="icon"
-                              className="size-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+                              disabled={savingTable}
+                              className="size-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10 cursor-pointer disabled:opacity-50"
                               onClick={() => handleDeleteCuenta(c.id)}
                               title="Eliminar"
                             >
@@ -536,7 +612,8 @@ export function DonacionesSettings() {
                               type="button"
                               variant="ghost"
                               size="icon"
-                              className="size-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+                              disabled={savingTable}
+                              className="size-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10 cursor-pointer disabled:opacity-50"
                               onClick={() => handleDeleteMedio(m.id)}
                               title="Eliminar"
                             >
@@ -581,6 +658,26 @@ export function DonacionesSettings() {
                   onChange={(e) => updateSection("donaciones", "mensaje", e.target.value)}
                   placeholder="Breve mensaje explicativo del destino de las colaboraciones y sostenimiento del templo..."
                 />
+              </div>
+
+              {/* Botón Guardar Mensaje */}
+              <div className="flex items-center justify-end gap-3 pt-3 border-t">
+                {savedMensajeSuccess && (
+                  <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1.5">
+                    <span className="size-1.5 rounded-full bg-emerald-500" />
+                    Mensaje guardado
+                  </span>
+                )}
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleSaveMensaje}
+                  disabled={savingMensaje}
+                  className="gap-1.5 cursor-pointer text-xs"
+                >
+                  <CheckIcon className="size-3.5" />
+                  {savingMensaje ? "Guardando..." : "Guardar mensaje"}
+                </Button>
               </div>
             </div>
           </CardContent>

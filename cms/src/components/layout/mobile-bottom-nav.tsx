@@ -15,17 +15,39 @@ import {
   GlobeIcon,
   LogOutIcon,
   XIcon,
+  SunIcon,
+  MoonIcon,
 } from "lucide-react"
-import { useSidebar } from "@/components/ui/sidebar"
 import { logout } from "@/lib/auth"
+import { setTheme } from "@/components/layout/nav-user"
 
 interface MobileBottomNavProps {
   currentPath?: string
 }
 
 export function MobileBottomNav({ currentPath = "/" }: MobileBottomNavProps) {
-  const { toggleSidebar, isMobile } = useSidebar()
   const [drawerOpen, setDrawerOpen] = React.useState(false)
+  const [currentTheme, setCurrentTheme] = React.useState<"light" | "dark">("dark")
+
+  React.useEffect(() => {
+    const updateTheme = () => {
+      try {
+        const saved = localStorage.getItem("theme")
+        if (saved === "light") {
+          setCurrentTheme("light")
+        } else if (saved === "dark") {
+          setCurrentTheme("dark")
+        } else {
+          setCurrentTheme(document.documentElement.classList.contains("dark") ? "dark" : "light")
+        }
+      } catch {
+        setCurrentTheme("dark")
+      }
+    }
+    updateTheme()
+    window.addEventListener("theme-change", updateTheme)
+    return () => window.removeEventListener("theme-change", updateTheme)
+  }, [])
 
   const navItems = [
     {
@@ -77,7 +99,7 @@ export function MobileBottomNav({ currentPath = "/" }: MobileBottomNavProps) {
       {/* ── Fixed Bottom Navigation Bar (Mobile only) ──────────────── */}
       <nav
         aria-label="Navegación móvil"
-        className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-md border-t border-border flex md:hidden items-center justify-around px-2 py-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] shadow-lg select-none"
+        className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-md border-t border-border flex md:hidden items-center justify-around px-2 pt-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg select-none"
       >
         {navItems.map((item) => {
           const Icon = item.icon
@@ -135,16 +157,16 @@ export function MobileBottomNav({ currentPath = "/" }: MobileBottomNavProps) {
 
           {/* Drawer content */}
           <div className="relative z-50 bg-background border-t border-border rounded-t-2xl shadow-2xl p-4 max-h-[85vh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] animate-in slide-in-from-bottom duration-200">
-            {/* Header handle */}
+            {/* Pull handle / Grab indicator */}
+            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-3" />
+
+            {/* Header */}
             <div className="flex items-center justify-between pb-3 border-b border-border">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-1 bg-muted-foreground/30 rounded-full mx-auto" />
-                <span className="text-sm font-semibold text-foreground">Más opciones</span>
-              </div>
+              <span className="text-sm font-semibold text-foreground">Más opciones</span>
               <button
                 type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
+                className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
               >
                 <XIcon className="size-5" />
               </button>
@@ -173,6 +195,37 @@ export function MobileBottomNav({ currentPath = "/" }: MobileBottomNavProps) {
                   </a>
                 )
               })}
+            </div>
+
+            {/* Selector de Tema en móvil */}
+            <div className="py-3 border-t border-border flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">Apariencia</span>
+              <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-lg border border-border/60">
+                <button
+                  type="button"
+                  onClick={() => setTheme("light")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors ${
+                    currentTheme === "light"
+                      ? "bg-background text-foreground shadow-2xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <SunIcon className="size-3.5 text-amber-500" />
+                  <span>Claro</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTheme("dark")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors ${
+                    currentTheme === "dark"
+                      ? "bg-background text-foreground shadow-2xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <MoonIcon className="size-3.5" />
+                  <span>Oscuro</span>
+                </button>
+              </div>
             </div>
 
             {/* Footer / Logout */}

@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Horario, Aviso, FotoGaleria, Sacramento, Grupo, MensajeContacto } from '../types/database';
-import seedConfig from '../data/seeds/configuracion.json';
 import seedHorarios from '../data/seeds/horarios.json';
 import seedAvisos from '../data/seeds/avisos.json';
 import seedFotos from '../data/seeds/galeria.json';
@@ -115,27 +114,100 @@ export interface SiteConfig {
   };
 }
 
+export const defaultSiteConfig: SiteConfig = {
+  parroquia: {
+    nombre: '',
+    diocesis: '',
+    lema: '',
+    descripcion: '',
+    logo_tipo: 'monograma',
+    logo_iniciales: '',
+    logo_url: '',
+  },
+  parroco: {
+    nombre: '',
+    titulo: '',
+    email: '',
+    telefono: '',
+    biografia: '',
+    foto_url: '',
+  },
+  contacto: {
+    direccion: '',
+    telefono: '',
+    whatsapp: '',
+    email: '',
+    horario_secretaria: '',
+    como_llegar: '',
+  },
+  donaciones: {
+    mercadopago: {
+      public_key: '',
+      access_token: '',
+      activo: false,
+      modo: 'produccion',
+    },
+    titulo_seccion: '',
+    mensaje: '',
+    cuentas_bancarias: [],
+    medios_donacion: [],
+  },
+  redes: {
+    facebook: '',
+    instagram: '',
+    youtube: '',
+    whatsapp: '',
+    twitter: '',
+    spotify: '',
+  },
+  historia: {
+    titulo: '',
+    bajada: '',
+    contenido_markdown: '',
+  },
+  seo: {
+    titulo_sitio: '',
+    descripcion: '',
+    palabras_clave: '',
+    og_image_url: '',
+    favicon_url: '',
+  },
+  apariencia: {
+    color_primario: '#16244A',
+    color_acento: '#C9A96A',
+    color_fondo_hero: '',
+    mostrar_banner_anuncio: false,
+  },
+  dominio: {
+    dominio_web: '',
+    subdominio_cms: '',
+    forzar_https: true,
+    proveedor_hosting: 'vercel',
+    google_analytics_id: '',
+    google_search_console_id: '',
+  },
+};
+
 export async function getSiteConfig(): Promise<SiteConfig> {
-  const fallback = seedConfig as unknown as SiteConfig;
-  if (!supabase) return fallback;
+  if (!supabase) return defaultSiteConfig;
   try {
     const { data, error } = await supabase.from('configuracion').select('clave, valor');
-    if (error || !data || data.length === 0) return fallback;
+    if (error || !data || data.length === 0) return defaultSiteConfig;
     const configMap: Record<string, any> = {};
     data.forEach((row: any) => { configMap[row.clave] = row.valor; });
     return {
-      parroquia: { ...fallback.parroquia, ...(configMap['parroquia'] || {}) },
-      parroco: { ...fallback.parroco, ...(configMap['parroco'] || {}) },
-      contacto: { ...fallback.contacto, ...(configMap['contacto'] || {}) },
-      donaciones: { ...(fallback.donaciones || {}), ...(configMap['donaciones'] || {}) },
-      redes: { ...fallback.redes, ...(configMap['redes'] || {}) },
-      historia: { ...(fallback.historia || {}), ...(configMap['historia'] || {}) },
-      seo: { ...(fallback.seo || {}), ...(configMap['seo'] || {}) },
-      apariencia: { ...fallback.apariencia, ...(configMap['apariencia'] || {}) },
-      dominio: { ...(fallback.dominio || {}), ...(configMap['dominio'] || {}) },
+      parroquia: configMap['parroquia'] ? { ...configMap['parroquia'] } : defaultSiteConfig.parroquia,
+      parroco: configMap['parroco'] ? { ...configMap['parroco'] } : defaultSiteConfig.parroco,
+      contacto: configMap['contacto'] ? { ...configMap['contacto'] } : defaultSiteConfig.contacto,
+      donaciones: configMap['donaciones'] ? { ...configMap['donaciones'] } : defaultSiteConfig.donaciones,
+      redes: configMap['redes'] ? { ...configMap['redes'] } : defaultSiteConfig.redes,
+      historia: configMap['historia'] ? { ...configMap['historia'] } : defaultSiteConfig.historia,
+      seo: configMap['seo'] ? { ...configMap['seo'] } : defaultSiteConfig.seo,
+      apariencia: configMap['apariencia'] ? { ...configMap['apariencia'] } : defaultSiteConfig.apariencia,
+      dominio: configMap['dominio'] ? { ...configMap['dominio'] } : defaultSiteConfig.dominio,
     };
   } catch {
-    return fallback;
+    return defaultSiteConfig;
   }
 }
 

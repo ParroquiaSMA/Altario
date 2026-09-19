@@ -8,7 +8,7 @@ const siteConfig = await getSiteConfig();
 const { parroquia, contacto, parroco, redes, donaciones } = siteConfig;
 const mpActivo = donaciones?.mercadopago?.activo ?? true;
 const mpPublicKey = donaciones?.mercadopago?.public_key || import.meta.env.PUBLIC_MERCADO_PAGO_KEY || 'APP_USR-3e91a063-54aa-4430-b99f-f0b2f36027ef';
-
+---
 
 <Layout title={`Contacto — ${parroquia.nombre}`} currentPage="contacto">
   <section class="portada">

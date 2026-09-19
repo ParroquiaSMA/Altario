@@ -77,6 +77,9 @@ export function setTheme(theme: "light" | "dark" | "system") {
   applyTheme(theme)
   try {
     localStorage.setItem("theme", theme)
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("theme-change", { detail: theme }))
+    }
   } catch {}
 }
 

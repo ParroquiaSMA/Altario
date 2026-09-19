@@ -165,11 +165,13 @@
 
 @layer base {
   html, body {
-    min-height: 100%;
+    height: 100%;
     width: 100%;
+    margin: 0;
+    padding: 0;
   }
   body {
-    background-color: var(--sidebar);
+    background-color: var(--background);
     color: var(--foreground);
     font-family: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     font-size: 0.875rem;

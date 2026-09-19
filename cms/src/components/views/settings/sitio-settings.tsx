@@ -14,11 +14,11 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table"
-import seedConfig from "@/data/seeds/configuracion.json"
 import {
   getLocalConfig,
   fetchSiteConfigFromDb,
   saveFullSiteConfig,
+  defaultSiteConfig,
   type SiteConfig,
 } from "@/lib/config"
 import { uploadMediaFile } from "@/lib/storage"
@@ -103,8 +103,9 @@ const TABS: TabMeta[] = [
 
 export function SitioSettings() {
   const [activeTab, setActiveTab] = React.useState<TabKey>("identidad")
-  const [config, setConfig] = React.useState<SiteConfig>(seedConfig as unknown as SiteConfig)
+  const [config, setConfig] = React.useState<SiteConfig>(defaultSiteConfig)
   const [mounted, setMounted] = React.useState(false)
+  const [loading, setLoading] = React.useState(true)
   const [saving, setSaving] = React.useState(false)
   const [savedSuccess, setSavedSuccess] = React.useState(false)
   const [linkingVercel, setLinkingVercel] = React.useState(false)
@@ -229,9 +230,6 @@ export function SitioSettings() {
 
   React.useEffect(() => {
     setMounted(true)
-    const local = getLocalConfig()
-    setConfig(local)
-
     const params = new URLSearchParams(window.location.search)
     const tabParam = params.get("tab") as TabKey
     if (tabParam && TABS.some((t) => t.id === tabParam)) {
@@ -240,6 +238,9 @@ export function SitioSettings() {
 
     fetchSiteConfigFromDb().then((data) => {
       setConfig(data)
+      setLoading(false)
+    }).catch(() => {
+      setLoading(false)
     })
   }, [])
 
@@ -298,7 +299,7 @@ export function SitioSettings() {
 
   const currentTab = TABS.find((t) => t.id === activeTab) || TABS[0]
 
-  if (!mounted) {
+  if (!mounted || loading) {
     return (
       <div className="flex flex-col md:flex-row min-h-full h-full items-stretch opacity-60">
         <aside className="w-full md:w-56 lg:w-64 shrink-0 border-b md:border-b-0 md:border-r bg-muted/10 p-2 sm:p-4 lg:p-6 overflow-x-auto md:overflow-y-auto">
@@ -308,7 +309,12 @@ export function SitioSettings() {
             ))}
           </div>
         </aside>
-        <main className="flex-1 p-4 md:p-6" />
+        <main className="flex-1 p-4 md:p-6 flex items-center justify-center">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="size-2 rounded-full bg-primary animate-pulse" />
+            <span>Cargando configuración...</span>
+          </div>
+        </main>
       </div>
     )
   }
@@ -763,18 +769,18 @@ export function SitioSettings() {
                   <div className="grid gap-1.5">
                     <Label className="text-xs">Teléfono fijo</Label>
                     <Input
-                      value={config.contacto.telefono}
+                      value={config.contacto.telefono || ""}
                       onChange={(e) => updateSection("contacto", "telefono", e.target.value)}
-                      placeholder="+54 11 4000-0000"
+                      placeholder="Ej: 2311 0000"
                     />
                   </div>
 
                   <div className="grid gap-1.5">
                     <Label className="text-xs">WhatsApp</Label>
                     <Input
-                      value={config.contacto.whatsapp}
+                      value={config.contacto.whatsapp || ""}
                       onChange={(e) => updateSection("contacto", "whatsapp", e.target.value)}
-                      placeholder="+5491140000000"
+                      placeholder="Ej: +598 99 123 456"
                     />
                   </div>
 
@@ -782,7 +788,7 @@ export function SitioSettings() {
                     <Label className="text-xs">Correo de secretaría</Label>
                     <Input
                       type="email"
-                      value={config.contacto.email}
+                      value={config.contacto.email || ""}
                       onChange={(e) => updateSection("contacto", "email", e.target.value)}
                       placeholder="contacto@parroquia.org"
                     />
