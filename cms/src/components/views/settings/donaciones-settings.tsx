@@ -31,19 +31,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+
 import {
   CheckIcon,
   PlusIcon,
   Edit3Icon,
   Trash2Icon,
-  EllipsisVerticalIcon,
 } from "lucide-react"
 
 export function DonacionesSettings() {
@@ -450,26 +443,28 @@ export function DonacionesSettings() {
                         <TableCell className="px-4 py-3 hidden sm:table-cell text-xs text-muted-foreground">{c.titular}</TableCell>
                         <TableCell className="px-4 py-3 hidden md:table-cell text-xs text-muted-foreground whitespace-nowrap">{c.identificacion_fiscal || "—"}</TableCell>
                         <TableCell className="px-4 py-3 text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger
-                              render={
-                                <Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />
-                              }
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-muted-foreground hover:text-foreground cursor-pointer"
+                              onClick={() => handleOpenEditCuenta(c)}
+                              title="Editar"
                             >
-                              <EllipsisVerticalIcon className="size-4" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-36">
-                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEditCuenta(c)}>
-                                <Edit3Icon />
-                                Editar
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDeleteCuenta(c.id)}>
-                                <Trash2Icon />
-                                Eliminar
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                              <Edit3Icon className="size-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+                              onClick={() => handleDeleteCuenta(c.id)}
+                              title="Eliminar"
+                            >
+                              <Trash2Icon className="size-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -526,26 +521,28 @@ export function DonacionesSettings() {
                           )}
                         </TableCell>
                         <TableCell className="px-4 py-3 text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger
-                              render={
-                                <Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />
-                              }
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-muted-foreground hover:text-foreground cursor-pointer"
+                              onClick={() => handleOpenEditMedio(m)}
+                              title="Editar"
                             >
-                              <EllipsisVerticalIcon className="size-4" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-36">
-                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEditMedio(m)}>
-                                <Edit3Icon />
-                                Editar
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDeleteMedio(m.id)}>
-                                <Trash2Icon />
-                                Eliminar
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                              <Edit3Icon className="size-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+                              onClick={() => handleDeleteMedio(m.id)}
+                              title="Eliminar"
+                            >
+                              <Trash2Icon className="size-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
