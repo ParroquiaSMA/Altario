@@ -145,6 +145,22 @@ const ogImageUrl = seo?.og_image_url || parroquia.logo_url || undefined;
       }
       .boton--linea {
         border-color: var(--colorOro) !important;
+        color: var(--colorLapis, #16244A) !important;
+      }
+      .boton--linea:hover {
+        background: rgba(201, 169, 106, 0.12) !important;
+        color: var(--colorLapis, #16244A) !important;
+      }
+      .hero .boton--linea,
+      .portada .boton--linea,
+      .seccion--oscura .boton--linea {
+        border-color: var(--colorOro) !important;
+        color: #FFFFFF !important;
+      }
+      .hero .boton--linea:hover,
+      .portada .boton--linea:hover,
+      .seccion--oscura .boton--linea:hover {
+        background: rgba(255, 255, 255, 0.15) !important;
         color: #FFFFFF !important;
       }
       .horarios caption, .proxima__rotulo, .antetitulo {
