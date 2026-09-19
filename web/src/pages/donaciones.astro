@@ -442,11 +442,13 @@ const mensajeBajada = donaciones?.mensaje || 'La vida de la parroquia, el cuidad
             customization: {
               paymentMethods: isMonthly
                 ? {
+                    // MLU (Uruguay): suscripciones solo con tarjeta de crédito
                     creditCard: "all",
                   }
                 : {
+                    // MLU (Uruguay): debitCard NO está soportado en el Payment Brick
                     creditCard: "all",
-                    debitCard: "all",
+                    prepaidCard: "all",
                     ticket: "all",
                   },
               visual: {
@@ -523,7 +525,6 @@ const mensajeBajada = donaciones?.mensaje || 'La vida de la parroquia, el cuidad
                 console.error("Error interno en Mercado Pago Brick:", error);
                 isRendering = false;
                 if (brickLoading) brickLoading.style.display = "none";
-                mostrarError("No se pudo inicializar la pasarela de pagos. Por favor refrescá la página.");
               },
             },
           };
@@ -533,7 +534,6 @@ const mensajeBajada = donaciones?.mensaje || 'La vida de la parroquia, el cuidad
           console.error("Error inicializando paymentBrick:", err);
           isRendering = false;
           if (brickLoading) brickLoading.style.display = "none";
-          mostrarError("Error al cargar los medios de pago. Intentá recargar la página.");
         }
       };
 
