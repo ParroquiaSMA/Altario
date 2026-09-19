@@ -2158,12 +2158,18 @@ dialog.modal-donar:not([open]) {
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
 }
 
 /* Padding vertical cómodo en las cards/opciones de pago */
 #paymentBrick_container [class*="payment-options"] > [class*="selector-"] {
-  padding: 12px 14px !important;
+  padding: 13px 14px !important;
   box-sizing: border-box !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--linea, #e2e8f0) !important;
+  background: var(--papel, #fff) !important;
 }
 
 /* Padding en el interior de la tarjeta desplegada */
