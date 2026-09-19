@@ -133,59 +133,113 @@ export function AvisosView() {
 
       {/* Table Card */}
       <div className="px-4 lg:px-6">
-        <Card className="p-0">
+        <Card className="p-0 overflow-hidden">
           <CardContent className="p-0">
             {filtered.length === 0 ? (
               <div className="p-8 text-center text-sm text-muted-foreground">
                 No se encontraron avisos.
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/30 hover:bg-muted/30">
-                    <TableHead className="px-4">Título</TableHead>
-                    <TableHead className="px-4 hidden sm:table-cell">Descripción</TableHead>
-                    <TableHead className="px-4">Fecha</TableHead>
-                    <TableHead className="px-4">Estado</TableHead>
-                    <TableHead className="text-right px-4"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <>
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto w-full">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/30 hover:bg-muted/30">
+                        <TableHead className="px-4">Título</TableHead>
+                        <TableHead className="px-4 hidden sm:table-cell">Descripción</TableHead>
+                        <TableHead className="px-4">Fecha</TableHead>
+                        <TableHead className="px-4">Estado</TableHead>
+                        <TableHead className="text-right px-4"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filtered.map((a) => (
+                        <TableRow key={a.id} className="cursor-pointer" onClick={() => handleEdit(a)}>
+                          <TableCell className="px-4 py-3 font-medium text-sm">{a.titulo}</TableCell>
+                          <TableCell className="px-4 py-3 hidden sm:table-cell text-sm text-muted-foreground max-w-md truncate">{a.descripcion}</TableCell>
+                          <TableCell className="px-4 py-3 text-sm whitespace-nowrap">{a.fecha}</TableCell>
+                          <TableCell className="px-4 py-3">
+                            <Badge variant="outline" className="gap-1.5 text-emerald-600 border-emerald-300">
+                              <span className="size-1.5 rounded-full bg-emerald-500" />
+                              Publicado
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger
+                                render={<Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />}
+                              >
+                                <EllipsisVerticalIcon className="size-4" />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-36">
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleEdit(a)}>
+                                  <Edit3Icon />
+                                  Editar
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(a.id)}>
+                                  <Trash2Icon />
+                                  Eliminar
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Cards */}
+                <div className="md:hidden divide-y divide-border">
                   {filtered.map((a) => (
-                    <TableRow key={a.id} className="cursor-pointer" onClick={() => handleEdit(a)}>
-                      <TableCell className="px-4 py-3 font-medium text-sm">{a.titulo}</TableCell>
-                      <TableCell className="px-4 py-3 hidden sm:table-cell text-sm text-muted-foreground max-w-md truncate">{a.descripcion}</TableCell>
-                      <TableCell className="px-4 py-3 text-sm whitespace-nowrap">{a.fecha}</TableCell>
-                      <TableCell className="px-4 py-3">
-                        <Badge variant="outline" className="gap-1.5 text-emerald-600 border-emerald-300">
-                          <span className="size-1.5 rounded-full bg-emerald-500" />
-                          Publicado
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            render={<Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />}
-                          >
-                            <EllipsisVerticalIcon className="size-4" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-36">
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => handleEdit(a)}>
-                              <Edit3Icon />
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(a.id)}>
-                              <Trash2Icon />
-                              Eliminar
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+                    <div
+                      key={a.id}
+                      onClick={() => handleEdit(a)}
+                      className="p-3.5 space-y-2 hover:bg-muted/40 transition-colors active:bg-muted cursor-pointer"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="font-semibold text-sm text-foreground leading-tight">
+                          {a.titulo}
+                        </span>
+                        <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          <Badge variant="outline" className="gap-1 text-emerald-600 border-emerald-300 text-[10px] px-1.5 py-0">
+                            <span className="size-1 rounded-full bg-emerald-500" />
+                            Publicado
+                          </Badge>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              render={<Button variant="ghost" size="icon" className="size-7 text-muted-foreground data-open:bg-muted cursor-pointer" />}
+                            >
+                              <EllipsisVerticalIcon className="size-3.5" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-36">
+                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleEdit(a)}>
+                                <Edit3Icon className="size-4 mr-2" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(a.id)}>
+                                <Trash2Icon className="size-4 mr-2" />
+                                Eliminar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                      {a.descripcion && (
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {a.descripcion}
+                        </p>
+                      )}
+                      <div className="text-[11px] text-muted-foreground pt-0.5">
+                        <span>{a.fecha}</span>
+                      </div>
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
@@ -193,7 +247,7 @@ export function AvisosView() {
 
       {/* Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingItem ? "Editar Aviso" : "Nuevo Aviso"}</DialogTitle>
             <DialogDescription>Publicá novedades para la comunidad en la web.</DialogDescription>
@@ -211,7 +265,7 @@ export function AvisosView() {
               <Label>Descripción</Label>
               <Textarea placeholder="Detalles del aviso..." required rows={3} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
             </div>
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0 mt-2">
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="cursor-pointer">Cancelar</Button>
               <Button type="submit" className="cursor-pointer">Guardar</Button>
             </DialogFooter>

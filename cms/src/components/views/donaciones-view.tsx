@@ -247,15 +247,15 @@ export function DonacionesView() {
   return (
     <div className="flex flex-col gap-5 py-4 md:gap-6 md:py-6">
       {/* ── Metric Summary Row ── */}
-      <div className="flex flex-wrap items-center gap-6 sm:gap-10 lg:gap-14 px-4 lg:px-6">
+      <div className="grid grid-cols-3 gap-2 px-3 sm:px-4 lg:px-6 sm:flex sm:flex-wrap sm:items-center sm:gap-10 lg:gap-14">
         {/* Métrica 1: Recaudación */}
-        <div className="flex items-center gap-3.5">
-          <div className="size-11 rounded-full bg-muted/60 dark:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
-            <HeartHandshakeIcon className="size-5" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3.5 p-2.5 sm:p-0 bg-muted/40 sm:bg-transparent rounded-xl border sm:border-0 border-border/60">
+          <div className="size-8 sm:size-11 rounded-full bg-background sm:bg-muted/60 dark:sm:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
+            <HeartHandshakeIcon className="size-4 sm:size-5" />
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground font-medium">Recaudación activa</p>
-            <p className="text-xl font-bold tracking-tight text-foreground mt-0.5">
+          <div className="min-w-0">
+            <p className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">Recaudación</p>
+            <p className="text-sm sm:text-xl font-bold tracking-tight text-foreground mt-0.5 truncate">
               {formatMonto(totalRecaudado)}
             </p>
           </div>
@@ -264,13 +264,13 @@ export function DonacionesView() {
         <div className="h-8 w-px bg-border/60 hidden sm:block" />
 
         {/* Métrica 2: Aportantes mensuales */}
-        <div className="flex items-center gap-3.5">
-          <div className="size-11 rounded-full bg-muted/60 dark:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
-            <RepeatIcon className="size-5" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3.5 p-2.5 sm:p-0 bg-muted/40 sm:bg-transparent rounded-xl border sm:border-0 border-border/60">
+          <div className="size-8 sm:size-11 rounded-full bg-background sm:bg-muted/60 dark:sm:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
+            <RepeatIcon className="size-4 sm:size-5" />
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground font-medium">Sostenimiento mensual</p>
-            <p className="text-xl font-bold tracking-tight text-foreground mt-0.5">
+          <div className="min-w-0">
+            <p className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">Mensuales</p>
+            <p className="text-sm sm:text-xl font-bold tracking-tight text-foreground mt-0.5 truncate">
               {totalMensuales}
             </p>
           </div>
@@ -279,19 +279,19 @@ export function DonacionesView() {
         <div className="h-8 w-px bg-border/60 hidden sm:block" />
 
         {/* Métrica 3: Estado de lista */}
-        <div className="flex items-center gap-3.5">
-          <div className="size-11 rounded-full bg-muted/60 dark:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3.5 p-2.5 sm:p-0 bg-muted/40 sm:bg-transparent rounded-xl border sm:border-0 border-border/60">
+          <div className="size-8 sm:size-11 rounded-full bg-background sm:bg-muted/60 dark:sm:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
             {verArchivadas ? (
-              <ArchiveIcon className="size-5" />
+              <ArchiveIcon className="size-4 sm:size-5" />
             ) : (
-              <CreditCardIcon className="size-5" />
+              <CreditCardIcon className="size-4 sm:size-5" />
             )}
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground font-medium">
-              {verArchivadas ? "Donaciones archivadas" : "Donaciones activas"}
+          <div className="min-w-0">
+            <p className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">
+              {verArchivadas ? "Archivadas" : "Activas"}
             </p>
-            <p className="text-xl font-bold tracking-tight text-foreground mt-0.5">
+            <p className="text-sm sm:text-xl font-bold tracking-tight text-foreground mt-0.5 truncate">
               {verArchivadas ? donacionesArchivadas.length : donacionesActivas.length}
             </p>
           </div>
@@ -299,16 +299,17 @@ export function DonacionesView() {
       </div>
 
       {/* ── Toolbar: Search, Type Filter, Date Filter & Export ── */}
-      <div className="flex flex-col gap-3 px-4 lg:px-6">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div className="flex flex-1 flex-wrap items-center gap-2.5">
+      <div className="flex flex-col gap-2.5 px-3 sm:px-4 lg:px-6">
+        <div className="flex flex-col gap-2.5">
+          {/* Row 1 on mobile: Switcher + Export */}
+          <div className="flex items-center justify-between gap-2 w-full">
             {/* Switcher Activas / Archivadas */}
             <div className="flex items-center rounded-lg border border-border/70 p-0.5 bg-muted/40">
               <button
                 type="button"
                 onClick={() => setVerArchivadas(false)}
                 className={cn(
-                  "px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer flex items-center gap-1.5",
+                  "px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer flex items-center gap-1.5",
                   !verArchivadas
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -323,7 +324,7 @@ export function DonacionesView() {
                 type="button"
                 onClick={() => setVerArchivadas(true)}
                 className={cn(
-                  "px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer flex items-center gap-1.5",
+                  "px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer flex items-center gap-1.5",
                   verArchivadas
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -339,16 +340,31 @@ export function DonacionesView() {
               </button>
             </div>
 
-            <div className="relative w-full sm:w-64">
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por donante, email o ID..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 h-9 text-xs"
-              />
-            </div>
+            {/* Botón Exportar */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExport}
+              className="gap-1.5 cursor-pointer text-xs h-8 sm:h-9 shrink-0"
+            >
+              <DownloadIcon className="size-3.5" />
+              <span className="hidden xs:inline">Exportar</span>
+            </Button>
+          </div>
 
+          {/* Row 2: Search Input full width */}
+          <div className="relative w-full">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por donante, email o ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 h-9 text-xs w-full"
+            />
+          </div>
+
+          {/* Row 3: 2 Select Dropdowns side-by-side on mobile, flex on desktop */}
+          <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:items-center">
             {/* Select de Filtros de Estado/Tipo */}
             <Select
               items={FILTER_OPTIONS}
@@ -357,8 +373,8 @@ export function DonacionesView() {
                 if (v !== null && v !== undefined) setActiveFilter(v)
               }}
             >
-              <SelectTrigger className="h-9 w-44 text-xs cursor-pointer">
-                <SelectValue placeholder="Filtrar por estado..." />
+              <SelectTrigger className="h-9 w-full sm:w-44 text-xs cursor-pointer">
+                <SelectValue placeholder="Estado..." />
               </SelectTrigger>
               <SelectContent>
                 {FILTER_OPTIONS.map((opt) => (
@@ -377,9 +393,9 @@ export function DonacionesView() {
                 if (v !== null && v !== undefined) setDateFilter(v)
               }}
             >
-              <SelectTrigger className="h-9 w-44 text-xs cursor-pointer gap-2">
+              <SelectTrigger className="h-9 w-full sm:w-44 text-xs cursor-pointer gap-1.5">
                 <CalendarIcon className="size-3.5 text-muted-foreground shrink-0" />
-                <SelectValue placeholder="Filtrar por fecha..." />
+                <SelectValue placeholder="Fecha..." />
               </SelectTrigger>
               <SelectContent>
                 {DATE_FILTER_OPTIONS.map((opt) => (
@@ -389,19 +405,6 @@ export function DonacionesView() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="flex items-center gap-2 self-end sm:self-auto">
-            {/* Botón Exportar */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExport}
-              className="gap-1.5 cursor-pointer text-xs h-9"
-            >
-              <DownloadIcon className="size-3.5" />
-              <span>Exportar</span>
-            </Button>
           </div>
         </div>
 
@@ -447,12 +450,12 @@ export function DonacionesView() {
         )}
       </div>
 
-      {/* ── Table Card ── */}
-      <div className="px-4 lg:px-6">
-        <Card className="p-0">
+      {/* ── Table & Cards View ── */}
+      <div className="px-3 sm:px-4 lg:px-6">
+        <Card className="p-0 overflow-hidden">
           <CardContent className="p-0">
             {filtered.length === 0 ? (
-              <div className="p-12 text-center text-sm text-muted-foreground space-y-2">
+              <div className="p-10 text-center text-sm text-muted-foreground space-y-2">
                 {verArchivadas ? (
                   <>
                     <ArchiveIcon className="size-8 mx-auto text-muted-foreground/50 stroke-1" />
@@ -466,146 +469,257 @@ export function DonacionesView() {
                 )}
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/20 hover:bg-muted/20">
-                    <TableHead className="px-4">Donante</TableHead>
-                    <TableHead className="px-4">Monto</TableHead>
-                    <TableHead className="px-4">Frecuencia</TableHead>
-                    <TableHead className="px-4 hidden md:table-cell">Método</TableHead>
-                    <TableHead className="px-4">Estado</TableHead>
-                    <TableHead className="px-4 hidden sm:table-cell">Fecha</TableHead>
-                    <TableHead className="text-right px-4"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <>
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto w-full">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/20 hover:bg-muted/20">
+                        <TableHead className="px-4">Donante</TableHead>
+                        <TableHead className="px-4">Monto</TableHead>
+                        <TableHead className="px-4">Frecuencia</TableHead>
+                        <TableHead className="px-4">Método</TableHead>
+                        <TableHead className="px-4">Estado</TableHead>
+                        <TableHead className="px-4">Fecha</TableHead>
+                        <TableHead className="text-right px-4"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filtered.map((d) => {
+                        const isApproved = d.estado === "approved" || d.estado === "authorized"
+                        const isPending = d.estado === "pending" || d.estado === "in_process"
+                        const isMensual = d.tipo === "mensual"
+
+                        return (
+                          <TableRow
+                            key={d.id}
+                            className="cursor-pointer"
+                            onClick={() => setSelectedDonacion(d)}
+                          >
+                            <TableCell className="px-4 py-3">
+                              <div className="flex flex-col">
+                                <span className="font-medium text-sm text-foreground">
+                                  {d.nombre_donante || "Donante Anónimo"}
+                                </span>
+                                {d.email_donante && (
+                                  <span className="text-xs text-muted-foreground truncate max-w-[220px]">
+                                    {d.email_donante}
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+
+                            <TableCell className="px-4 py-3 whitespace-nowrap">
+                              <span className="font-medium text-sm text-foreground">
+                                {formatMonto(d.monto, d.moneda)}
+                              </span>
+                            </TableCell>
+
+                            <TableCell className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground">
+                              {isMensual ? "Mensual" : "Puntual"}
+                            </TableCell>
+
+                            <TableCell className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                              {d.metodo_pago || "Mercado Pago"}
+                            </TableCell>
+
+                            <TableCell className="px-4 py-3 whitespace-nowrap text-xs">
+                              {isApproved ? (
+                                <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
+                                  <span className="size-1.5 rounded-full bg-emerald-500" />
+                                  Aprobada
+                                </span>
+                              ) : isPending ? (
+                                <span className="inline-flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-medium">
+                                  <span className="size-1.5 rounded-full bg-amber-500" />
+                                  Pendiente
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 text-red-600 dark:text-red-400 font-medium">
+                                  <span className="size-1.5 rounded-full bg-red-500" />
+                                  Rechazada
+                                </span>
+                              )}
+                            </TableCell>
+
+                            <TableCell className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                              {formatFecha(d.created_at)}
+                            </TableCell>
+
+                            <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger
+                                  render={
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer"
+                                    />
+                                  }
+                                >
+                                  <EllipsisVerticalIcon className="size-4" />
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={() => setSelectedDonacion(d)}
+                                  >
+                                    <HeartHandshakeIcon className="size-4 mr-2" />
+                                    Ver detalle
+                                  </DropdownMenuItem>
+
+                                  {d.mp_payment_id && (
+                                    <DropdownMenuItem
+                                      className="cursor-pointer"
+                                      onClick={() => handleCopyId(d.mp_payment_id!)}
+                                    >
+                                      <CopyIcon className="size-4 mr-2" />
+                                      Copiar ID de pago
+                                    </DropdownMenuItem>
+                                  )}
+
+                                  <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={async () => {
+                                      await toggleArchivarDonacion(d.id, !d.archivada)
+                                      await refresh()
+                                    }}
+                                  >
+                                    {d.archivada ? (
+                                      <>
+                                        <ArchiveRestoreIcon className="size-4 mr-2" />
+                                        Desarchivar donación
+                                      </>
+                                    ) : (
+                                      <>
+                                        <ArchiveIcon className="size-4 mr-2" />
+                                        Archivar donación
+                                      </>
+                                    )}
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Cards View */}
+                <div className="md:hidden divide-y divide-border">
                   {filtered.map((d) => {
                     const isApproved = d.estado === "approved" || d.estado === "authorized"
                     const isPending = d.estado === "pending" || d.estado === "in_process"
                     const isMensual = d.tipo === "mensual"
 
                     return (
-                      <TableRow
+                      <div
                         key={d.id}
-                        className="cursor-pointer"
                         onClick={() => setSelectedDonacion(d)}
+                        className="p-3.5 space-y-2 hover:bg-muted/40 transition-colors active:bg-muted cursor-pointer"
                       >
-                        {/* Donante: texto limpio sin avatar */}
-                        <TableCell className="px-4 py-3">
-                          <div className="flex flex-col">
-                            <span className="font-medium text-sm text-foreground">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <span className="font-semibold text-sm text-foreground leading-tight block">
                               {d.nombre_donante || "Donante Anónimo"}
                             </span>
                             {d.email_donante && (
-                              <span className="text-xs text-muted-foreground truncate max-w-[220px]">
+                              <span className="text-[11px] text-muted-foreground truncate block max-w-[200px]">
                                 {d.email_donante}
                               </span>
                             )}
                           </div>
-                        </TableCell>
-
-                        {/* Monto */}
-                        <TableCell className="px-4 py-3 whitespace-nowrap">
-                          <span className="font-medium text-sm text-foreground">
+                          <span className="font-bold text-sm text-foreground shrink-0 tabular-nums">
                             {formatMonto(d.monto, d.moneda)}
                           </span>
-                        </TableCell>
+                        </div>
 
-                        {/* Frecuencia: texto simple sin badges pesados */}
-                        <TableCell className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground">
-                          {isMensual ? "Mensual" : "Puntual"}
-                        </TableCell>
-
-                        {/* Método de Pago */}
-                        <TableCell className="px-4 py-3 hidden md:table-cell text-xs text-muted-foreground whitespace-nowrap">
-                          {d.metodo_pago || "Mercado Pago"}
-                        </TableCell>
-
-                        {/* Estado: indicador limpio con punto sutil */}
-                        <TableCell className="px-4 py-3 whitespace-nowrap text-xs">
-                          {isApproved ? (
-                            <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
-                              <span className="size-1.5 rounded-full bg-emerald-500" />
-                              Aprobada
+                        <div className="flex items-center justify-between gap-2 text-xs pt-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="px-1.5 py-0.5 rounded-md bg-muted text-[10px] font-medium text-muted-foreground">
+                              {isMensual ? "Mensual" : "Puntual"}
                             </span>
-                          ) : isPending ? (
-                            <span className="inline-flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-medium">
-                              <span className="size-1.5 rounded-full bg-amber-500" />
-                              Pendiente
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 text-red-600 dark:text-red-400 font-medium">
-                              <span className="size-1.5 rounded-full bg-red-500" />
-                              Rechazada
-                            </span>
-                          )}
-                        </TableCell>
+                            {isApproved ? (
+                              <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-[11px] font-medium">
+                                <span className="size-1.5 rounded-full bg-emerald-500" />
+                                Aprobada
+                              </span>
+                            ) : isPending ? (
+                              <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 text-[11px] font-medium">
+                                <span className="size-1.5 rounded-full bg-amber-500" />
+                                Pendiente
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 text-[11px] font-medium">
+                                <span className="size-1.5 rounded-full bg-red-500" />
+                                Rechazada
+                              </span>
+                            )}
+                          </div>
 
-                        {/* Fecha */}
-                        <TableCell className="px-4 py-3 hidden sm:table-cell text-xs text-muted-foreground whitespace-nowrap">
-                          {formatFecha(d.created_at)}
-                        </TableCell>
-
-                        {/* Acciones: 3 puntos */}
-                        <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger
-                              render={
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer"
-                                />
-                              }
-                            >
-                              <EllipsisVerticalIcon className="size-4" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-                              <DropdownMenuItem
-                                className="cursor-pointer"
-                                onClick={() => setSelectedDonacion(d)}
+                          <div className="flex items-center gap-1 text-[11px] text-muted-foreground" onClick={(e) => e.stopPropagation()}>
+                            <span>{formatFecha(d.created_at)}</span>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger
+                                render={
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-7 text-muted-foreground data-open:bg-muted cursor-pointer"
+                                  />
+                                }
                               >
-                                <HeartHandshakeIcon className="size-4 mr-2" />
-                                Ver detalle
-                              </DropdownMenuItem>
-
-                              {d.mp_payment_id && (
+                                <EllipsisVerticalIcon className="size-3.5" />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48">
                                 <DropdownMenuItem
                                   className="cursor-pointer"
-                                  onClick={() => handleCopyId(d.mp_payment_id!)}
+                                  onClick={() => setSelectedDonacion(d)}
                                 >
-                                  <CopyIcon className="size-4 mr-2" />
-                                  Copiar ID de pago
+                                  <HeartHandshakeIcon className="size-4 mr-2" />
+                                  Ver detalle
                                 </DropdownMenuItem>
-                              )}
 
-                              <DropdownMenuItem
-                                className="cursor-pointer"
-                                onClick={async () => {
-                                  await toggleArchivarDonacion(d.id, !d.archivada)
-                                  await refresh()
-                                }}
-                              >
-                                {d.archivada ? (
-                                  <>
-                                    <ArchiveRestoreIcon className="size-4 mr-2" />
-                                    Desarchivar donación
-                                  </>
-                                ) : (
-                                  <>
-                                    <ArchiveIcon className="size-4 mr-2" />
-                                    Archivar donación
-                                  </>
+                                {d.mp_payment_id && (
+                                  <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={() => handleCopyId(d.mp_payment_id!)}
+                                  >
+                                    <CopyIcon className="size-4 mr-2" />
+                                    Copiar ID de pago
+                                  </DropdownMenuItem>
                                 )}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
+
+                                <DropdownMenuItem
+                                  className="cursor-pointer"
+                                  onClick={async () => {
+                                    await toggleArchivarDonacion(d.id, !d.archivada)
+                                    await refresh()
+                                  }}
+                                >
+                                  {d.archivada ? (
+                                    <>
+                                      <ArchiveRestoreIcon className="size-4 mr-2" />
+                                      Desarchivar donación
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ArchiveIcon className="size-4 mr-2" />
+                                      Archivar donación
+                                    </>
+                                  )}
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </div>
+                      </div>
                     )
                   })}
-                </TableBody>
-              </Table>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
@@ -616,7 +730,7 @@ export function DonacionesView() {
         open={Boolean(selectedDonacion)}
         onOpenChange={(open) => !open && setSelectedDonacion(null)}
       >
-        <DialogContent className="sm:max-w-[420px]">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[420px] max-h-[85vh] overflow-y-auto">
           {selectedDonacion && (() => {
             const isApproved =
               selectedDonacion.estado === "approved" || selectedDonacion.estado === "authorized"

@@ -354,9 +354,9 @@ export function DashboardOverview() {
   return (
     <div className="w-full p-4 sm:p-6 lg:p-8 space-y-6 text-foreground">
       {/* Saludo y Botones de acción */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight leading-tight">{greeting}</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight leading-tight">{greeting}</h1>
           <div className="text-muted-foreground mt-1 text-sm flex items-center gap-1.5 flex-wrap">
             <span>{todayFormatted}.</span>
             {dbLoading ? (
@@ -376,9 +376,9 @@ export function DashboardOverview() {
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           {/* Selector de período */}
-          <div className="flex bg-muted p-1 rounded-lg border border-border mr-2">
+          <div className="grid grid-cols-3 bg-muted p-1 rounded-lg border border-border w-full sm:w-auto sm:flex text-center">
             <button
               type="button"
               onClick={() => setRange(7)}
@@ -414,20 +414,22 @@ export function DashboardOverview() {
             </button>
           </div>
 
-          <a
-            href="/donaciones"
-            className="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg text-xs font-medium border border-border bg-background hover:bg-muted transition-colors"
-          >
-            <HeartHandshakeIcon className="size-4" />
-            Registrar donación
-          </a>
-          <a
-            href="/avisos"
-            className="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg text-xs font-medium bg-foreground text-background hover:opacity-90 transition-opacity"
-          >
-            <PlusIcon className="size-4" />
-            Publicar aviso
-          </a>
+          <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
+            <a
+              href="/donaciones"
+              className="inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-border bg-background hover:bg-muted transition-colors min-w-0"
+            >
+              <HeartHandshakeIcon className="size-3.5 shrink-0" />
+              <span className="truncate">Donación</span>
+            </a>
+            <a
+              href="/avisos"
+              className="inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium bg-foreground text-background hover:opacity-90 transition-opacity min-w-0"
+            >
+              <PlusIcon className="size-3.5 shrink-0" />
+              <span className="truncate">Publicar aviso</span>
+            </a>
+          </div>
         </div>
       </div>
 

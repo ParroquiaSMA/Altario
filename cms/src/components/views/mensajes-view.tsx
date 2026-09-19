@@ -174,96 +174,186 @@ export function MensajesView() {
 
       {/* Table Card */}
       <div className="px-4 lg:px-6">
-        <Card className="p-0">
+        <Card className="p-0 overflow-hidden">
           <CardContent className="p-0">
             {filtered.length === 0 ? (
               <div className="p-8 text-center text-sm text-muted-foreground">
                 No se encontraron mensajes.
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/30 hover:bg-muted/30">
-                    <TableHead className="px-4">Remitente</TableHead>
-                    <TableHead className="px-4">Motivo</TableHead>
-                    <TableHead className="px-4 hidden md:table-cell">Mensaje</TableHead>
-                    <TableHead className="px-4 hidden sm:table-cell">Fecha</TableHead>
-                    <TableHead className="px-4">Estado</TableHead>
-                    <TableHead className="text-right px-4"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <>
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto w-full">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/30 hover:bg-muted/30">
+                        <TableHead className="px-4">Remitente</TableHead>
+                        <TableHead className="px-4">Motivo</TableHead>
+                        <TableHead className="px-4 hidden md:table-cell">Mensaje</TableHead>
+                        <TableHead className="px-4 hidden sm:table-cell">Fecha</TableHead>
+                        <TableHead className="px-4">Estado</TableHead>
+                        <TableHead className="text-right px-4"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filtered.map((m) => (
+                        <TableRow
+                          key={m.id}
+                          className={`cursor-pointer transition-colors ${!m.leido ? "bg-muted/20 font-medium" : ""}`}
+                          onClick={() => handleOpenDetail(m)}
+                        >
+                          <TableCell className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              {!m.leido && (
+                                <span className="size-2 rounded-full bg-blue-600 shrink-0" title="Mensaje no leído" />
+                              )}
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium">{m.nombre}</span>
+                                <span className="text-xs text-muted-foreground">{m.correo}</span>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="px-4 py-3 text-sm">{m.motivo}</TableCell>
+                          <TableCell className="px-4 py-3 hidden md:table-cell text-sm text-muted-foreground max-w-xs truncate">
+                            {m.mensaje}
+                          </TableCell>
+                          <TableCell className="px-4 py-3 hidden sm:table-cell text-sm text-muted-foreground whitespace-nowrap">
+                            {formatFecha(m.created_at)}
+                          </TableCell>
+                          <TableCell className="px-4 py-3">
+                            {m.respondido ? (
+                              <Badge variant="outline" className="gap-1.5 text-emerald-600 border-emerald-300">
+                                <span className="size-1.5 rounded-full bg-emerald-500" />
+                                Atendido
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="gap-1.5 text-amber-600 border-amber-300">
+                                <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                Pendiente
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger
+                                render={
+                                  <Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />
+                                }
+                              >
+                                <EllipsisVerticalIcon className="size-4" />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-44">
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenDetail(m)}>
+                                  <MailIcon className="size-4 mr-2" />
+                                  Ver detalle
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => window.open(`mailto:${m.correo}?subject=Parroquia Santa María de la Ayuda: ${m.motivo}`)}>
+                                  <ReplyIcon className="size-4 mr-2" />
+                                  Responder por correo
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleToggleRespondido(m.id)}>
+                                  <CheckCircle2Icon className="size-4 mr-2" />
+                                  {m.respondido ? "Marcar pendiente" : "Marcar atendido"}
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(m.id)}>
+                                  <Trash2Icon className="size-4 mr-2" />
+                                  Eliminar
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Cards */}
+                <div className="md:hidden divide-y divide-border">
                   {filtered.map((m) => (
-                    <TableRow
+                    <div
                       key={m.id}
-                      className={`cursor-pointer transition-colors ${!m.leido ? "bg-muted/20 font-medium" : ""}`}
                       onClick={() => handleOpenDetail(m)}
+                      className={`p-3.5 space-y-2 hover:bg-muted/40 transition-colors active:bg-muted cursor-pointer ${
+                        !m.leido ? "bg-muted/20" : ""
+                      }`}
                     >
-                      <TableCell className="px-4 py-3">
+                      <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2">
                           {!m.leido && (
-                            <span className="size-2 rounded-full bg-blue-600 shrink-0" title="Mensaje no leído" />
+                            <span className="size-2 rounded-full bg-blue-600 shrink-0" title="No leído" />
                           )}
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium">{m.nombre}</span>
-                            <span className="text-xs text-muted-foreground">{m.correo}</span>
+                          <div>
+                            <span className="font-semibold text-sm text-foreground leading-tight block">
+                              {m.nombre}
+                            </span>
+                            <span className="text-[11px] text-muted-foreground block">
+                              {m.correo}
+                            </span>
                           </div>
                         </div>
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm">{m.motivo}</TableCell>
-                      <TableCell className="px-4 py-3 hidden md:table-cell text-sm text-muted-foreground max-w-xs truncate">
+
+                        <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          {m.respondido ? (
+                            <Badge variant="outline" className="gap-1 text-emerald-600 border-emerald-300 text-[10px] px-1.5 py-0">
+                              <span className="size-1 rounded-full bg-emerald-500" />
+                              Atendido
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="gap-1 text-amber-600 border-amber-300 text-[10px] px-1.5 py-0">
+                              <span className="size-1 rounded-full bg-amber-500 animate-pulse" />
+                              Pendiente
+                            </Badge>
+                          )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              render={
+                                <Button variant="ghost" size="icon" className="size-7 text-muted-foreground data-open:bg-muted cursor-pointer" />
+                              }
+                            >
+                              <EllipsisVerticalIcon className="size-3.5" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-44">
+                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenDetail(m)}>
+                                <MailIcon className="size-4 mr-2" />
+                                Ver detalle
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="cursor-pointer" onClick={() => window.open(`mailto:${m.correo}?subject=Parroquia Santa María de la Ayuda: ${m.motivo}`)}>
+                                <ReplyIcon className="size-4 mr-2" />
+                                Responder por correo
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleToggleRespondido(m.id)}>
+                                <CheckCircle2Icon className="size-4 mr-2" />
+                                {m.respondido ? "Marcar pendiente" : "Marcar atendido"}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(m.id)}>
+                                <Trash2Icon className="size-4 mr-2" />
+                                Eliminar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium text-foreground">
+                          {m.motivo}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-muted-foreground line-clamp-2">
                         {m.mensaje}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 hidden sm:table-cell text-sm text-muted-foreground whitespace-nowrap">
-                        {formatFecha(m.created_at)}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        {m.respondido ? (
-                          <Badge variant="outline" className="gap-1.5 text-emerald-600 border-emerald-300">
-                            <span className="size-1.5 rounded-full bg-emerald-500" />
-                            Atendido
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="gap-1.5 text-amber-600 border-amber-300">
-                            <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
-                            Pendiente
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            render={
-                              <Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />
-                            }
-                          >
-                            <EllipsisVerticalIcon className="size-4" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-44">
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenDetail(m)}>
-                              <MailIcon />
-                              Ver detalle
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => window.open(`mailto:${m.correo}?subject=Parroquia Santa María de la Ayuda: ${m.motivo}`)}>
-                              <ReplyIcon />
-                              Responder por correo
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => handleToggleRespondido(m.id)}>
-                              <CheckCircle2Icon />
-                              {m.respondido ? "Marcar pendiente" : "Marcar atendido"}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(m.id)}>
-                              <Trash2Icon />
-                              Eliminar
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+                      </p>
+
+                      <div className="text-[11px] text-muted-foreground pt-0.5">
+                        <span>{formatFecha(m.created_at)}</span>
+                      </div>
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
@@ -272,7 +362,7 @@ export function MensajesView() {
       {/* Detail Dialog */}
       <Dialog open={!!selectedMessage} onOpenChange={(open) => !open && setSelectedMessage(null)}>
         {selectedMessage && (
-          <DialogContent className="sm:max-w-lg">
+          <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Detalle de Consulta</DialogTitle>
               <DialogDescription>
@@ -280,7 +370,7 @@ export function MensajesView() {
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-4 py-3 text-sm">
-              <div className="grid grid-cols-2 gap-3 p-3 rounded-md bg-muted/40 border">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-md bg-muted/40 border">
                 <div className="flex flex-col gap-0.5">
                   <span className="text-xs text-muted-foreground">Contacto</span>
                   <span className="font-medium flex items-center gap-1.5 mt-0.5">
@@ -321,7 +411,7 @@ export function MensajesView() {
                 </Button>
               </div>
             </div>
-            <DialogFooter className="border-t pt-3">
+            <DialogFooter className="border-t pt-3 gap-2 sm:gap-0 flex-col sm:flex-row">
               <Button variant="outline" size="sm" onClick={() => setSelectedMessage(null)} className="cursor-pointer">Cerrar</Button>
               <a
                 href={`mailto:${selectedMessage.correo}?subject=Respuesta Parroquia Santa María de la Ayuda: ${selectedMessage.motivo}`}

@@ -27,10 +27,26 @@ export function SettingsView() {
     <div className="flex flex-col h-full bg-background overflow-hidden flex-1 min-h-0">
       {/* ── 2-Column Split Workspace ──────────────────────────── */}
       <div className="flex-1 flex flex-col md:flex-row min-h-0 h-full items-stretch overflow-hidden">
-        {/* Left Settings Submenu (Sizing identical to donaciones) */}
-        <aside className="w-full md:w-56 lg:w-64 shrink-0 border-r bg-muted/10 p-4 lg:p-6 flex flex-col justify-between overflow-y-auto min-h-0 h-full">
-          <div className="space-y-4">
-            <nav className="space-y-1">
+        {/* Mobile Settings Section Switcher */}
+        <div className="flex md:hidden items-center justify-between gap-2 p-3 bg-muted/20 border-b shrink-0">
+          <label className="text-xs font-medium text-muted-foreground">Sección:</label>
+          <select
+            value={activeSection}
+            onChange={(e) => setActiveSection(e.target.value as SettingsSection)}
+            className="flex-1 max-w-[220px] h-8 px-2 rounded-md border bg-background text-xs font-medium text-foreground focus:outline-none"
+          >
+            {NAV_ITEMS.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.title}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Desktop Settings Sidebar */}
+        <aside className="hidden md:flex w-56 lg:w-64 shrink-0 border-r bg-muted/10 p-4 lg:p-6 flex-col justify-between overflow-y-auto h-full">
+          <div className="w-full">
+            <nav className="flex flex-col gap-1 w-full">
               {NAV_ITEMS.map((item) => {
                 const isActive = activeSection === item.id
 
@@ -39,9 +55,9 @@ export function SettingsView() {
                     key={item.id}
                     type="button"
                     onClick={() => setActiveSection(item.id)}
-                    className={`w-full text-left px-3 py-2.5 rounded-md text-sm transition-colors cursor-pointer ${
+                    className={`whitespace-nowrap text-left px-3 py-2 rounded-md text-xs sm:text-sm transition-colors cursor-pointer ${
                       isActive
-                        ? "bg-accent text-accent-foreground font-medium"
+                        ? "bg-accent text-accent-foreground font-medium shadow-2xs"
                         : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                     }`}
                   >
@@ -61,7 +77,7 @@ export function SettingsView() {
         </aside>
 
         {/* Right Settings Content */}
-        <main className="flex-1 w-full min-w-0 overflow-hidden flex flex-col bg-background h-full min-h-0">
+        <main className="flex-1 w-full min-w-0 overflow-y-auto flex flex-col bg-background h-full min-h-0 pb-28 md:pb-0">
           {activeSection === "catalogos" && <CatalogosSettings />}
           {activeSection === "usuarios" && <UsuariosSettings />}
           {activeSection === "donaciones" && <DonacionesSettings />}
@@ -188,7 +204,96 @@ function SeguridadSettings() {
             </div>
           </div>
         </form>
+
+        {/* Notificaciones Web y PWA Card */}
+        <NotificacionesCard />
       </div>
     </div>
   )
 }
+
+function NotificacionesCard() {
+  const [permission, setPermission] = React.useState<NotificationPermission>("default")
+
+  React.useEffect(() => {
+    if (typeof Notification !== "undefined") {
+      setPermission(Notification.permission)
+    }
+  }, [])
+
+  const handleRequest = async () => {
+    if (typeof Notification === "undefined") {
+      alert("Tu navegador no soporta notificaciones.")
+      return
+    }
+    const perm = await Notification.requestPermission()
+    setPermission(perm)
+    if (perm === "granted") {
+      testNotification()
+    }
+  }
+
+  const testNotification = async () => {
+    try {
+      const { playDonationChime, sendLocalNotification } = await import("@/components/common/notifications-manager")
+      playDonationChime()
+      await sendLocalNotification("Prueba de Notificación", {
+        body: "¡Las notificaciones en tiempo real están funcionando perfectamente!",
+        url: "/donaciones",
+      })
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  return (
+    <div className="max-w-md rounded-lg border bg-card p-4 space-y-3.5 mt-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+          <CheckCircle2Icon className="size-3.5 text-muted-foreground" />
+          Notificaciones y Aplicación Web (PWA)
+        </h3>
+        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${
+          permission === "granted"
+            ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+            : permission === "denied"
+            ? "bg-destructive/10 text-destructive border-destructive/20"
+            : "bg-muted text-muted-foreground border-border"
+        }`}>
+          {permission === "granted" ? "Activas" : permission === "denied" ? "Bloqueadas" : "No configuradas"}
+        </span>
+      </div>
+
+      <p className="text-xs text-muted-foreground leading-relaxed">
+        Recibí alertas sonoras y notificaciones del sistema en tu celular o computadora cada vez que ingrese una donación o mensaje de contacto.
+      </p>
+
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        {permission !== "granted" ? (
+          <button
+            type="button"
+            onClick={handleRequest}
+            className="inline-flex items-center justify-center gap-1.5 h-8 px-3.5 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors cursor-pointer"
+          >
+            Activar notificaciones
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={testNotification}
+            className="inline-flex items-center justify-center gap-1.5 h-8 px-3.5 rounded-md border border-border bg-background hover:bg-muted text-foreground text-xs font-medium transition-colors cursor-pointer"
+          >
+            Probar sonido y notificación
+          </button>
+        )}
+      </div>
+
+      <div className="p-3 bg-muted/30 border border-border/60 rounded-md text-[11px] text-muted-foreground space-y-1">
+        <strong className="text-foreground font-medium block">Cómo instalar en tu celular:</strong>
+        <p>• <strong>iPhone (Safari):</strong> Tocá Compartir <span className="font-mono">⎋</span> y seleccioná <em>"Agregar a pantalla de inicio"</em>.</p>
+        <p>• <strong>Android (Chrome):</strong> Tocá el menú de tres puntos <span className="font-mono">⋮</span> y seleccioná <em>"Instalar aplicación"</em>.</p>
+      </div>
+    </div>
+  )
+}
+

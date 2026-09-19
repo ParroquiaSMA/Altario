@@ -192,15 +192,40 @@ export function CatalogosSettings() {
 
   return (
     <div className="flex flex-col md:flex-row h-full min-h-0 items-stretch overflow-hidden flex-1">
-      {/* ─── Left Sidebar ─── */}
-      <aside className="w-full md:w-56 lg:w-64 shrink-0 border-r bg-muted/10 p-4 lg:p-6 flex flex-col justify-between overflow-y-auto h-full min-h-0">
-        <div className="space-y-4">
+      {/* ─── Mobile Catalog Selector ─── */}
+      <div className="flex md:hidden items-center justify-between gap-2 p-3 bg-muted/20 border-b shrink-0">
+        <label className="text-xs font-medium text-muted-foreground">Catálogo:</label>
+        <select
+          value={activeCatalog}
+          onChange={(e) => setActiveCatalog(e.target.value as CatalogName)}
+          className="flex-1 max-w-[220px] h-8 px-2 rounded-md border bg-background text-xs font-medium text-foreground focus:outline-none"
+        >
+          {CATALOG_ITEMS.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.label}
+            </option>
+          ))}
+        </select>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleReset}
+          className="size-8 text-muted-foreground shrink-0"
+          title="Restablecer valores"
+        >
+          <RotateCcwIcon className="size-3.5" />
+        </Button>
+      </div>
+
+      {/* ─── Desktop Left Sidebar ─── */}
+      <aside className="hidden md:flex w-56 lg:w-64 shrink-0 border-r bg-muted/10 p-4 lg:p-6 flex-col justify-between overflow-y-auto h-full">
+        <div className="w-full">
           <div className="border-b pb-4">
             <h2 className="text-base font-semibold text-foreground">Catálogos</h2>
             <p className="text-xs text-muted-foreground mt-0.5">Tablas de referencia</p>
           </div>
 
-          <nav className="space-y-1">
+          <nav className="flex flex-col gap-1 w-full mt-4">
             {CATALOG_ITEMS.map((cat) => {
               const isSelected = activeCatalog === cat.id
               return (
@@ -208,9 +233,9 @@ export function CatalogosSettings() {
                   key={cat.id}
                   type="button"
                   onClick={() => setActiveCatalog(cat.id)}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors cursor-pointer ${
+                  className={`whitespace-nowrap text-left px-3 py-2 rounded-md text-xs sm:text-sm transition-colors cursor-pointer ${
                     isSelected
-                      ? "bg-accent text-accent-foreground font-medium"
+                      ? "bg-accent text-accent-foreground font-medium shadow-2xs"
                       : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                   }`}
                 >
@@ -233,7 +258,7 @@ export function CatalogosSettings() {
       </aside>
 
       {/* ─── Right Content Panel ─── */}
-      <main className="flex-1 w-full min-w-0 p-4 lg:p-6 space-y-4 overflow-y-auto h-full min-h-0">
+      <main className="flex-1 w-full min-w-0 p-4 lg:p-6 space-y-4 overflow-y-auto h-full min-h-0 pb-28 md:pb-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4 min-h-[57px]">
           <div>
@@ -262,92 +287,170 @@ export function CatalogosSettings() {
           />
         </div>
 
-        {/* Table Card (Identical pattern to HorariosView, AvisosView) */}
-        <Card className="p-0">
+        {/* Catalog Options List */}
+        <Card className="p-0 overflow-hidden">
           <CardContent className="p-0">
             {loading ? (
-              <div className="p-8 text-center text-sm text-muted-foreground">Cargando catálogo...</div>
+              <div className="p-8 text-center text-sm text-muted-foreground">
+                Cargando opciones...
+              </div>
             ) : filtered.length === 0 ? (
               <div className="p-8 text-center text-sm text-muted-foreground">
                 No se encontraron opciones en este catálogo.
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/30 hover:bg-muted/30">
-                    <TableHead className="px-4">Nombre</TableHead>
-                    <TableHead className="px-4">Código</TableHead>
-                    <TableHead className="px-4 hidden md:table-cell">Descripción</TableHead>
-                    <TableHead className="px-4">Estado</TableHead>
-                    <TableHead className="text-right px-4"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <>
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto w-full">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/30 hover:bg-muted/30">
+                        <TableHead className="px-4">Nombre</TableHead>
+                        <TableHead className="px-4">Código</TableHead>
+                        <TableHead className="px-4 hidden md:table-cell">Descripción</TableHead>
+                        <TableHead className="px-4">Estado</TableHead>
+                        <TableHead className="text-right px-4"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filtered.map((item) => (
+                        <TableRow
+                          key={item.id}
+                          className="cursor-pointer"
+                          onClick={() => handleOpenEdit(item)}
+                        >
+                          <TableCell className="px-4 py-3 font-medium text-sm">
+                            {item.nombre}
+                          </TableCell>
+                          <TableCell className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                            {item.codigo}
+                          </TableCell>
+                          <TableCell className="px-4 py-3 hidden md:table-cell text-sm text-muted-foreground max-w-xs truncate">
+                            {item.descripcion || "—"}
+                          </TableCell>
+                          <TableCell className="px-4 py-3">
+                            {item.activo ? (
+                              <Badge variant="outline" className="gap-1.5 text-emerald-600 border-emerald-300">
+                                <span className="size-1.5 rounded-full bg-emerald-500" />
+                                Activo
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="gap-1.5 text-muted-foreground">
+                                <span className="size-1.5 rounded-full bg-muted-foreground/40" />
+                                Inactivo
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger
+                                render={
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer"
+                                  />
+                                }
+                              >
+                                <EllipsisVerticalIcon className="size-4" />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-36">
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(item)}>
+                                  <Edit3Icon />
+                                  Editar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleToggleActivo(item)}>
+                                  {item.activo ? "Desactivar" : "Activar"}
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  variant="destructive"
+                                  className="cursor-pointer"
+                                  onClick={() => handleDelete(item.id)}
+                                >
+                                  <Trash2Icon />
+                                  Eliminar
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Cards */}
+                <div className="md:hidden divide-y divide-border">
                   {filtered.map((item) => (
-                    <TableRow
+                    <div
                       key={item.id}
-                      className="cursor-pointer"
                       onClick={() => handleOpenEdit(item)}
+                      className="p-3.5 space-y-1.5 hover:bg-muted/40 transition-colors active:bg-muted cursor-pointer"
                     >
-                      <TableCell className="px-4 py-3 font-medium text-sm">
-                        {item.nombre}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                        {item.codigo}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 hidden md:table-cell text-sm text-muted-foreground max-w-xs truncate">
-                        {item.descripcion || "—"}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        {item.activo ? (
-                          <Badge variant="outline" className="gap-1.5 text-emerald-600 border-emerald-300">
-                            <span className="size-1.5 rounded-full bg-emerald-500" />
-                            Activo
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="gap-1.5 text-muted-foreground">
-                            <span className="size-1.5 rounded-full bg-muted-foreground/40" />
-                            Inactivo
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            render={
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer"
-                              />
-                            }
-                          >
-                            <EllipsisVerticalIcon className="size-4" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-36">
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(item)}>
-                              <Edit3Icon />
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => handleToggleActivo(item)}>
-                              {item.activo ? "Desactivar" : "Activar"}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              variant="destructive"
-                              className="cursor-pointer"
-                              onClick={() => handleDelete(item.id)}
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="font-semibold text-sm text-foreground block">
+                            {item.nombre}
+                          </span>
+                          <span className="font-mono text-[11px] text-muted-foreground block">
+                            {item.codigo}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                          {item.activo ? (
+                            <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-[11px] font-medium">
+                              <span className="size-1.5 rounded-full bg-emerald-500" />
+                              Activo
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-muted-foreground text-[11px] font-medium">
+                              <span className="size-1.5 rounded-full bg-muted-foreground/40" />
+                              Inactivo
+                            </span>
+                          )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              render={
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-7 text-muted-foreground data-open:bg-muted cursor-pointer"
+                                />
+                              }
                             >
-                              <Trash2Icon />
-                              Eliminar
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+                              <EllipsisVerticalIcon className="size-3.5" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-36">
+                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(item)}>
+                                <Edit3Icon className="size-4 mr-2" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleToggleActivo(item)}>
+                                {item.activo ? "Desactivar" : "Activar"}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                variant="destructive"
+                                className="cursor-pointer"
+                                onClick={() => handleDelete(item.id)}
+                              >
+                                <Trash2Icon className="size-4 mr-2" />
+                                Eliminar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                      {item.descripcion && (
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {item.descripcion}
+                        </p>
+                      )}
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
@@ -355,7 +458,7 @@ export function CatalogosSettings() {
 
       {/* Modal to Add / Edit catalog option */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md max-h-[85vh] overflow-y-auto">
           <form onSubmit={handleSave}>
             <DialogHeader>
               <DialogTitle>

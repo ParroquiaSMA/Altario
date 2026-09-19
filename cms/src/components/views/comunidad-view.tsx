@@ -149,60 +149,116 @@ export function ComunidadView() {
 
       {/* Table Card */}
       <div className="px-4 lg:px-6">
-        <Card className="p-0">
+        <Card className="p-0 overflow-hidden">
           <CardContent className="p-0">
             {filtered.length === 0 ? (
               <div className="p-8 text-center text-sm text-muted-foreground">
                 No se encontraron grupos.
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/30 hover:bg-muted/30">
-                    <TableHead className="px-4">Nombre</TableHead>
-                    <TableHead className="px-4">Encuentros</TableHead>
-                    <TableHead className="px-4 hidden sm:table-cell">Descripción</TableHead>
-                    <TableHead className="text-right px-4"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <>
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto w-full">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/30 hover:bg-muted/30">
+                        <TableHead className="px-4">Nombre</TableHead>
+                        <TableHead className="px-4">Encuentros</TableHead>
+                        <TableHead className="px-4 hidden sm:table-cell">Descripción</TableHead>
+                        <TableHead className="text-right px-4"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filtered.map((g) => (
+                        <TableRow
+                          key={g.id}
+                          className="cursor-pointer"
+                          onClick={() => handleOpenEdit(g)}
+                        >
+                          <TableCell className="px-4 py-3 font-medium text-sm">{g.nombre}</TableCell>
+                          <TableCell className="px-4 py-3 text-sm whitespace-nowrap">{g.horario_encuentro || "—"}</TableCell>
+                          <TableCell className="px-4 py-3 hidden sm:table-cell text-sm text-muted-foreground max-w-md truncate">
+                            {g.descripcion}
+                          </TableCell>
+                          <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger
+                                render={
+                                  <Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />
+                                }
+                              >
+                                <EllipsisVerticalIcon className="size-4" />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-36">
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(g)}>
+                                  <Edit3Icon className="size-4 mr-2" />
+                                  Editar
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(g.id)}>
+                                  <Trash2Icon className="size-4 mr-2" />
+                                  Eliminar
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Cards */}
+                <div className="md:hidden divide-y divide-border">
                   {filtered.map((g) => (
-                    <TableRow
+                    <div
                       key={g.id}
-                      className="cursor-pointer"
                       onClick={() => handleOpenEdit(g)}
+                      className="p-3.5 space-y-2 hover:bg-muted/40 transition-colors active:bg-muted cursor-pointer"
                     >
-                      <TableCell className="px-4 py-3 font-medium text-sm">{g.nombre}</TableCell>
-                      <TableCell className="px-4 py-3 text-sm whitespace-nowrap">{g.horario_encuentro || "—"}</TableCell>
-                      <TableCell className="px-4 py-3 hidden sm:table-cell text-sm text-muted-foreground max-w-md truncate">
-                        {g.descripcion}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            render={
-                              <Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />
-                            }
-                          >
-                            <EllipsisVerticalIcon className="size-4" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-36">
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(g)}>
-                              <Edit3Icon />
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(g.id)}>
-                              <Trash2Icon />
-                              Eliminar
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="font-semibold text-sm text-foreground leading-tight">
+                          {g.nombre}
+                        </span>
+                        <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              render={
+                                <Button variant="ghost" size="icon" className="size-7 text-muted-foreground data-open:bg-muted cursor-pointer" />
+                              }
+                            >
+                              <EllipsisVerticalIcon className="size-3.5" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-36">
+                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(g)}>
+                                <Edit3Icon className="size-4 mr-2" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(g.id)}>
+                                <Trash2Icon className="size-4 mr-2" />
+                                Eliminar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+
+                      {g.descripcion && (
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {g.descripcion}
+                        </p>
+                      )}
+
+                      {g.horario_encuentro && (
+                        <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                          <span>🕒 {g.horario_encuentro}</span>
+                        </div>
+                      )}
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
@@ -210,7 +266,7 @@ export function ComunidadView() {
 
       {/* Edit / Create Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingItem ? "Editar Grupo" : "Nuevo Grupo"}</DialogTitle>
             <DialogDescription>

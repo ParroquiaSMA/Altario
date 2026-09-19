@@ -31,8 +31,8 @@
     "titulo_seccion": "Sostenimiento y obras comunitarias",
     "mensaje": "El templo y las obras comunitarias de solidaridad en el Cerro se sostienen con la generosa colaboración de vecinos y peregrinos.",
     "mercadopago": {
-      "activo": true,
       "modo": "sandbox",
+      "activo": true,
       "public_key": "APP_USR-3e91a063-54aa-4430-b99f-f0b2f36027ef",
       "access_token": "APP_USR-7245646562335146-091221-4cd26be68cc47d0deaf1b4b1737e27b2-3683185197"
     },
@@ -112,7 +112,7 @@
     "titulo_sitio": "Parroquia Santa María de la Ayuda — El Cerro, Montevideo",
     "descripcion": "Templo histórico y centro de devoción mariana en el barrio del Cerro de Montevideo. Comunidad guiada por la Compañía de Jesús (Jesuitas).",
     "og_image_url": "https://eucgxnnnmheqhptcxldp.supabase.co/storage/v1/object/public/media/galeria/1787693691125-7qt02w.jpg",
-    "favicon_url": "https://eucgxnnnmheqhptcxldp.supabase.co/storage/v1/object/public/media/logos/1787691829249-1l1br5.svg",
+    "favicon_url": "https://eucgxnnnmheqhptcxldp.supabase.co/storage/v1/object/public/media/logos/1789780545114-km4pxq.png",
     "palabras_clave": "Santa María de la Ayuda, Parroquia del Cerro, Montevideo, Jesuitas Uruguay, Padre Raúl González SJ, Virgen de la Ayuda, Horarios de Misa Cerro, Bogotá y Prusia"
   },
   "apariencia": {

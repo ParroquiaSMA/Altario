@@ -301,25 +301,40 @@ export function SitioSettings() {
   if (!mounted) {
     return (
       <div className="flex flex-col md:flex-row min-h-full h-full items-stretch opacity-60">
-        <aside className="w-full md:w-56 lg:w-64 shrink-0 border-r bg-muted/10 p-4 lg:p-6 space-y-4">
-          <div className="space-y-1">
+        <aside className="w-full md:w-56 lg:w-64 shrink-0 border-b md:border-b-0 md:border-r bg-muted/10 p-2 sm:p-4 lg:p-6 overflow-x-auto md:overflow-y-auto">
+          <div className="flex flex-row md:flex-col gap-1">
             {TABS.map((t) => (
-              <div key={t.id} className="h-8 rounded-md bg-muted/40" />
+              <div key={t.id} className="h-8 w-24 md:w-full rounded-md bg-muted/40 shrink-0" />
             ))}
           </div>
         </aside>
-        <main className="flex-1 p-6" />
+        <main className="flex-1 p-4 md:p-6" />
       </div>
     )
   }
 
   return (
     <div className="flex flex-col md:flex-row h-full min-h-0 items-stretch overflow-hidden flex-1">
-      {/* ─── Left Sub-Sidebar ─── */}
-      <aside className="w-full md:w-56 lg:w-64 shrink-0 border-r bg-muted/10 p-4 lg:p-6 flex flex-col overflow-y-auto h-full min-h-0">
-        <div className="space-y-4">
+      {/* ─── Mobile Section Switcher ─── */}
+      <div className="flex md:hidden items-center justify-between gap-2 p-3 bg-muted/20 border-b shrink-0">
+        <label className="text-xs font-medium text-muted-foreground">Sección:</label>
+        <select
+          value={activeTab}
+          onChange={(e) => handleTabChange(e.target.value as TabKey)}
+          className="flex-1 max-w-[220px] h-8 px-2 rounded-md border bg-background text-xs font-medium text-foreground focus:outline-none"
+        >
+          {TABS.map((tab) => (
+            <option key={tab.id} value={tab.id}>
+              {tab.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
-          <nav className="space-y-1">
+      {/* ─── Desktop Left Sub-Sidebar ─── */}
+      <aside className="hidden md:flex w-56 lg:w-64 shrink-0 border-r bg-muted/10 p-4 lg:p-6 flex-col overflow-y-auto h-full">
+        <div className="w-full">
+          <nav className="flex flex-col gap-1 w-full">
             {TABS.map((tab) => {
               const isSelected = activeTab === tab.id
               return (
@@ -327,8 +342,8 @@ export function SitioSettings() {
                   key={tab.id}
                   type="button"
                   onClick={() => handleTabChange(tab.id)}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors cursor-pointer ${isSelected
-                    ? "bg-accent text-accent-foreground font-medium"
+                  className={`whitespace-nowrap text-left px-3 py-2 rounded-md text-xs sm:text-sm transition-colors cursor-pointer ${isSelected
+                    ? "bg-accent text-accent-foreground font-medium shadow-2xs"
                     : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                     }`}
                 >
@@ -341,7 +356,7 @@ export function SitioSettings() {
       </aside>
 
       {/* ─── Right Content Panel ─── */}
-      <main className="flex-1 w-full min-w-0 p-4 lg:p-6 space-y-6 overflow-y-auto h-full min-h-0">
+      <main className="flex-1 w-full min-w-0 p-4 lg:p-6 space-y-6 overflow-y-auto h-full min-h-0 pb-28 md:pb-6">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4 min-h-[57px]">
           <div>

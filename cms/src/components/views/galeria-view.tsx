@@ -187,7 +187,7 @@ export function GaleriaView() {
 
       {/* Upload Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base font-semibold">Subir Foto a la Galería</DialogTitle>
             <DialogDescription className="text-xs">

@@ -236,92 +236,167 @@ export function HorariosView() {
       </div>
 
       <div className="px-4 lg:px-6">
-        <Card className="p-0">
+        <Card className="p-0 overflow-hidden">
           <CardContent className="p-0">
             {filtered.length === 0 ? (
               <div className="p-8 text-center text-sm text-muted-foreground">No se encontraron horarios.</div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/30 hover:bg-muted/30">
-                    <TableHead className="w-12 px-3 text-center">
-                      <Checkbox
-                        checked={isAllSelected}
-                        indeterminate={isSomeSelected}
-                        onCheckedChange={toggleSelectAll}
-                        aria-label="Seleccionar todos"
-                      />
-                    </TableHead>
-                    <TableHead className="px-4">Celebración</TableHead>
-                    <TableHead className="px-4">Día(s)</TableHead>
-                    <TableHead className="px-4">Horario</TableHead>
-                    <TableHead className="px-4 hidden md:table-cell">Lugar</TableHead>
-                    <TableHead className="px-4">Tipo</TableHead>
-                    <TableHead className="text-right px-4"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <>
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto w-full">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/30 hover:bg-muted/30">
+                        <TableHead className="w-12 px-3 text-center">
+                          <Checkbox
+                            checked={isAllSelected}
+                            indeterminate={isSomeSelected}
+                            onCheckedChange={toggleSelectAll}
+                            aria-label="Seleccionar todos"
+                          />
+                        </TableHead>
+                        <TableHead className="px-4">Celebración</TableHead>
+                        <TableHead className="px-4">Día(s)</TableHead>
+                        <TableHead className="px-4">Horario</TableHead>
+                        <TableHead className="px-4 hidden md:table-cell">Lugar</TableHead>
+                        <TableHead className="px-4">Tipo</TableHead>
+                        <TableHead className="text-right px-4"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filtered.map((h) => {
+                        const isSelected = selectedIds.includes(h.id)
+                        return (
+                          <TableRow
+                            key={h.id}
+                            data-state={isSelected ? "selected" : undefined}
+                            className={`cursor-pointer transition-colors ${
+                              isSelected ? "bg-muted/40 hover:bg-muted/60" : ""
+                            }`}
+                            onClick={() => handleOpenEdit(h)}
+                          >
+                            <TableCell
+                              className="w-12 px-3 text-center"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                              }}
+                            >
+                              <Checkbox
+                                checked={isSelected}
+                                onCheckedChange={() => toggleSelectOne(h.id)}
+                                aria-label={`Seleccionar ${h.titulo}`}
+                              />
+                            </TableCell>
+                            <TableCell className="px-4 py-3">
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium">{h.titulo}</span>
+                                {h.descripcion && <span className="text-xs text-muted-foreground truncate max-w-xs">{h.descripcion}</span>}
+                              </div>
+                            </TableCell>
+                            <TableCell className="px-4 py-3 text-sm font-medium whitespace-nowrap">{getDiaLabel(h)}</TableCell>
+                            <TableCell className="px-4 py-3 text-sm whitespace-nowrap">{h.hora_inicio}{h.hora_fin ? ` - ${h.hora_fin}` : ""}</TableCell>
+                            <TableCell className="px-4 py-3 hidden md:table-cell text-sm text-muted-foreground whitespace-nowrap">{h.lugar}</TableCell>
+                            <TableCell className="px-4 py-3">
+                              <Badge variant="secondary" className="text-xs font-normal capitalize">
+                                {getCategoriaLabel(h.categoria)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />}>
+                                  <EllipsisVerticalIcon className="size-4" />
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-36">
+                                  <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(h)}><Edit3Icon />Editar</DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(h.id)}><Trash2Icon />Eliminar</DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Cards */}
+                <div className="md:hidden divide-y divide-border">
                   {filtered.map((h) => {
                     const isSelected = selectedIds.includes(h.id)
                     return (
-                      <TableRow
+                      <div
                         key={h.id}
-                        data-state={isSelected ? "selected" : undefined}
-                        className={`cursor-pointer transition-colors ${
-                          isSelected ? "bg-muted/40 hover:bg-muted/60" : ""
-                        }`}
                         onClick={() => handleOpenEdit(h)}
+                        className={`p-3.5 space-y-2 hover:bg-muted/40 transition-colors active:bg-muted cursor-pointer ${
+                          isSelected ? "bg-muted/30" : ""
+                        }`}
                       >
-                        <TableCell
-                          className="w-12 px-3 text-center"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                          }}
-                        >
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={() => toggleSelectOne(h.id)}
-                            aria-label={`Seleccionar ${h.titulo}`}
-                          />
-                        </TableCell>
-                        <TableCell className="px-4 py-3">
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium">{h.titulo}</span>
-                            {h.descripcion && <span className="text-xs text-muted-foreground truncate max-w-xs">{h.descripcion}</span>}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2.5">
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <Checkbox
+                                checked={isSelected}
+                                onCheckedChange={() => toggleSelectOne(h.id)}
+                                aria-label={`Seleccionar ${h.titulo}`}
+                              />
+                            </div>
+                            <div>
+                              <span className="font-semibold text-sm text-foreground leading-tight block">
+                                {h.titulo}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground block">
+                                {getDiaLabel(h)} • {h.hora_inicio}{h.hora_fin ? ` - ${h.hora_fin}` : ""}
+                              </span>
+                            </div>
                           </div>
-                        </TableCell>
-                        <TableCell className="px-4 py-3 text-sm font-medium whitespace-nowrap">{getDiaLabel(h)}</TableCell>
-                        <TableCell className="px-4 py-3 text-sm whitespace-nowrap">{h.hora_inicio}{h.hora_fin ? ` - ${h.hora_fin}` : ""}</TableCell>
-                        <TableCell className="px-4 py-3 hidden md:table-cell text-sm text-muted-foreground whitespace-nowrap">{h.lugar}</TableCell>
-                        <TableCell className="px-4 py-3">
-                          <Badge variant="secondary" className="text-xs font-normal capitalize">
-                            {getCategoriaLabel(h.categoria)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />}>
-                              <EllipsisVerticalIcon className="size-4" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-36">
-                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(h)}><Edit3Icon />Editar</DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(h.id)}><Trash2Icon />Eliminar</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
+
+                          <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                            <Badge variant="secondary" className="text-[10px] font-normal capitalize px-1.5 py-0">
+                              {getCategoriaLabel(h.categoria)}
+                            </Badge>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger
+                                render={<Button variant="ghost" size="icon" className="size-7 text-muted-foreground data-open:bg-muted cursor-pointer" />}
+                              >
+                                <EllipsisVerticalIcon className="size-3.5" />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-36">
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(h)}>
+                                  <Edit3Icon className="size-4 mr-2" />
+                                  Editar
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem variant="destructive" className="cursor-pointer" onClick={() => handleDelete(h.id)}>
+                                  <Trash2Icon className="size-4 mr-2" />
+                                  Eliminar
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </div>
+
+                        {h.descripcion && (
+                          <p className="text-xs text-muted-foreground line-clamp-2 pl-6">
+                            {h.descripcion}
+                          </p>
+                        )}
+
+                        <div className="text-[11px] text-muted-foreground pl-6 flex items-center gap-1.5">
+                          <span>📍 {h.lugar}</span>
+                        </div>
+                      </div>
                     )
                   })}
-                </TableBody>
-              </Table>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingItem ? "Editar Horario" : "Nuevo Horario"}</DialogTitle>
             <DialogDescription>Configuración de misas y servicios parroquiales.</DialogDescription>
@@ -360,7 +435,7 @@ export function HorariosView() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Dynamic Select from 'tipos_horario' catalog table */}
               <div className="grid gap-2">
                 <Label>Tipo</Label>
@@ -374,7 +449,7 @@ export function HorariosView() {
                   onValueChange={(v) => { if (v) setCategoria(v) }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Tipo" />
+                    <SelectValue placeholder="Tipo de celebración" />
                   </SelectTrigger>
                   <SelectContent>
                     {tiposCatalogo.length === 0 ? (
@@ -441,7 +516,7 @@ export function HorariosView() {
               <Input placeholder="Detalle o nota..." value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0 mt-2">
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="cursor-pointer">Cancelar</Button>
               <Button type="submit" disabled={selectedDias.length === 0} className="cursor-pointer">Guardar</Button>
             </DialogFooter>
@@ -451,9 +526,9 @@ export function HorariosView() {
 
       {/* Barra flotante de acciones masivas */}
       {selectedIds.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-5 duration-200">
-          <div className="flex items-center gap-2 sm:gap-3 rounded-full border border-border/80 bg-background/95 px-4 py-2 shadow-2xl backdrop-blur-md">
-            <div className="flex items-center gap-2 pl-1">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-5 duration-200 max-w-[calc(100vw-1.5rem)]">
+          <div className="flex items-center gap-1.5 sm:gap-3 rounded-full border border-border/80 bg-background/95 px-3 sm:px-4 py-2 shadow-2xl backdrop-blur-md overflow-x-auto max-w-full">
+            <div className="flex items-center gap-1.5 pl-1 shrink-0">
               <Badge variant="default" className="rounded-full px-2 py-0.5 text-xs font-bold">
                 {selectedIds.length}
               </Badge>
@@ -462,38 +537,40 @@ export function HorariosView() {
               </span>
             </div>
 
-            <div className="h-4 w-px bg-border" />
+            <div className="h-4 w-px bg-border shrink-0" />
 
             <Button
               variant="ghost"
               size="sm"
               onClick={toggleSelectAll}
-              className="h-8 text-xs cursor-pointer px-2.5"
+              className="h-8 text-xs cursor-pointer px-2 sm:px-2.5 shrink-0"
             >
               <CheckCheckIcon className="size-3.5 mr-1" />
-              {isAllSelected ? "Deseleccionar" : `Todos (${filtered.length})`}
+              <span className="hidden sm:inline">{isAllSelected ? "Deseleccionar" : `Todos (${filtered.length})`}</span>
+              <span className="sm:hidden">{isAllSelected ? "Ninguno" : "Todos"}</span>
             </Button>
 
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSelectedIds([])}
-              className="h-8 text-xs text-muted-foreground hover:text-foreground cursor-pointer px-2.5"
+              className="h-8 text-xs text-muted-foreground hover:text-foreground cursor-pointer px-2 sm:px-2.5 shrink-0"
             >
-              <XIcon className="size-3.5 mr-1" />
-              Limpiar
+              <XIcon className="size-3.5 sm:mr-1" />
+              <span className="hidden sm:inline">Limpiar</span>
             </Button>
 
-            <div className="h-4 w-px bg-border" />
+            <div className="h-4 w-px bg-border shrink-0" />
 
             <Button
               variant="destructive"
               size="sm"
               onClick={() => setIsConfirmBulkOpen(true)}
-              className="h-8 gap-1.5 text-xs font-medium cursor-pointer shadow-xs px-3"
+              className="h-8 gap-1.5 text-xs font-medium cursor-pointer shadow-xs px-2.5 sm:px-3 shrink-0"
             >
               <Trash2Icon className="size-3.5" />
-              Borrar seleccionados ({selectedIds.length})
+              <span className="hidden sm:inline">Borrar seleccionados ({selectedIds.length})</span>
+              <span className="sm:hidden">Borrar ({selectedIds.length})</span>
             </Button>
           </div>
         </div>
@@ -501,7 +578,7 @@ export function HorariosView() {
 
       {/* Diálogo de confirmación para borrado masivo */}
       <Dialog open={isConfirmBulkOpen} onOpenChange={setIsConfirmBulkOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <Trash2Icon className="size-5" />

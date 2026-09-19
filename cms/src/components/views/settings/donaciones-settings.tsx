@@ -429,7 +429,7 @@ export function DonacionesSettings() {
                 No hay cuentas bancarias cargadas. Hacé clic en "Agregar Cuenta Bancaria" para añadir una.
               </div>
             ) : (
-              <div className="border rounded-lg overflow-hidden">
+              <div className="border rounded-lg overflow-x-auto w-full">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/30 hover:bg-muted/30">
@@ -480,19 +480,19 @@ export function DonacionesSettings() {
           </CardContent>
         </Card>
 
-        {/* Otros medios */}
+        {/* Otros Medios de donación */}
         <Card className="p-0">
           <CardContent className="p-5 space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
-                <h3 className="text-sm font-semibold text-foreground">Otros medios de donación o plataformas</h3>
+                <h3 className="text-sm font-semibold text-foreground">Otros medios y colectas</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Socio colaborador mensual, colecta en misas, enlaces de pago digital o alcancías parroquiales.
+                  Alternativas adicionales para colaborar (alcancías en templo, colectas especiales, secretaría).
                 </p>
               </div>
               <Button type="button" size="sm" onClick={handleOpenNewMedio} className="gap-1.5 text-xs cursor-pointer">
                 <PlusIcon className="size-3.5" />
-                Agregar Medio de Donación
+                Agregar Medio
               </Button>
             </div>
 
@@ -501,7 +501,7 @@ export function DonacionesSettings() {
                 No hay otros medios de donación configurados.
               </div>
             ) : (
-              <div className="border rounded-lg overflow-hidden">
+              <div className="border rounded-lg overflow-x-auto w-full">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/30 hover:bg-muted/30">
@@ -592,7 +592,7 @@ export function DonacionesSettings() {
 
       {/* ─── Diálogo: Cuenta Bancaria ─── */}
       <Dialog open={isCuentaDialogOpen} onOpenChange={setIsCuentaDialogOpen}>
-        <DialogContent className="sm:max-w-[480px]">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[480px] max-h-[85vh] overflow-y-auto">
           <form onSubmit={handleSaveCuenta}>
             <DialogHeader>
               <DialogTitle>
@@ -684,7 +684,7 @@ export function DonacionesSettings() {
 
       {/* ─── Diálogo: Medio de Donación ─── */}
       <Dialog open={isMedioDialogOpen} onOpenChange={setIsMedioDialogOpen}>
-        <DialogContent className="sm:max-w-[480px]">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[480px] max-h-[85vh] overflow-y-auto">
           <form onSubmit={handleSaveMedio}>
             <DialogHeader>
               <DialogTitle>

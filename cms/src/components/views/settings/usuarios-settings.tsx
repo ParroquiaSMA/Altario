@@ -226,77 +226,79 @@ export function UsuariosSettings() {
               </div>
             ) : (
               <>
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/30 hover:bg-muted/30">
-                      <TableHead className="px-4">Estado</TableHead>
-                      <TableHead className="px-4">Nombre</TableHead>
-                      <TableHead className="px-4 hidden sm:table-cell">Correo</TableHead>
-                      <TableHead className="px-4">Rol</TableHead>
-                      <TableHead className="px-4 text-right">Acciones</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginated.map((user) => (
-                      <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
-                        <TableCell className="px-4 py-3">
-                          {user.status === "activo" ? (
-                            <Badge variant="outline" className="gap-1.5 text-emerald-600 border-emerald-300">
-                              <span className="size-1.5 rounded-full bg-emerald-500" />
-                              Activo
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="gap-1.5 text-muted-foreground">
-                              <span className="size-1.5 rounded-full bg-muted-foreground/40" />
-                              Inactivo
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="px-4 py-3 font-medium">
-                          {user.nombre}
-                          {user.id === currentUserId && (
-                            <span className="ml-2 text-[10px] text-muted-foreground bg-muted rounded px-1.5 py-0.5">Tú</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{user.email}</TableCell>
-                        <TableCell className="px-4 py-3">
-                          <Badge variant="secondary" className="text-xs font-normal">{rolLabel(user.rol)}</Badge>
-                        </TableCell>
-                        <TableCell className="px-4 py-3 text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger
-                              render={<Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />}
-                            >
-                              <EllipsisVerticalIcon className="size-4" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-44">
-                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(user)}>Editar datos</DropdownMenuItem>
-                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenPassword(user)}>
-                                <KeyRoundIcon className="size-4 mr-2" />
-                                Cambiar contraseña
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="cursor-pointer" onClick={() => handleToggleStatus(user)} disabled={user.id === currentUserId}>
-                                {user.status === "activo" ? "Desactivar" : "Activar"}
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                variant="destructive"
-                                className="cursor-pointer"
-                                onClick={() => handleDelete(user)}
-                                disabled={user.id === currentUserId}
-                              >
-                                Eliminar
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
+                <div className="overflow-x-auto w-full">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/30 hover:bg-muted/30">
+                        <TableHead className="px-4">Estado</TableHead>
+                        <TableHead className="px-4">Nombre</TableHead>
+                        <TableHead className="px-4 hidden sm:table-cell">Correo</TableHead>
+                        <TableHead className="px-4">Rol</TableHead>
+                        <TableHead className="px-4 text-right">Acciones</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {paginated.map((user) => (
+                        <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
+                          <TableCell className="px-4 py-3">
+                            {user.status === "activo" ? (
+                              <Badge variant="outline" className="gap-1.5 text-emerald-600 border-emerald-300">
+                                <span className="size-1.5 rounded-full bg-emerald-500" />
+                                Activo
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="gap-1.5 text-muted-foreground">
+                                <span className="size-1.5 rounded-full bg-muted-foreground/40" />
+                                Inactivo
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="px-4 py-3 font-medium">
+                            {user.nombre}
+                            {user.id === currentUserId && (
+                              <span className="ml-2 text-[10px] text-muted-foreground bg-muted rounded px-1.5 py-0.5">Tú</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{user.email}</TableCell>
+                          <TableCell className="px-4 py-3">
+                            <Badge variant="secondary" className="text-xs font-normal">{rolLabel(user.rol)}</Badge>
+                          </TableCell>
+                          <TableCell className="px-4 py-3 text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger
+                                render={<Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />}
+                              >
+                                <EllipsisVerticalIcon className="size-4" />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-44">
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(user)}>Editar datos</DropdownMenuItem>
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenPassword(user)}>
+                                  <KeyRoundIcon className="size-4 mr-2" />
+                                  Cambiar contraseña
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleToggleStatus(user)} disabled={user.id === currentUserId}>
+                                  {user.status === "activo" ? "Desactivar" : "Activar"}
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  variant="destructive"
+                                  className="cursor-pointer"
+                                  onClick={() => handleDelete(user)}
+                                  disabled={user.id === currentUserId}
+                                >
+                                  Eliminar
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
 
                 {/* Pagination */}
-                <div className="flex items-center justify-between gap-4 px-4 py-3 border-t text-xs text-muted-foreground">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t text-xs text-muted-foreground">
                   <span>
                     {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, filtered.length)} de {filtered.length} usuarios
                   </span>
@@ -315,7 +317,7 @@ export function UsuariosSettings() {
 
       {/* ─── Add User Dialog ─── */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md max-h-[85vh] overflow-y-auto">
           <form onSubmit={handleAdd}>
             <DialogHeader>
               <DialogTitle>Nuevo Usuario</DialogTitle>
@@ -362,7 +364,7 @@ export function UsuariosSettings() {
                 </div>
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0 mt-2">
               <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>Cancelar</Button>
               <Button type="submit">Crear Usuario</Button>
             </DialogFooter>
@@ -372,7 +374,7 @@ export function UsuariosSettings() {
 
       {/* ─── Edit User Dialog ─── */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md max-h-[85vh] overflow-y-auto">
           <form onSubmit={handleEdit}>
             <DialogHeader>
               <DialogTitle>Editar Usuario</DialogTitle>
@@ -439,7 +441,7 @@ export function UsuariosSettings() {
                 </div>
               )}
             </div>
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0 mt-2">
               <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)}>Cancelar</Button>
               <Button type="submit">Guardar Cambios</Button>
             </DialogFooter>
@@ -449,7 +451,7 @@ export function UsuariosSettings() {
 
       {/* ─── Change Password Dialog ─── */}
       <Dialog open={isPasswordOpen} onOpenChange={setIsPasswordOpen}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-sm max-h-[85vh] overflow-y-auto">
           <form onSubmit={handleChangePassword}>
             <DialogHeader>
               <DialogTitle>Cambiar Contraseña</DialogTitle>
