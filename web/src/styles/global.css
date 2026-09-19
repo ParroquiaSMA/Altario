@@ -2140,59 +2140,116 @@ dialog.modal-donar:not([open]) {
 }
 
 /* Mercado Pago Brick - Estilos limpios y adaptables */
-#paymentBrick_container {
+#paymentBrick_container,
+.mp-brick-container-wrap,
+[id$="-brick-container"] {
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
 }
 
-#paymentBrick_container * {
+#paymentBrick_container *,
+.mp-brick-container-wrap *,
+[id$="-brick-container"] * {
   box-sizing: border-box !important;
 }
 
 /* Card contenedor de opciones de pago */
-#paymentBrick_container [class*="payment-options"] {
-  border: 1.5px solid var(--linea, #cbd5e1) !important;
-  border-radius: 10px !important;
-  overflow: hidden !important;
+#paymentBrick_container [class*="payment-options"],
+.mp-brick-container-wrap [class*="payment-options"],
+[id$="-brick-container"] [class*="payment-options"],
+.mp-brick-container-wrap [class*="paymentOptions"],
+[id$="-brick-container"] [class*="paymentOptions"] {
+  border: none !important;
+  border-radius: 12px !important;
+  overflow: visible !important;
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 0.5rem !important;
+  gap: 0.85rem !important;
+  background: transparent !important;
+  padding: 0 !important;
 }
 
 /* Padding vertical cómodo en las cards/opciones de pago */
-#paymentBrick_container [class*="payment-options"] > [class*="selector-"] {
-  padding: 13px 14px !important;
+#paymentBrick_container [class*="payment-options"] > [class*="selector-"],
+#paymentBrick_container [class*="selector-"],
+.mp-brick-container-wrap [class*="payment-options"] > [class*="selector-"],
+.mp-brick-container-wrap [class*="selector-"],
+.mp-brick-container-wrap [class*="payment-option-item"],
+.mp-brick-container-wrap [class*="payment-method-item"],
+.mp-brick-container-wrap [class*="paymentMethod-"],
+.mp-brick-container-wrap [class*="paymentOption-"],
+.mp-brick-container-wrap label[class*="selector"],
+[id$="-brick-container"] [class*="payment-options"] > [class*="selector-"],
+[id$="-brick-container"] [class*="selector-"],
+[id$="-brick-container"] [class*="payment-option-item"],
+[id$="-brick-container"] [class*="payment-method-item"],
+[id$="-brick-container"] [class*="paymentMethod-"],
+[id$="-brick-container"] [class*="paymentOption-"],
+[id$="-brick-container"] label[class*="selector"] {
+  padding: 16px 20px !important;
+  min-height: 64px !important;
   box-sizing: border-box !important;
-  border-radius: 8px !important;
-  border: 1px solid var(--linea, #e2e8f0) !important;
+  border-radius: 10px !important;
+  border: 1.5px solid var(--linea, #cbd5e1) !important;
   background: var(--papel, #fff) !important;
+  margin-bottom: 0.65rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+#paymentBrick_container [class*="selector-"]:hover,
+.mp-brick-container-wrap [class*="selector-"]:hover,
+[id$="-brick-container"] [class*="selector-"]:hover,
+.mp-brick-container-wrap [class*="payment-method-item"]:hover,
+[id$="-brick-container"] [class*="payment-method-item"]:hover {
+  border-color: var(--lapis, #16244A) !important;
+  background: #f8fafc !important;
 }
 
 /* Padding en el interior de la tarjeta desplegada */
-#paymentBrick_container [class*="payment-options"] > [class*="payment-option-"] {
-  padding: 1rem 0.85rem !important;
+#paymentBrick_container [class*="payment-options"] > [class*="payment-option-"],
+.mp-brick-container-wrap [class*="payment-options"] > [class*="payment-option-"],
+[id$="-brick-container"] [class*="payment-options"] > [class*="payment-option-"],
+.mp-brick-container-wrap [class*="payment-option-body"],
+[id$="-brick-container"] [class*="payment-option-body"] {
+  padding: 1.5rem 1.25rem !important;
   box-sizing: border-box !important;
   width: 100% !important;
   max-width: 100% !important;
   overflow-x: hidden !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--linea, #e2e8f0) !important;
+  background: var(--papel, #ffffff) !important;
+  margin-top: -0.25rem !important;
+  margin-bottom: 0.75rem !important;
 }
 
 @media (max-width: 640px) {
-  #paymentBrick_container [class*="payment-options"] > [class*="selector-"] {
-    padding: 10px 8px !important;
+  #paymentBrick_container [class*="payment-options"] > [class*="selector-"],
+  .mp-brick-container-wrap [class*="selector-"],
+  [id$="-brick-container"] [class*="selector-"] {
+    padding: 14px 14px !important;
+    min-height: 56px !important;
   }
 
-  #paymentBrick_container [class*="payment-options"] > [class*="payment-option-"] {
-    padding: 0.65rem 0.35rem !important;
+  #paymentBrick_container [class*="payment-options"] > [class*="payment-option-"],
+  .mp-brick-container-wrap [class*="payment-options"] > [class*="payment-option-"],
+  [id$="-brick-container"] [class*="payment-options"] > [class*="payment-option-"] {
+    padding: 1rem 0.75rem !important;
   }
 }
 
 /* Botón de confirmación a ancho completo */
-#paymentBrick_container button[type="submit"] {
+#paymentBrick_container button[type="submit"],
+.mp-brick-container-wrap button[type="submit"],
+[id$="-brick-container"] button[type="submit"] {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 100% !important;
@@ -2213,14 +2270,20 @@ dialog.modal-donar:not([open]) {
   min-height: 52px !important;
 }
 
-#paymentBrick_container button[type="submit"]:hover {
+#paymentBrick_container button[type="submit"]:hover,
+.mp-brick-container-wrap button[type="submit"]:hover,
+[id$="-brick-container"] button[type="submit"]:hover {
   background-color: #1e355b !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 6px 18px rgba(22, 36, 74, 0.32) !important;
 }
 
 #paymentBrick_container [data-testid="submit-wrapper"],
-#paymentBrick_container [data-testid="submit-button"] {
+#paymentBrick_container [data-testid="submit-button"],
+.mp-brick-container-wrap [data-testid="submit-wrapper"],
+.mp-brick-container-wrap [data-testid="submit-button"],
+[id$="-brick-container"] [data-testid="submit-wrapper"],
+[id$="-brick-container"] [data-testid="submit-button"] {
   width: 100% !important;
   display: flex !important;
   justify-content: center !important;
