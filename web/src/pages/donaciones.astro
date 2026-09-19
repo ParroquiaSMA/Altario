@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import FondoDecorativo from '../components/FondoDecorativo.astro';
+import DonacionesBrick from '../components/DonacionesBrick.astro';
 import { getSiteConfig } from '../lib/supabase';
 
 const siteConfig = await getSiteConfig();
@@ -31,7 +32,7 @@ const mensajeBajada = donaciones?.mensaje || 'La vida de la parroquia, el cuidad
     <div class="contenedor">
       <div class="donaciones-grid">
         <!-- Columna 1: Donar en línea (Mercado Pago Bricks) -->
-        <div class="donaciones-card donaciones-card--principal" id="bloque-online" data-mp-public-key={mpPublicKey} data-mp-activo={mpActivo ? "true" : "false"}>
+        <div class="donaciones-card donaciones-card--principal" id="bloque-online">
           <div class="donaciones-card__cabecera">
             <div>
               <span class="donaciones-tag">En línea</span>
@@ -43,111 +44,13 @@ const mensajeBajada = donaciones?.mensaje || 'La vida de la parroquia, el cuidad
           </div>
 
           <div class="donaciones-card__cuerpo">
-            <!-- Formulario de Donación Digital -->
-            <div id="mp-vista-formulario">
-              {mpActivo ? (
-                <>
-                  <!-- Frecuencia -->
-                  <div class="modal-donar__frecuencia" role="tablist" aria-label="Frecuencia de la donación">
-                    <button type="button" class="frecuencia-btn activo" id="btn-frecuencia-unica" data-frecuencia="unica">
-                      Por única vez
-                    </button>
-                    <button type="button" class="frecuencia-btn" id="btn-frecuencia-mensual" data-frecuencia="mensual">
-                      Aporte mensual recurrente
-                    </button>
-                  </div>
-
-                  <!-- Selector de Montos -->
-                  <div class="modal-donar__montos">
-                    <label class="modal-donar__label" id="label-monto">Seleccioná o ingresá un monto en Pesos Uruguayos:</label>
-                    <div class="montos-grid" role="group" aria-labelledby="label-monto">
-                      <button type="button" class="monto-chip" data-monto="200">$ 200</button>
-                      <button type="button" class="monto-chip activo" data-monto="500">$ 500</button>
-                      <button type="button" class="monto-chip" data-monto="1000">$ 1.000</button>
-                      <button type="button" class="monto-chip" data-monto="2000">$ 2.000</button>
-                    </div>
-
-                    <div class="monto-custom-wrap">
-                      <span class="monto-custom-moneda" aria-hidden="true">$</span>
-                      <input
-                        type="number"
-                        id="input-monto-custom"
-                        class="monto-custom-input"
-                        placeholder="Otro importe (ej. 350, 1500)"
-                        min="50"
-                        step="50"
-                        aria-label="Otro importe personalizado"
-                      />
-                      <span class="monto-custom-tag" aria-hidden="true">UYU</span>
-                    </div>
-                  </div>
-
-                  <!-- Mensaje de ayuda contextual -->
-                  <div id="mp-info-frecuencia" class="modal-donar__info-frecuencia">
-                    <span>✨ Donación puntual con tarjeta de crédito, débito o en efectivo vía Abitab / Redpagos.</span>
-                  </div>
-
-                  <!-- Alerta de Error si ocurre -->
-                  <div id="mp-error-alerta" class="mp-alerta-error" style="display:none" role="alert"></div>
-
-                  <!-- Contenedor del Payment Brick de Mercado Pago -->
-                  <div class="mp-brick-container-wrap">
-                    <div id="mp-brick-loading" class="mp-loading-skeleton">
-                      <div class="mp-spinner" aria-hidden="true"></div>
-                      <p>Cargando medios de pago seguros de Mercado Pago...</p>
-                    </div>
-                    <div id="paymentBrick_container"></div>
-                  </div>
-                </>
-              ) : (
-                <div class="donaciones-pausado">
-                  <div class="donaciones-pausado__icono">ℹ️</div>
-                  <h3>Donaciones en línea momentáneamente pausadas</h3>
-                  <p>
-                    Las donaciones automáticas con tarjeta están en mantenimiento. Podés colaborar mediante transferencia directa a nuestras cuentas bancarias o de forma presencial en las alcancías del templo.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <!-- Vista de Éxito tras confirmación -->
-            <div id="mp-vista-exito" class="mp-vista-exito" style="display:none">
-              <div class="mp-exito-icono" aria-hidden="true">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-              </div>
-              <h3 id="mp-exito-titulo">¡Muchas gracias por tu colaboración!</h3>
-              <p id="mp-exito-mensaje">Tu generosidad sostiene las obras y la vida fraterna de nuestra comunidad parroquial.</p>
-
-              <div class="mp-exito-detalle">
-                <div class="mp-exito-fila">
-                  <span>Monto aportado:</span>
-                  <strong id="mp-exito-monto">$ 500 UYU</strong>
-                </div>
-                <div class="mp-exito-fila">
-                  <span>Modalidad:</span>
-                  <strong id="mp-exito-modalidad">Donación puntual</strong>
-                </div>
-                <div class="mp-exito-fila" id="mp-exito-id-wrap">
-                  <span>N.º de comprobante:</span>
-                  <strong id="mp-exito-id">#--</strong>
-                </div>
-              </div>
-
-              <div id="mp-ticket-wrap" style="display:none; margin-top:1.25rem;">
-                <a id="mp-ticket-link" href="#" target="_blank" rel="noopener" class="boton boton--azul" style="display:inline-block; text-decoration:none;">
-                  Ver cupón de pago para Abitab / Redpagos
-                </a>
-              </div>
-
-              <div style="margin-top:1.75rem; text-align:center;">
-                <button type="button" class="boton boton--linea" id="btn-otra-donacion">
-                  Hacer otra donación
-                </button>
-              </div>
-            </div>
+            <DonacionesBrick
+              variant="inline"
+              mpPublicKey={mpPublicKey}
+              mpActivo={mpActivo}
+              donaciones={donaciones}
+              instanceId="don"
+            />
           </div>
 
           <div class="donaciones-card__pie">
@@ -365,278 +268,15 @@ const mensajeBajada = donaciones?.mensaje || 'La vida de la parroquia, el cuidad
     </div>
   </section>
 
-  <!-- Script del SDK oficial de Mercado Pago -->
-  <script is:inline src="https://sdk.mercadopago.com/js/v2"></script>
 
-  <!-- Script de Interacción y Mercado Pago Bricks -->
+  <!-- Script: Copiar número de cuenta bancaria -->
   <script is:inline>
     document.addEventListener("DOMContentLoaded", () => {
-      // Bloque Online Container
-      const bloqueOnline = document.getElementById("bloque-online");
-      const mpActivo = bloqueOnline?.getAttribute("data-mp-activo") === "true";
-      const publicKey = bloqueOnline?.getAttribute("data-mp-public-key") || "APP_USR-3e91a063-54aa-4430-b99f-f0b2f36027ef";
-
-      // Vistas y Controles
-      const vistaFormulario = document.getElementById("mp-vista-formulario");
-      const vistaExito = document.getElementById("mp-vista-exito");
-      const btnFrecUnica = document.getElementById("btn-frecuencia-unica");
-      const btnFrecMensual = document.getElementById("btn-frecuencia-mensual");
-      const infoFrecuencia = document.getElementById("mp-info-frecuencia");
-      const chipsMonto = document.querySelectorAll(".monto-chip");
-      const inputMontoCustom = document.getElementById("input-monto-custom");
-      const brickContainer = document.getElementById("paymentBrick_container");
-      const brickLoading = document.getElementById("mp-brick-loading");
-      const errorDiv = document.getElementById("mp-error-alerta");
-      const btnOtraDonacion = document.getElementById("btn-otra-donacion");
-
-      // Elementos de la vista de éxito
-      const exitoMonto = document.getElementById("mp-exito-monto");
-      const exitoModalidad = document.getElementById("mp-exito-modalidad");
-      const exitoId = document.getElementById("mp-exito-id");
-      const ticketWrap = document.getElementById("mp-ticket-wrap");
-      const ticketLink = document.getElementById("mp-ticket-link");
-
-      // Estado
-      let mpInstance = null;
-      let bricksBuilder = null;
-      let brickController = null;
-      let currentFrecuencia = "unica";
-      let currentMonto = 500;
-      let isRendering = false;
-
-      const formatearMonto = (m) => `$ ${Number(m).toLocaleString('es-UY')} UYU`;
-
-      const mostrarError = (msg) => {
-        if (!errorDiv) return;
-        errorDiv.textContent = msg;
-        errorDiv.style.display = "block";
-      };
-
-      const ocultarError = () => {
-        if (errorDiv) errorDiv.style.display = "none";
-      };
-
-      const renderBrick = async () => {
-        if (!mpInstance || !bricksBuilder || isRendering) return;
-        isRendering = true;
-        ocultarError();
-
-        if (brickLoading) brickLoading.style.display = "flex";
-
-        try {
-          if (brickController) {
-            await brickController.unmount();
-            brickController = null;
-          }
-
-          if (brickContainer) {
-            brickContainer.innerHTML = "";
-          }
-
-          const isMonthly = currentFrecuencia === "mensual";
-
-          const settings = {
-            initialization: {
-              amount: Number(currentMonto),
-            },
-            customization: {
-              paymentMethods: isMonthly
-                ? {
-                    // MLU (Uruguay): suscripciones solo con tarjeta de crédito
-                    creditCard: "all",
-                  }
-                : {
-                    // MLU (Uruguay): debitCard NO está soportado en el Payment Brick
-                    creditCard: "all",
-                    prepaidCard: "all",
-                    ticket: "all",
-                  },
-              visual: {
-                style: {
-                  theme: "default",
-                  customVariables: {
-                    baseColor: "#16244A",
-                    borderRadiusMedium: "8px",
-                    inputVerticalPadding: "12px",
-                    inputHorizontalPadding: "12px",
-                    formPadding: "0px",
-                  },
-                },
-                hideFormTitle: true,
-                hideValue: true,
-                texts: {
-                  formSubmit: isMonthly ? "Confirmar aporte mensual" : "Confirmar donación",
-                },
-              },
-            },
-            callbacks: {
-              onReady: () => {
-                isRendering = false;
-                if (brickLoading) brickLoading.style.display = "none";
-              },
-              onSubmit: ({ formData }) => {
-                return new Promise((resolve, reject) => {
-                  ocultarError();
-
-                  const endpoint = isMonthly
-                    ? "/api/donaciones/suscribir"
-                    : "/api/donaciones/procesar-pago";
-
-                  const payload = isMonthly
-                    ? {
-                        card_token_id: formData.token,
-                        transaction_amount: Number(currentMonto),
-                        payer_email: formData.payer?.email || "donante@parroquiasma.uy",
-                        reason: "Sostenimiento mensual Parroquia Santa María de la Ayuda",
-                      }
-                    : {
-                        ...formData,
-                        transaction_amount: Number(currentMonto),
-                        description: "Donación Parroquia Santa María de la Ayuda",
-                      };
-
-                  fetch(endpoint, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                  })
-                    .then(async (res) => {
-                      const data = await res.json();
-                      if (data.status === "approved" || data.status === "authorized" || data.status === "pending") {
-                        mostrarExito(data, isMonthly, currentMonto);
-                        resolve();
-                      } else {
-                        const msg =
-                          data.message ||
-                          (data.cause && data.cause[0]?.description) ||
-                          "La transacción no pudo ser autorizada. Por favor, verifica los datos o intenta con otro medio.";
-                        mostrarError(msg);
-                        reject();
-                      }
-                    })
-                    .catch((err) => {
-                      console.error("Error al procesar donación:", err);
-                      mostrarError("Ocurrió un inconveniente al conectar con el servidor de pagos. Reintentá en unos momentos.");
-                      reject();
-                    });
-                });
-              },
-              onError: (error) => {
-                console.error("Error interno en Mercado Pago Brick:", error);
-                isRendering = false;
-                if (brickLoading) brickLoading.style.display = "none";
-              },
-            },
-          };
-
-          brickController = await bricksBuilder.create("payment", "paymentBrick_container", settings);
-        } catch (err) {
-          console.error("Error inicializando paymentBrick:", err);
-          isRendering = false;
-          if (brickLoading) brickLoading.style.display = "none";
-        }
-      };
-
-      const mostrarExito = (data, isMonthly, monto) => {
-        if (vistaFormulario) vistaFormulario.style.display = "none";
-        if (vistaExito) vistaExito.style.display = "block";
-
-        if (exitoMonto) exitoMonto.textContent = formatearMonto(monto);
-        if (exitoModalidad) {
-          exitoModalidad.textContent = isMonthly ? "Aporte mensual recurrente" : "Donación por única vez";
-        }
-        if (exitoId) {
-          exitoId.textContent = `#${data.id || data.preapproval_id || "COMPROBANTE"}`;
-        }
-
-        // Si fue pago por ticket / efectivo (Abitab / Redpagos)
-        const ticketUrl = data.transaction_details?.external_resource_url || data.external_resource_url;
-        if (ticketWrap && ticketLink) {
-          if (ticketUrl) {
-            ticketLink.href = ticketUrl;
-            ticketWrap.style.display = "block";
-          } else {
-            ticketWrap.style.display = "none";
-          }
-        }
-
-        // Scroll suave al inicio de la tarjeta de éxito
-        bloqueOnline?.scrollIntoView({ behavior: "smooth", block: "start" });
-      };
-
-      // Reiniciar donación
-      btnOtraDonacion?.addEventListener("click", () => {
-        if (vistaExito) vistaExito.style.display = "none";
-        if (vistaFormulario) vistaFormulario.style.display = "block";
-        renderBrick();
-      });
-
-      // Inicializar Mercado Pago
-      if (mpActivo && window.MercadoPago) {
-        try {
-          mpInstance = new window.MercadoPago(publicKey, { locale: "es-UY" });
-          bricksBuilder = mpInstance.bricks();
-          renderBrick();
-        } catch (e) {
-          console.warn("Mercado Pago SDK no inicializado:", e);
-        }
-      }
-
-      // Eventos Frecuencia
-      btnFrecUnica?.addEventListener("click", () => {
-        if (currentFrecuencia === "unica") return;
-        currentFrecuencia = "unica";
-        btnFrecUnica.classList.add("activo");
-        btnFrecMensual?.classList.remove("activo");
-        if (infoFrecuencia) {
-          infoFrecuencia.innerHTML = "<span>✨ Donación puntual con tarjeta de crédito, débito o en efectivo vía Abitab / Redpagos.</span>";
-        }
-        renderBrick();
-      });
-
-      btnFrecMensual?.addEventListener("click", () => {
-        if (currentFrecuencia === "mensual") return;
-        currentFrecuencia = "mensual";
-        btnFrecMensual.classList.add("activo");
-        btnFrecUnica?.classList.remove("activo");
-        if (infoFrecuencia) {
-          infoFrecuencia.innerHTML = "<span>🔄 Débito mensual automático con tarjeta de crédito para el sostenimiento continuo.</span>";
-        }
-        renderBrick();
-      });
-
-      // Eventos Montos Predeterminados
-      chipsMonto.forEach((chip) => {
-        chip.addEventListener("click", () => {
-          chipsMonto.forEach((c) => c.classList.remove("activo"));
-          chip.classList.add("activo");
-          if (inputMontoCustom) inputMontoCustom.value = "";
-          currentMonto = Number(chip.getAttribute("data-monto"));
-          renderBrick();
-        });
-      });
-
-      // Evento Monto Personalizado con debounce
-      let debounceTimeout = null;
-      inputMontoCustom?.addEventListener("input", (e) => {
-        chipsMonto.forEach((c) => c.classList.remove("activo"));
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(() => {
-          const val = Number(e.target.value);
-          if (val && val >= 50) {
-            currentMonto = val;
-            renderBrick();
-          }
-        }, 650);
-      });
-
-      // Botones para Copiar Número de Cuenta Bancaria
       const copyButtons = document.querySelectorAll(".btn-copiar");
       copyButtons.forEach((btn) => {
         btn.addEventListener("click", async () => {
           const texto = btn.getAttribute("data-copiar");
           if (!texto) return;
-
           try {
             await navigator.clipboard.writeText(texto);
             const span = btn.querySelector("span");
