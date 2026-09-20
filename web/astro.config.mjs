@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import fs from 'node:fs';
 import { normalizePayerEmail, guardarRegistroDonacion } from './src/lib/mercadopago-utils';
+import { SUPABASE_URL, SUPABASE_KEY } from './src/lib/constants';
 
 // Cargar variables de entorno si no están cargadas
 try {
@@ -22,8 +23,6 @@ async function getResolvedAccessToken() {
   if (token) return token;
 
   try {
-    const SUPABASE_URL = process.env.PUBLIC_SUPABASE_URL || 'https://eucgxnnnmheqhptcxldp.supabase.co';
-    const SUPABASE_KEY = process.env.PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1Y2d4bm5ubWhlcWhwdGN4bGRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjc1MjAsImV4cCI6MjEwMzIwMzUyMH0.Mf-7XI5ZMlnPYj3LGE2_HqiNcKFGHSunPnCDgnWTFqw';
     const res = await fetch(`${SUPABASE_URL}/rest/v1/configuracion?clave=eq.donaciones&select=valor`, {
       headers: {
         apikey: SUPABASE_KEY,

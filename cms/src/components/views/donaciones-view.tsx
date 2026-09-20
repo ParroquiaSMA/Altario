@@ -385,8 +385,8 @@ export function DonacionesView() {
 
         {/* Row 2: Search + Selects (aligned inline on desktop) */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full">
-          {/* Search Input */}
-          <div className="relative flex-1 min-w-0">
+          {/* Search Input (full width solo en mobile, fijo en desktop) */}
+          <div className="relative w-full sm:w-72 lg:w-80 shrink-0">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
               placeholder="Buscar por donante, email o ID..."
@@ -854,16 +854,16 @@ export function DonacionesView() {
                     {selectedDonacion.comision !== undefined && selectedDonacion.comision > 0 && (
                       <div className="flex justify-between items-center py-2">
                         <span className="text-muted-foreground">Comisión Mercado Pago</span>
-                        <span className="font-medium text-amber-600 dark:text-amber-400">
+                        <span className="font-medium text-muted-foreground">
                           - {formatMonto(selectedDonacion.comision, selectedDonacion.moneda)}
                         </span>
                       </div>
                     )}
 
                     {selectedDonacion.monto_neto !== undefined && (
-                      <div className="flex justify-between items-center py-2 bg-emerald-500/10 px-2 rounded-md font-semibold">
+                      <div className="flex justify-between items-center py-2 font-semibold">
                         <span className="text-foreground">Neto final en mano</span>
-                        <span className="text-emerald-700 dark:text-emerald-400">
+                        <span className="text-foreground">
                           {formatMonto(selectedDonacion.monto_neto, selectedDonacion.moneda)}
                         </span>
                       </div>

@@ -79,11 +79,10 @@ export async function guardarRegistroDonacion(registro: DonacionRegistroServer) 
 
   // 2. Intentar guardar en Supabase si está disponible
   try {
-    const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
-    if (supabaseUrl && supabaseKey) {
+    const { SUPABASE_URL, SUPABASE_KEY } = await import('./constants');
+    if (SUPABASE_URL && SUPABASE_KEY) {
       const { createClient } = await import('@supabase/supabase-js');
-      const supabase = createClient(supabaseUrl, supabaseKey);
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
       await supabase.from('donaciones').insert([
         {
           monto: item.monto,

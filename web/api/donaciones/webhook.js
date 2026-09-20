@@ -1,43 +1,13 @@
 import crypto from 'crypto';
-
-const SUPABASE_URL = process.env.PUBLIC_SUPABASE_URL || 'https://eucgxnnnmheqhptcxldp.supabase.co';
-const SUPABASE_KEY = process.env.PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1Y2d4bm5ubWhlcWhwdGN4bGRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjc1MjAsImV4cCI6MjEwMzIwMzUyMH0.Mf-7XI5ZMlnPYj3LGE2_HqiNcKFGHSunPnCDgnWTFqw';
+import {
+  SUPABASE_URL,
+  SUPABASE_KEY,
+  getDonacionesConfig,
+  getAccessToken,
+  getWebhookSecret,
+} from '../lib/config.js';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-
-async function getConfig() {
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/configuracion?clave=eq.donaciones&select=valor`, {
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-      },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return data?.[0]?.valor || {};
-    }
-  } catch (err) {
-    console.warn('Webhook: error al obtener config de Supabase:', err);
-  }
-  return {};
-}
-
-function getAccessToken(config) {
-  const envToken = (process.env.MERCADO_PAGO_ACCESS_TOKEN || '').trim();
-  if (envToken) return envToken;
-  const dbToken = config?.mercadopago?.access_token;
-  if (dbToken && typeof dbToken === 'string' && dbToken.trim()) return dbToken.trim();
-  return '';
-}
-
-function getWebhookSecret(config) {
-  const envSecret = (process.env.MP_WEBHOOK_SECRET || '').trim();
-  if (envSecret) return envSecret;
-  const dbSecret = config?.mercadopago?.webhook_secret;
-  if (dbSecret && typeof dbSecret === 'string' && dbSecret.trim()) return dbSecret.trim();
-  return '';
-}
 
 /**
  * Valida la firma HMAC del webhook de Mercado Pago.
@@ -113,7 +83,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true }); // GET = health check
   }
 
-  const config = await getConfig();
+  const config = await getDonacionesConfig();
   const webhookSecret = getWebhookSecret(config);
 
   // Validar firma HMAC

@@ -61,6 +61,7 @@ export interface CuentaBancariaItem {
   numero_cuenta: string
   identificacion_fiscal?: string
   referencia?: string
+  activo?: boolean
 }
 
 export interface MedioDonacionItem {
@@ -69,6 +70,7 @@ export interface MedioDonacionItem {
   descripcion: string
   enlace?: string
   etiqueta_boton?: string
+  activo?: boolean
 }
 
 export interface DonacionesConfig {
@@ -76,6 +78,7 @@ export interface DonacionesConfig {
     public_key: string
     access_token: string
     activo: boolean
+    modo?: "sandbox" | "produccion"
     webhook_secret?: string
   }
   titulo_seccion: string
@@ -92,6 +95,7 @@ export interface HistoriaConfig {
 
 export interface SeoConfig {
   meta_titulo?: string
+  titulo_sitio?: string
   meta_descripcion?: string
   descripcion?: string
   og_image_url?: string
