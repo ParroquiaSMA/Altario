@@ -1,9 +1,37 @@
+const SUPABASE_URL = process.env.PUBLIC_SUPABASE_URL || 'https://eucgxnnnmheqhptcxldp.supabase.co';
+const SUPABASE_KEY = process.env.PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1Y2d4bm5ubWhlcWhwdGN4bGRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjc1MjAsImV4cCI6MjEwMzIwMzUyMH0.Mf-7XI5ZMlnPYj3LGE2_HqiNcKFGHSunPnCDgnWTFqw';
+
+async function getAccessToken() {
+  const envToken = (process.env.MERCADO_PAGO_ACCESS_TOKEN || '').trim();
+  if (envToken) return envToken;
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/configuracion?clave=eq.donaciones&select=valor`, {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+      },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const token = data?.[0]?.valor?.mercadopago?.access_token;
+      if (token && typeof token === 'string' && token.trim()) {
+        return token.trim();
+      }
+    }
+  } catch (err) {
+    console.warn('Error al obtener access_token de Supabase:', err);
+  }
+
+  return '';
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const accessToken = (process.env.MERCADO_PAGO_ACCESS_TOKEN || '').trim();
+  const accessToken = await getAccessToken();
   if (!accessToken) {
     return res.status(400).json({ success: false, error: 'MERCADO_PAGO_ACCESS_TOKEN no configurado' });
   }

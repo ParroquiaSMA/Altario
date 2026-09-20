@@ -17,27 +17,29 @@ try {
   }
 } catch (e) {}
 
-function getResolvedAccessToken() {
+async function getResolvedAccessToken() {
   let token = (process.env.MERCADO_PAGO_ACCESS_TOKEN || '').trim();
-  if (!token) {
-    try {
-      const candidates = [
-        'src/data/seeds/configuracion.json',
-        '../web/src/data/seeds/configuracion.json',
-        'web/src/data/seeds/configuracion.json',
-      ];
-      for (const p of candidates) {
-        if (fs.existsSync(p)) {
-          const cfg = JSON.parse(fs.readFileSync(p, 'utf-8'));
-          if (cfg.donaciones?.mercadopago?.access_token) {
-            token = cfg.donaciones.mercadopago.access_token.trim();
-            break;
-          }
-        }
+  if (token) return token;
+
+  try {
+    const SUPABASE_URL = process.env.PUBLIC_SUPABASE_URL || 'https://eucgxnnnmheqhptcxldp.supabase.co';
+    const SUPABASE_KEY = process.env.PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1Y2d4bm5ubWhlcWhwdGN4bGRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjc1MjAsImV4cCI6MjEwMzIwMzUyMH0.Mf-7XI5ZMlnPYj3LGE2_HqiNcKFGHSunPnCDgnWTFqw';
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/configuracion?clave=eq.donaciones&select=valor`, {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+      },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const dbToken = data?.[0]?.valor?.mercadopago?.access_token;
+      if (dbToken && typeof dbToken === 'string' && dbToken.trim()) {
+        return dbToken.trim();
       }
-    } catch (e) {}
-  }
-  return token;
+    }
+  } catch (e) {}
+
+  return '';
 }
 
 /** @returns {import('vite').Plugin} */
@@ -53,7 +55,7 @@ function devMercadoPagoApiPlugin() {
           req.on('end', async () => {
             try {
               const data = JSON.parse(body);
-              const accessToken = getResolvedAccessToken();
+              const accessToken = await getResolvedAccessToken();
               if (!accessToken) {
                 res.statusCode = 400;
                 res.setHeader('Content-Type', 'application/json');
@@ -129,7 +131,7 @@ function devMercadoPagoApiPlugin() {
           req.on('end', async () => {
             try {
               const data = JSON.parse(body);
-              const accessToken = getResolvedAccessToken();
+              const accessToken = await getResolvedAccessToken();
               if (!accessToken) {
                 res.statusCode = 400;
                 res.setHeader('Content-Type', 'application/json');
