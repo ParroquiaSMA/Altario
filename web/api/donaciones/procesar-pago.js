@@ -65,6 +65,52 @@ export default async function handler(req, res) {
     });
 
     const mpData = await mpRes.json();
+
+    // Guardar registro de la donación en la tabla de Supabase para el panel del CMS
+    if (mpData && mpData.id) {
+      try {
+        const nombreDonante = (
+          mpData.card?.cardholder?.name ||
+          [data.payer?.first_name, data.payer?.last_name].filter(Boolean).join(' ') ||
+          'Donante'
+        ).trim();
+
+        const emailDonante =
+          mpData.payer?.email ||
+          data.payer?.email ||
+          '';
+
+        const donacionPayload = {
+          monto: Number(mpData.transaction_amount || data.transaction_amount),
+          moneda: mpData.currency_id || 'UYU',
+          tipo: 'unica_vez',
+          estado: mpData.status || 'pending',
+          mp_payment_id: String(mpData.id),
+          mp_status_detail: mpData.status_detail || '',
+          email_donante: emailDonante,
+          nombre_donante: nombreDonante,
+          metodo_pago: mpData.payment_method_id || data.payment_method_id || 'Mercado Pago',
+          datos_adicionales: {
+            payment_type_id: mpData.payment_type_id || '',
+            card_last_four_digits: mpData.card?.last_four_digits || '',
+            statement_descriptor: mpData.statement_descriptor || '',
+          },
+        };
+
+        await fetch(`${SUPABASE_URL}/rest/v1/donaciones`, {
+          method: 'POST',
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(donacionPayload),
+        });
+      } catch (dbErr) {
+        console.warn('Error al guardar donación en Supabase:', dbErr);
+      }
+    }
+
     return res.status(mpRes.status).json(mpData);
   } catch (err) {
     return res.status(500).json({ success: false, error: String(err) });

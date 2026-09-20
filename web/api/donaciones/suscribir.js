@@ -62,6 +62,40 @@ export default async function handler(req, res) {
     });
 
     const mpData = await mpRes.json();
+
+    // Guardar registro de la suscripción en la tabla donaciones de Supabase para el panel
+    if (mpData && mpData.id) {
+      try {
+        const donacionPayload = {
+          monto: Number(mpData.auto_recurring?.transaction_amount || data.transaction_amount),
+          moneda: mpData.auto_recurring?.currency_id || 'UYU',
+          tipo: 'mensual',
+          estado: mpData.status || 'authorized',
+          mp_payment_id: String(mpData.id),
+          mp_status_detail: mpData.status || 'authorized',
+          email_donante: mpData.payer_email || data.payer_email || '',
+          nombre_donante: data.payer_name || 'Donante mensual',
+          metodo_pago: 'Suscripción Mercado Pago',
+          datos_adicionales: {
+            preapproval_id: mpData.id,
+            collector_id: mpData.collector_id,
+          },
+        };
+
+        await fetch(`${SUPABASE_URL}/rest/v1/donaciones`, {
+          method: 'POST',
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(donacionPayload),
+        });
+      } catch (dbErr) {
+        console.warn('Error al guardar suscripción en Supabase:', dbErr);
+      }
+    }
+
     return res.status(mpRes.status).json(mpData);
   } catch (err) {
     return res.status(500).json({ success: false, error: String(err) });

@@ -42,7 +42,11 @@
 
         document.querySelectorAll(".boton--linea").forEach(function (el) {
           el.style.borderColor = oro;
-          el.style.color = "#FFFFFF";
+          if (el.closest(".hero, .portada, .seccion--oscura, .pie, .banner--oscuro")) {
+            el.style.color = "#FFFFFF";
+          } else {
+            el.style.color = lapis || "#16244A";
+          }
         });
       }
 

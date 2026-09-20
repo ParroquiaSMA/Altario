@@ -2309,15 +2309,15 @@ dialog.modal-donar:not([open]) {
 
 .mp-vista-exito {
   text-align: center;
-  padding: 1.5rem 0.5rem;
+  padding: 2rem 1rem;
 }
 
 .mp-exito-icono {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 1rem;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1.25rem;
   border-radius: 50%;
-  background: rgba(22, 101, 52, 0.1);
+  background: rgba(22, 101, 52, 0.12);
   color: #166534;
   display: flex;
   align-items: center;
@@ -2325,23 +2325,28 @@ dialog.modal-donar:not([open]) {
 }
 
 .mp-vista-exito h3 {
-  font-size: 1.35rem;
+  font-size: 1.6rem;
+  font-weight: 700;
   color: var(--lapis-claro, #1d3557);
   margin: 0 0 0.5rem;
+  line-height: 1.25;
 }
 
 .mp-vista-exito p {
-  font-size: 0.925rem;
+  font-size: 1rem;
   color: var(--gris, #64748b);
-  margin: 0 0 1.25rem;
+  margin: 0 auto 1.5rem;
+  max-width: 440px;
+  line-height: 1.5;
 }
 
 .mp-exito-detalle {
   background: var(--cal, #f8fafc);
   border: 1px solid var(--linea, #e2e8f0);
-  border-radius: 8px;
-  padding: 1rem 1.25rem;
-  max-width: 400px;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  width: 100%;
+  max-width: 440px;
   margin: 0 auto;
   text-align: left;
 }
@@ -2349,9 +2354,9 @@ dialog.modal-donar:not([open]) {
 .mp-exito-fila {
   display: flex;
   justify-content: space-between;
-  padding: 0.4rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  font-size: 0.875rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 0.925rem;
 }
 
 .mp-exito-fila:last-child {

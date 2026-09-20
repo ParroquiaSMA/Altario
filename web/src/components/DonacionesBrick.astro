@@ -224,7 +224,12 @@ const ids = {
             </a>
           </div>
           <div style="margin-top:1.5rem; text-align:center;">
-            <button type="button" class="boton boton--linea" id={ids.btnFinalizar}>
+            <button
+              type="button"
+              class="boton boton--azul"
+              id={ids.btnFinalizar}
+              style="background-color: var(--lapis, #16244A) !important; color: #ffffff !important; font-weight: 600; padding: 0.75rem 1.75rem; border-radius: 8px; border: none;"
+            >
               Finalizar y cerrar
             </button>
           </div>
@@ -244,7 +249,7 @@ const ids = {
 {variant === 'inline' && (
   <div id={ids.root} data-mp-public-key={mpPublicKey} data-mp-activo={mpActivo ? 'true' : 'false'}>
     {mpActivo ? (
-      <>
+      <div id={ids.vistaFormulario} class="donaciones-form-wrap">
         <!-- Selector de Frecuencia -->
         <div class="modal-donar__frecuencia" role="tablist" aria-label="Frecuencia de la donación">
           <button type="button" class="frecuencia-btn activo" id={ids.btnFrecUnica} data-frecuencia="unica">
@@ -287,7 +292,7 @@ const ids = {
           </div>
           <div id={ids.brickContainer}></div>
         </div>
-      </>
+      </div>
     ) : (
       <div class="donaciones-pausado">
         <div class="donaciones-pausado__icono">ℹ️</div>
@@ -299,7 +304,7 @@ const ids = {
     <!-- Vista de Éxito -->
     <div id={ids.vistaExito} class="mp-vista-exito" style="display:none">
       <div class="mp-exito-icono" aria-hidden="true">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
           <polyline points="22 4 12 14.01 9 11.01"></polyline>
         </svg>
@@ -325,8 +330,13 @@ const ids = {
           Ver cupón de pago para Abitab / Redpagos
         </a>
       </div>
-      <div style="margin-top:1.75rem; text-align:center;">
-        <button type="button" class="boton boton--linea" id={ids.btnOtraDonar}>
+      <div style="margin-top:2rem; text-align:center;">
+        <button
+          type="button"
+          class="boton boton--azul"
+          id={ids.btnOtraDonar}
+          style="background-color: var(--lapis, #16244A) !important; color: #ffffff !important; font-weight: 600; padding: 0.85rem 2.2rem; border-radius: 8px; border: none; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(22, 36, 74, 0.25);"
+        >
           Hacer otra donación
         </button>
       </div>
@@ -511,6 +521,11 @@ const ids = {
         if (vistaFormulario) vistaFormulario.style.display = 'none';
         if (vistaExito) vistaExito.style.display = 'block';
 
+        const cardPadre = rootEl?.closest('.donaciones-card');
+        if (cardPadre) {
+          cardPadre.classList.add('donaciones-card--exito');
+        }
+
         if (exitoMonto) exitoMonto.textContent = formatearMonto(monto);
         if (exitoModalidad) {
           exitoModalidad.textContent = isMonthly
@@ -534,7 +549,8 @@ const ids = {
         }
 
         if (variant === 'inline') {
-          rootEl?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const destino = cardPadre || rootEl;
+          destino?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       };
 
@@ -650,8 +666,13 @@ const ids = {
 
       // ── Inline: botón "Hacer otra donación" ────────────────────────────────
       btnOtraDonar?.addEventListener('click', () => {
+        const cardPadre = rootEl?.closest('.donaciones-card');
+        if (cardPadre) {
+          cardPadre.classList.remove('donaciones-card--exito');
+        }
         if (vistaExito) vistaExito.style.display = 'none';
         if (vistaFormulario) vistaFormulario.style.display = 'block';
+        cardPadre?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         renderBrick();
       });
     };

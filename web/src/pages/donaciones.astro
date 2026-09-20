@@ -361,6 +361,33 @@ const tieneSidebar = tieneCuentas || tieneMedios;
     border-top: 1px solid var(--linea, #e2e8f0);
   }
 
+  /* Estado de éxito: suplanta totalmente la tarjeta de donación */
+  .donaciones-card.donaciones-card--exito .donaciones-card__cabecera,
+  .donaciones-card.donaciones-card--exito .donaciones-card__pie {
+    display: none !important;
+  }
+
+  .donaciones-card.donaciones-card--exito {
+    border-color: #166534 !important;
+    background: #ffffff !important;
+    box-shadow: 0 16px 40px rgba(22, 101, 52, 0.08) !important;
+  }
+
+  .donaciones-card.donaciones-card--exito .donaciones-card__cuerpo {
+    padding: 0 !important;
+  }
+
+  .donaciones-card.donaciones-card--exito .mp-vista-exito {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 480px;
+    padding: 3.5rem 2rem;
+    box-sizing: border-box;
+  }
+
   /* Estado pausado */
   .donaciones-pausado {
     text-align: center;
