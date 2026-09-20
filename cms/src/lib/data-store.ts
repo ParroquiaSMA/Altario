@@ -639,6 +639,8 @@ export interface DonacionItem {
   email_donante?: string
   metodo_pago?: string
   archivada?: boolean
+  monto_neto?: number
+  comision?: number
   datos_adicionales?: Record<string, any>
 }
 
@@ -662,21 +664,40 @@ export async function fetchDonacionesFromDb(): Promise<DonacionItem[]> {
       return inMemoryStores["donaciones"] || []
     }
 
-    const mapped: DonacionItem[] = (data || []).map((d: any) => ({
-      id: d.id,
-      created_at: d.created_at || new Date().toISOString(),
-      monto: Number(d.monto) || 0,
-      moneda: d.moneda || "UYU",
-      tipo: d.tipo || "unica_vez",
-      estado: d.estado || "pending",
-      mp_payment_id: d.mp_payment_id || undefined,
-      mp_status_detail: d.mp_status_detail || undefined,
-      nombre_donante: d.nombre_donante || "Anónimo",
-      email_donante: d.email_donante || "",
-      metodo_pago: d.metodo_pago || "Mercado Pago",
-      archivada: Boolean(d.archivada),
-      datos_adicionales: d.datos_adicionales || {},
-    }))
+    const mapped: DonacionItem[] = (data || []).map((d: any) => {
+      const datos = d.datos_adicionales || {}
+      const montoNeto =
+        d.monto_neto !== undefined && d.monto_neto !== null
+          ? Number(d.monto_neto)
+          : datos.net_received_amount !== undefined && datos.net_received_amount !== null
+          ? Number(datos.net_received_amount)
+          : undefined
+
+      const comision =
+        d.comision !== undefined && d.comision !== null
+          ? Number(d.comision)
+          : datos.fee_amount !== undefined && datos.fee_amount !== null
+          ? Number(datos.fee_amount)
+          : undefined
+
+      return {
+        id: d.id,
+        created_at: d.created_at || new Date().toISOString(),
+        monto: Number(d.monto) || 0,
+        moneda: d.moneda || "UYU",
+        tipo: d.tipo || "unica_vez",
+        estado: d.estado || "pending",
+        mp_payment_id: d.mp_payment_id || undefined,
+        mp_status_detail: d.mp_status_detail || undefined,
+        nombre_donante: d.nombre_donante || "Anónimo",
+        email_donante: d.email_donante || "",
+        metodo_pago: d.metodo_pago || "Mercado Pago",
+        archivada: Boolean(d.archivada),
+        monto_neto: montoNeto,
+        comision: comision,
+        datos_adicionales: datos,
+      }
+    })
     inMemoryStores["donaciones"] = mapped
     return mapped
   } catch (e) {

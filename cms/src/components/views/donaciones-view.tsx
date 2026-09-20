@@ -57,11 +57,14 @@ import { cn } from "@/lib/utils"
 
 function formatMonto(monto: number, moneda = "UYU"): string {
   try {
+    const num = Number(monto) || 0
+    const hasDecimals = num % 1 !== 0
     return new Intl.NumberFormat("es-UY", {
       style: "currency",
       currency: moneda || "UYU",
-      maximumFractionDigits: 0,
-    }).format(monto)
+      minimumFractionDigits: hasDecimals ? 2 : 0,
+      maximumFractionDigits: 2,
+    }).format(num)
   } catch {
     return `$ ${monto} ${moneda}`
   }
@@ -209,9 +212,23 @@ export function DonacionesView() {
   })
 
   // Estadísticas de donaciones activas
-  const totalRecaudado = donacionesActivas
-    .filter((d) => d.estado === "approved" || d.estado === "authorized")
-    .reduce((acc, curr) => acc + (Number(curr.monto) || 0), 0)
+  const donacionesAprobadas = donacionesActivas.filter(
+    (d) => d.estado === "approved" || d.estado === "authorized"
+  )
+
+  const totalRecaudado = donacionesAprobadas.reduce(
+    (acc, curr) => acc + (Number(curr.monto) || 0),
+    0
+  )
+
+  const totalNetoRecaudado = donacionesAprobadas.reduce(
+    (acc, curr) =>
+      acc +
+      (curr.monto_neto !== undefined
+        ? Number(curr.monto_neto)
+        : Number(curr.monto) || 0),
+    0
+  )
 
   const totalMensuales = donacionesActivas.filter(
     (d) => d.tipo === "mensual" && (d.estado === "approved" || d.estado === "authorized")
@@ -221,12 +238,12 @@ export function DonacionesView() {
     const csv = filtered
       .map(
         (d) =>
-          `"${d.id}","${d.nombre_donante || "Anónimo"}","${d.email_donante || ""}","${d.monto}","${d.moneda}","${d.tipo}","${d.estado}","${d.metodo_pago || ""}","${d.mp_payment_id || ""}","${formatFecha(d.created_at)}"`
+          `"${d.id}","${d.nombre_donante || "Anónimo"}","${d.email_donante || ""}","${d.monto}","${d.comision ?? 0}","${d.monto_neto ?? d.monto}","${d.moneda}","${d.tipo}","${d.estado}","${d.metodo_pago || ""}","${d.mp_payment_id || ""}","${formatFecha(d.created_at)}"`
       )
       .join("\n")
     const blob = new Blob(
       [
-        "ID,Donante,Email,Monto,Moneda,Tipo,Estado,Metodo,MP_Payment_ID,Fecha\n" +
+        "ID,Donante,Email,Monto_Bruto,Comision_MP,Monto_Neto,Moneda,Tipo,Estado,Metodo,MP_Payment_ID,Fecha\n" +
           csv,
       ],
       { type: "text/csv;charset=utf-8;" }
@@ -247,51 +264,66 @@ export function DonacionesView() {
   return (
     <div className="flex flex-col gap-5 py-4 md:gap-6 md:py-6">
       {/* ── Metric Summary Row ── */}
-      <div className="grid grid-cols-3 gap-2 px-3 sm:px-4 lg:px-6 sm:flex sm:flex-wrap sm:items-center sm:gap-10 lg:gap-14">
-        {/* Métrica 1: Recaudación */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3.5 p-2.5 sm:p-0 bg-muted/40 sm:bg-transparent rounded-xl border sm:border-0 border-border/60">
-          <div className="size-8 sm:size-11 rounded-full bg-background sm:bg-muted/60 dark:sm:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
-            <HeartHandshakeIcon className="size-4 sm:size-5" />
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2 sm:gap-6 lg:gap-8 px-3 sm:px-4 lg:px-6">
+        {/* Métrica 1: Recaudación bruta */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-2.5 sm:p-0 bg-muted/40 sm:bg-transparent rounded-xl border sm:border-0 border-border/60">
+          <div className="size-8 sm:size-10 rounded-full bg-background sm:bg-muted/60 dark:sm:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
+            <HeartHandshakeIcon className="size-4" />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">Recaudación</p>
-            <p className="text-sm sm:text-xl font-bold tracking-tight text-foreground mt-0.5 truncate">
+            <p className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">Recaudación bruta</p>
+            <p className="text-sm sm:text-lg font-bold tracking-tight text-foreground mt-0.5 truncate">
               {formatMonto(totalRecaudado)}
             </p>
           </div>
         </div>
 
-        <div className="h-8 w-px bg-border/60 hidden sm:block" />
+        <div className="h-7 w-px bg-border/60 hidden sm:block" />
 
-        {/* Métrica 2: Aportantes mensuales */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3.5 p-2.5 sm:p-0 bg-muted/40 sm:bg-transparent rounded-xl border sm:border-0 border-border/60">
-          <div className="size-8 sm:size-11 rounded-full bg-background sm:bg-muted/60 dark:sm:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
-            <RepeatIcon className="size-4 sm:size-5" />
+        {/* Métrica 2: Neto recibido */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-2.5 sm:p-0 bg-muted/40 sm:bg-transparent rounded-xl border sm:border-0 border-border/60">
+          <div className="size-8 sm:size-10 rounded-full bg-background sm:bg-muted/60 dark:sm:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
+            <CreditCardIcon className="size-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">Neto recibido</p>
+            <p className="text-sm sm:text-lg font-bold tracking-tight text-foreground mt-0.5 truncate">
+              {formatMonto(totalNetoRecaudado)}
+            </p>
+          </div>
+        </div>
+
+        <div className="h-7 w-px bg-border/60 hidden sm:block" />
+
+        {/* Métrica 3: Aportantes mensuales */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-2.5 sm:p-0 bg-muted/40 sm:bg-transparent rounded-xl border sm:border-0 border-border/60">
+          <div className="size-8 sm:size-10 rounded-full bg-background sm:bg-muted/60 dark:sm:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
+            <RepeatIcon className="size-4" />
           </div>
           <div className="min-w-0">
             <p className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">Mensuales</p>
-            <p className="text-sm sm:text-xl font-bold tracking-tight text-foreground mt-0.5 truncate">
+            <p className="text-sm sm:text-lg font-bold tracking-tight text-foreground mt-0.5 truncate">
               {totalMensuales}
             </p>
           </div>
         </div>
 
-        <div className="h-8 w-px bg-border/60 hidden sm:block" />
+        <div className="h-7 w-px bg-border/60 hidden sm:block" />
 
-        {/* Métrica 3: Estado de lista */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3.5 p-2.5 sm:p-0 bg-muted/40 sm:bg-transparent rounded-xl border sm:border-0 border-border/60">
-          <div className="size-8 sm:size-11 rounded-full bg-background sm:bg-muted/60 dark:sm:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
+        {/* Métrica 4: Estado de lista */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-2.5 sm:p-0 bg-muted/40 sm:bg-transparent rounded-xl border sm:border-0 border-border/60">
+          <div className="size-8 sm:size-10 rounded-full bg-background sm:bg-muted/60 dark:sm:bg-muted/30 border border-border/50 flex items-center justify-center text-muted-foreground shrink-0">
             {verArchivadas ? (
-              <ArchiveIcon className="size-4 sm:size-5" />
+              <ArchiveIcon className="size-4" />
             ) : (
-              <CreditCardIcon className="size-4 sm:size-5" />
+              <ArchiveRestoreIcon className="size-4" />
             )}
           </div>
           <div className="min-w-0">
             <p className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">
               {verArchivadas ? "Archivadas" : "Activas"}
             </p>
-            <p className="text-sm sm:text-xl font-bold tracking-tight text-foreground mt-0.5 truncate">
+            <p className="text-sm sm:text-lg font-bold tracking-tight text-foreground mt-0.5 truncate">
               {verArchivadas ? donacionesArchivadas.length : donacionesActivas.length}
             </p>
           </div>
@@ -538,9 +570,16 @@ export function DonacionesView() {
                             </TableCell>
 
                             <TableCell className="px-4 py-3 whitespace-nowrap">
-                              <span className="font-medium text-sm text-foreground">
-                                {formatMonto(d.monto, d.moneda)}
-                              </span>
+                              <div className="flex flex-col">
+                                <span className="font-medium text-sm text-foreground">
+                                  {formatMonto(d.monto, d.moneda)}
+                                </span>
+                                {d.monto_neto !== undefined ? (
+                                  <span className="text-[11px] text-muted-foreground font-normal">
+                                    Neto: {formatMonto(d.monto_neto, d.moneda)}
+                                  </span>
+                                ) : null}
+                              </div>
                             </TableCell>
 
                             <TableCell className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground">
@@ -659,9 +698,16 @@ export function DonacionesView() {
                               </span>
                             )}
                           </div>
-                          <span className="font-bold text-sm text-foreground shrink-0 tabular-nums">
-                            {formatMonto(d.monto, d.moneda)}
-                          </span>
+                          <div className="flex flex-col items-end shrink-0">
+                            <span className="font-bold text-sm text-foreground tabular-nums">
+                              {formatMonto(d.monto, d.moneda)}
+                            </span>
+                            {d.monto_neto !== undefined ? (
+                              <span className="text-[10px] text-muted-foreground font-medium">
+                                Neto: {formatMonto(d.monto_neto, d.moneda)}
+                              </span>
+                            ) : null}
+                          </div>
                         </div>
 
                         <div className="flex items-center justify-between gap-2 text-xs pt-0.5">
@@ -782,7 +828,12 @@ export function DonacionesView() {
                     <p className="text-2xl font-bold tracking-tight text-foreground">
                       {formatMonto(selectedDonacion.monto, selectedDonacion.moneda)}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    {selectedDonacion.monto_neto !== undefined && (
+                      <div className="inline-flex items-center gap-1 mt-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                        <span>Neto acreditado: {formatMonto(selectedDonacion.monto_neto, selectedDonacion.moneda)}</span>
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
                       {isApproved
                         ? "Donación aprobada"
                         : isPending
@@ -793,6 +844,31 @@ export function DonacionesView() {
 
                   {/* Lista de detalles limpia */}
                   <div className="divide-y divide-border/60 text-xs">
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-muted-foreground">Monto aportado (bruto)</span>
+                      <span className="font-semibold text-foreground">
+                        {formatMonto(selectedDonacion.monto, selectedDonacion.moneda)}
+                      </span>
+                    </div>
+
+                    {selectedDonacion.comision !== undefined && selectedDonacion.comision > 0 && (
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-muted-foreground">Comisión Mercado Pago</span>
+                        <span className="font-medium text-amber-600 dark:text-amber-400">
+                          - {formatMonto(selectedDonacion.comision, selectedDonacion.moneda)}
+                        </span>
+                      </div>
+                    )}
+
+                    {selectedDonacion.monto_neto !== undefined && (
+                      <div className="flex justify-between items-center py-2 bg-emerald-500/10 px-2 rounded-md font-semibold">
+                        <span className="text-foreground">Neto final en mano</span>
+                        <span className="text-emerald-700 dark:text-emerald-400">
+                          {formatMonto(selectedDonacion.monto_neto, selectedDonacion.moneda)}
+                        </span>
+                      </div>
+                    )}
+
                     <div className="flex justify-between items-center py-2">
                       <span className="text-muted-foreground">Estado</span>
                       <span className="font-medium">

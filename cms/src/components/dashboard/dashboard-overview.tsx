@@ -30,7 +30,14 @@ import {
   type VercelAnalyticsData,
 } from "@/lib/vercel-analytics"
 
-const fmt = (n: number) => Math.round(n).toLocaleString("es-UY")
+const fmt = (n: number) => {
+  const num = Number(n) || 0
+  const hasDecimals = num % 1 !== 0
+  return num.toLocaleString("es-UY", {
+    minimumFractionDigits: hasDecimals ? 2 : 0,
+    maximumFractionDigits: 2,
+  })
+}
 
 function Skeleton({ className = "" }: { className?: string }) {
   return <div className={`animate-pulse rounded bg-muted ${className}`} />
@@ -56,8 +63,9 @@ function buildDonacionesPorMes(donaciones: DonacionItem[]) {
     const d = new Date(don.created_at)
     for (const m of months) {
       if (d.getFullYear() === m.date.getFullYear() && d.getMonth() === m.date.getMonth()) {
-        if (don.tipo === "mensual") m.men += Number(don.monto) || 0
-        else m.pun += Number(don.monto) || 0
+        const valorNeto = don.monto_neto !== undefined ? Number(don.monto_neto) : Number(don.monto) || 0
+        if (don.tipo === "mensual") m.men += valorNeto
+        else m.pun += valorNeto
         break
       }
     }
@@ -175,8 +183,24 @@ export function DashboardOverview() {
     const dt = new Date(d.created_at)
     return dt.getFullYear() === now.getFullYear() && dt.getMonth() === now.getMonth()
   })
-  const totalMes = currentMonthDonaciones.reduce((acc, curr) => acc + (Number(curr.monto) || 0), 0) || 0
-  const pendingTotal = pendingDonaciones.reduce((acc, curr) => acc + (Number(curr.monto) || 0), 0) || 0
+  const totalMes =
+    currentMonthDonaciones.reduce(
+      (acc, curr) =>
+        acc +
+        (curr.monto_neto !== undefined
+          ? Number(curr.monto_neto)
+          : Number(curr.monto) || 0),
+      0
+    ) || 0
+  const pendingTotal =
+    pendingDonaciones.reduce(
+      (acc, curr) =>
+        acc +
+        (curr.monto_neto !== undefined
+          ? Number(curr.monto_neto)
+          : Number(curr.monto) || 0),
+      0
+    ) || 0
   const metaMensual = 10000
   const pctMeta = Math.min(100, Math.round((totalMes / metaMensual) * 100))
 
@@ -498,7 +522,7 @@ export function DashboardOverview() {
         {/* KPI 3 */}
         <div className="p-4 sm:p-5">
           <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
-            <span>Recaudado en {now.toLocaleDateString("es-UY", { month: "long" })}</span>
+            <span>Neto recaudado en {now.toLocaleDateString("es-UY", { month: "long" })}</span>
           </div>
           <div className="flex items-baseline justify-between gap-3 mt-2.5">
             {dbLoading ? (
@@ -729,7 +753,7 @@ export function DashboardOverview() {
                         $ {fmt(totalMes)}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        recaudados este mes, de {currentMonthDonaciones.length} {currentMonthDonaciones.length === 1 ? "aporte" : "aportes"}
+                        neto recaudado este mes, de {currentMonthDonaciones.length} {currentMonthDonaciones.length === 1 ? "aporte" : "aportes"}
                       </span>
                     </div>
 
@@ -913,7 +937,7 @@ export function DashboardOverview() {
                                 {isPending ? (
                                   <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-amber-500/15 text-amber-600 dark:text-amber-400 font-medium">Pendiente</span>
                                 ) : (
-                                  <span className="font-medium">$ {fmt(d.monto)}</span>
+                                  <span className="font-medium">$ {fmt(d.monto_neto !== undefined ? d.monto_neto : d.monto)}</span>
                                 )}
                                 <small className="block text-[10px] text-muted-foreground">{fecha}</small>
                               </div>

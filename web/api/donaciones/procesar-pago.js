@@ -94,6 +94,15 @@ export default async function handler(req, res) {
             payment_type_id: mpData.payment_type_id || '',
             card_last_four_digits: mpData.card?.last_four_digits || '',
             statement_descriptor: mpData.statement_descriptor || '',
+            net_received_amount: mpData.transaction_details?.net_received_amount !== undefined
+              ? Number(mpData.transaction_details.net_received_amount)
+              : null,
+            fee_amount: mpData.fee_details?.[0]?.amount !== undefined
+              ? Number(mpData.fee_details[0].amount)
+              : null,
+            total_paid_amount: mpData.transaction_details?.total_paid_amount !== undefined
+              ? Number(mpData.transaction_details.total_paid_amount)
+              : Number(mpData.transaction_amount || data.transaction_amount),
           },
         };
 
