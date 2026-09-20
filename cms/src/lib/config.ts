@@ -76,6 +76,7 @@ export interface DonacionesConfig {
     public_key: string
     access_token: string
     activo: boolean
+    webhook_secret?: string
   }
   titulo_seccion: string
   mensaje: string

@@ -453,6 +453,37 @@ export function DonacionesSettings() {
                 </p>
               </div>
 
+              {/* Webhook Secret */}
+              <div className="grid gap-1.5">
+                <Label className="text-xs">Clave Secreta del Webhook (Webhook Secret)</Label>
+                <Input
+                  type="password"
+                  value={(config.donaciones?.mercadopago as any)?.webhook_secret || ""}
+                  onChange={(e) => {
+                    const mp = config.donaciones?.mercadopago || {
+                      activo: true,
+                      modo: "sandbox",
+                      public_key: "",
+                      access_token: "",
+                    }
+                    updateSection("donaciones", "mercadopago", { ...mp, webhook_secret: e.target.value.trim() })
+                  }}
+                  placeholder="Pegar clave secreta de la configuración de webhooks de MP"
+                  className="text-xs"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Se usa para verificar que las notificaciones de pago provienen realmente de Mercado Pago. Copiala desde la sección de Webhooks en el panel de desarrolladores.
+                </p>
+                {config.dominio?.dominio_web && (
+                  <div className="mt-1 p-2.5 rounded-md bg-muted/40 border border-border text-[11px]">
+                    <span className="text-muted-foreground">URL del webhook para configurar en MP: </span>
+                    <code className="font-mono text-foreground select-all">
+                      https://{config.dominio.dominio_web}/api/donaciones/webhook
+                    </code>
+                  </div>
+                )}
+              </div>
+
               {/* Botón Guardar Mercado Pago */}
               <div className="flex items-center justify-end gap-3 pt-3 border-t">
                 {savedMpSuccess && (
