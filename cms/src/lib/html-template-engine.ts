@@ -229,83 +229,72 @@ export async function renderToPng(
   width = 1080,
   height = 1350
 ): Promise<Blob> {
-  const fullHtml = buildFullHtmlDocument(htmlTemplate, values, width, height)
+  const { toBlob } = await import("html-to-image")
+  const renderedHtml = renderTemplate(htmlTemplate, values)
 
-  // Crear contenedor offscreen
+  // Crear contenedor en el DOM
   const container = document.createElement("div")
   container.style.position = "fixed"
   container.style.left = "-99999px"
-  container.style.top = "-99999px"
+  container.style.top = "0"
   container.style.width = `${width}px`
   container.style.height = `${height}px`
   container.style.overflow = "hidden"
+  container.style.zIndex = "-9999"
+  container.style.pointerEvents = "none"
+  container.innerHTML = renderedHtml
   document.body.appendChild(container)
 
-  // Crear iframe
-  const iframe = document.createElement("iframe")
-  iframe.style.width = `${width}px`
-  iframe.style.height = `${height}px`
-  iframe.style.border = "none"
-  iframe.style.overflow = "hidden"
-  container.appendChild(iframe)
-
-  await new Promise<void>((resolve) => {
-    iframe.onload = () => resolve()
-    iframe.srcdoc = fullHtml
-  })
-
-  // Esperar a que las fuentes carguen en el iframe
   try {
-    if (iframe.contentDocument?.fonts?.ready) {
-      await iframe.contentDocument.fonts.ready
+    // Esperar a que las fuentes web estén listas
+    if (document.fonts?.ready) {
+      await document.fonts.ready
     }
-  } catch {
-    await new Promise((r) => setTimeout(r, 400))
-  }
+    // Breve pausa para estabilización de renderizado
+    await new Promise((r) => setTimeout(r, 80))
 
-  // Serializar el contenido del iframe a SVG foreignObject
-  const canvas = document.createElement("canvas")
-  canvas.width = width
-  canvas.height = height
-  const ctx = canvas.getContext("2d")!
+    const targetEl = (container.firstElementChild as HTMLElement) || container
 
-  const docHtml = iframe.contentDocument?.documentElement?.outerHTML || fullHtml
-  const svgData = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-      <foreignObject width="100%" height="100%">
-        <div xmlns="http://www.w3.org/1999/xhtml">
-          ${docHtml}
-        </div>
-      </foreignObject>
-    </svg>`
+    const filterFn = (node: HTMLElement) => {
+      if (node.tagName === "IMG") {
+        const img = node as HTMLImageElement
+        const src = img.getAttribute("src")
+        if (!src || src.trim() === "" || src === "undefined" || src === "null") {
+          return false
+        }
+      }
+      return true
+    }
 
-  const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" })
-  const url = URL.createObjectURL(svgBlob)
+    let blob: Blob | null = null
+    try {
+      blob = await toBlob(targetEl, {
+        width,
+        height,
+        pixelRatio: 1,
+        filter: filterFn,
+      })
+    } catch (fontErr) {
+      console.warn("Fallo toBlob con incrustación de fuentes, reintentando con skipFonts...", fontErr)
+      blob = await toBlob(targetEl, {
+        width,
+        height,
+        pixelRatio: 1,
+        skipFonts: true,
+        filter: filterFn,
+      })
+    }
 
-  try {
-    const img = new Image()
-    img.crossOrigin = "anonymous"
-    await new Promise<void>((resolve, reject) => {
-      img.onload = () => resolve()
-      img.onerror = reject
-      img.src = url
-    })
-    ctx.drawImage(img, 0, 0, width, height)
+    if (!blob) {
+      throw new Error("No se pudo generar el PNG de la placa")
+    }
+
+    return blob
   } finally {
-    URL.revokeObjectURL(url)
-    document.body.removeChild(container)
+    if (container.parentNode) {
+      container.parentNode.removeChild(container)
+    }
   }
-
-  return new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => {
-        if (blob) resolve(blob)
-        else reject(new Error("No se pudo generar el PNG"))
-      },
-      "image/png",
-      1.0
-    )
-  })
 }
 
 /**
