@@ -6,6 +6,7 @@ import seedMensajes from "@/data/seeds/mensajes.json"
 import seedSacramentos from "@/data/seeds/sacramentos.json"
 import seedGrupos from "@/data/seeds/grupos.json"
 import seedDonaciones from "@/data/seeds/donaciones.json"
+import seedContenidoPlantillas from "@/data/seeds/contenido_plantillas.json"
 
 export interface HorarioItem {
   id: string
@@ -137,6 +138,7 @@ const inMemoryStores: Record<string, any[]> = {
   galeria: supabase ? [] : seedFotos,
   mensajes: supabase ? [] : seedMensajes,
   donaciones: [],
+  contenido_plantillas: supabase ? [] : (seedContenidoPlantillas as any[]),
 }
 
 // Limpiar residuos de seeds en localStorage si Supabase está activo
@@ -763,3 +765,103 @@ export async function deleteDonacion(id: string): Promise<void> {
   saveDonaciones(updated)
   syncStoreToFiles("donaciones", updated)
 }
+
+// ──────────────────────────────────────────────
+// PLANTILLAS DE CONTENIDO
+// ──────────────────────────────────────────────
+export interface ContenidoPlantillaItem {
+  id: string
+  slug: string
+  nombre: string
+  descripcion?: string
+  categoria: string
+  ancho_base: number
+  alto_base: number
+  html_template: string
+  variables: any[]
+  activo: boolean
+  orden: number
+}
+
+export const getContenidoPlantillas = (): ContenidoPlantillaItem[] =>
+  getStore<ContenidoPlantillaItem>("contenido_plantillas", seedContenidoPlantillas as any[])
+export const saveContenidoPlantillas = (items: ContenidoPlantillaItem[]) =>
+  setStore("contenido_plantillas", items)
+
+export async function fetchContenidoPlantillasFromDb(): Promise<ContenidoPlantillaItem[]> {
+  if (!supabase) return inMemoryStores["contenido_plantillas"] || (seedContenidoPlantillas as any[])
+  try {
+    const { data, error } = await supabase
+      .from("contenido_plantillas")
+      .select("*")
+      .order("orden", { ascending: true })
+    if (error) {
+      console.error("[DB] Error al obtener plantillas de contenido:", error)
+      return inMemoryStores["contenido_plantillas"] || (seedContenidoPlantillas as any[])
+    }
+    const items = (data || []) as ContenidoPlantillaItem[]
+    if (items.length === 0) {
+      return seedContenidoPlantillas as any[]
+    }
+    inMemoryStores["contenido_plantillas"] = items
+    return items
+  } catch (err) {
+    console.error("[DB] Exception contenido_plantillas:", err)
+    return inMemoryStores["contenido_plantillas"] || (seedContenidoPlantillas as any[])
+  }
+}
+
+export async function addContenidoPlantilla(
+  item: Omit<ContenidoPlantillaItem, "id">
+): Promise<ContenidoPlantillaItem> {
+  if (!supabase) {
+    const nuevo = { ...item, id: `cp-${Date.now()}` } as ContenidoPlantillaItem
+    const items = getContenidoPlantillas()
+    const updated = [...items, nuevo]
+    saveContenidoPlantillas(updated)
+    return nuevo
+  }
+  const { data, error } = await supabase.from("contenido_plantillas").insert([item]).select()
+  if (error || !data?.[0]) {
+    console.error("[DB] Error al insertar plantilla de contenido:", error)
+    throw new Error(error?.message || "Error al insertar plantilla de contenido")
+  }
+  const nuevo = data[0] as ContenidoPlantillaItem
+  const items = getContenidoPlantillas()
+  const updated = [...items.filter((i) => i.id !== nuevo.id), nuevo]
+  saveContenidoPlantillas(updated)
+  return nuevo
+}
+
+export async function updateContenidoPlantilla(
+  id: string,
+  updates: Partial<ContenidoPlantillaItem>
+): Promise<void> {
+  if (!supabase) {
+    const items = getContenidoPlantillas()
+    const updated = items.map((i) => (i.id === id ? { ...i, ...updates } : i))
+    saveContenidoPlantillas(updated)
+    return
+  }
+  const { error } = await supabase.from("contenido_plantillas").update(updates).eq("id", id)
+  if (error) {
+    console.error("[DB] Error al actualizar plantilla de contenido:", error)
+    throw new Error(error.message)
+  }
+  const items = getContenidoPlantillas()
+  const updated = items.map((i) => (i.id === id ? { ...i, ...updates } : i))
+  saveContenidoPlantillas(updated)
+}
+
+export async function deleteContenidoPlantilla(id: string): Promise<void> {
+  if (supabase) {
+    const { error } = await supabase.from("contenido_plantillas").delete().eq("id", id)
+    if (error) {
+      console.error("[DB] Error al eliminar plantilla de contenido:", error)
+      throw new Error(error.message)
+    }
+  }
+  const updated = getContenidoPlantillas().filter((i) => i.id !== id)
+  saveContenidoPlantillas(updated)
+}
+

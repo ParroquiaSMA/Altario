@@ -9,6 +9,9 @@ import { promisify } from 'node:util';
 
 const execAsync = promisify(exec);
 
+const SUPABASE_URL = process.env.PUBLIC_SUPABASE_URL || 'https://eucgxnnnmheqhptcxldp.supabase.co';
+const SUPABASE_KEY = process.env.PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1Y2d4bm5ubWhlcWhwdGN4bGRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjc1MjAsImV4cCI6MjEwMzIwMzUyMH0.Mf-7XI5ZMlnPYj3LGE2_HqiNcKFGHSunPnCDgnWTFqw';
+
 /** @returns {import('vite').Plugin} */
 function devConfigApiPlugin() {
   return {
@@ -21,6 +24,70 @@ function devConfigApiPlugin() {
        * @param {(err?: any) => void} next
        */
       server.middlewares.use(async (req, res, next) => {
+        // 0. Enviar Email vía Resend (Proxy Server-Side para evitar CORS)
+        if (req.url === '/api/email/send' && req.method === 'POST') {
+          let body = '';
+          req.on('data', (/** @type {any} */ chunk) => (body += chunk));
+          req.on('end', async () => {
+            try {
+              const payload = JSON.parse(body);
+              let apiKey = (payload.apiKey || '').trim();
+
+              if (!apiKey) {
+                try {
+                  const dbRes = await fetch(`${SUPABASE_URL}/rest/v1/configuracion?clave=eq.email&select=valor`, {
+                    headers: {
+                      apikey: SUPABASE_KEY,
+                      Authorization: `Bearer ${SUPABASE_KEY}`,
+                    },
+                  });
+                  if (dbRes.ok) {
+                    const data = await dbRes.json();
+                    apiKey = data?.[0]?.valor?.resend_api_key?.trim() || '';
+                  }
+                } catch {}
+              }
+
+              if (!apiKey) {
+                apiKey = process.env.RESEND_API_KEY || '';
+              }
+
+              const to = Array.isArray(payload.to) ? payload.to : [payload.to];
+              const from = payload.from || 'Altario CMS <onboarding@resend.dev>';
+
+              const resendRes = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${apiKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  from,
+                  to,
+                  subject: payload.subject,
+                  html: payload.html,
+                  ...(payload.text ? { text: payload.text } : {}),
+                }),
+              });
+
+              const resData = await resendRes.json().catch(() => ({}));
+              res.statusCode = resendRes.status;
+              res.setHeader('Content-Type', 'application/json');
+
+              if (resendRes.ok) {
+                res.end(JSON.stringify({ ok: true, id: resData?.id }));
+              } else {
+                res.end(JSON.stringify({ ok: false, error: resData?.message || resData?.error?.message || `Error ${resendRes.status}` }));
+              }
+            } catch (err) {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ ok: false, error: String(err) }));
+            }
+          });
+          return;
+        }
+
         // 1. Sync Config JSON
         if (req.url === '/api/config' && req.method === 'POST') {
           let body = '';

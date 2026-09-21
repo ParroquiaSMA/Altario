@@ -1,1 +1,76 @@
-{}
+{
+  "parroquia": {
+    "lema": "",
+    "nombre": "",
+    "diocesis": "",
+    "logo_url": "",
+    "logo_tipo": "monograma",
+    "descripcion": "",
+    "logo_iniciales": ""
+  },
+  "parroco": {
+    "email": "",
+    "nombre": "",
+    "titulo": "",
+    "foto_url": "",
+    "telefono": "",
+    "biografia": ""
+  },
+  "contacto": {
+    "email": "",
+    "telefono": "",
+    "whatsapp": "",
+    "direccion": "",
+    "como_llegar": "",
+    "horario_secretaria": ""
+  },
+  "donaciones": {
+    "mensaje": "",
+    "mercadopago": {
+      "activo": false,
+      "public_key": "",
+      "access_token": ""
+    },
+    "titulo_seccion": "",
+    "medios_donacion": [],
+    "cuentas_bancarias": []
+  },
+  "redes": {
+    "spotify": "",
+    "twitter": "",
+    "youtube": "",
+    "facebook": "",
+    "whatsapp": "",
+    "instagram": ""
+  },
+  "historia": {
+    "bajada": "",
+    "titulo": "",
+    "contenido_markdown": ""
+  },
+  "seo": {
+    "meta_titulo": "",
+    "og_image_url": "",
+    "palabras_clave": "",
+    "meta_descripcion": ""
+  },
+  "apariencia": {
+    "color_acento": "#C9A96A",
+    "color_primario": "#16244A",
+    "color_fondo_hero": "",
+    "mostrar_banner_anuncio": false
+  },
+  "dominio": {
+    "dominio_web": "",
+    "forzar_https": true,
+    "subdominio_cms": "",
+    "proveedor_hosting": "vercel",
+    "google_analytics_id": "",
+    "google_search_console_id": ""
+  },
+  "email": {
+    "resend_api_key": "",
+    "remitente_email": "no-responder@info.santamariadelaayuda.org",
+    "remitente_nombre": "Parroquia SMA"
+  }
+}

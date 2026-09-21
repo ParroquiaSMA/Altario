@@ -3,12 +3,17 @@
 import * as React from "react"
 import {
   getUsers,
-  addUser,
+  fetchUsersFromDb,
+  fetchResetTokensFromDb,
+  addUserAsync,
   updateUser,
   deleteUser,
   changeUserPassword,
+  createOrRenewInvitation,
+  getUserInviteStatus,
   getSession,
   type CMSUser,
+  type PasswordResetRecord,
 } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -47,7 +52,16 @@ import {
   ChevronsLeftIcon,
   ChevronsRightIcon,
   KeyRoundIcon,
+  MailIcon,
+  CheckCircle2Icon,
+  AlertCircleIcon,
+  CopyIcon,
+  ClockIcon,
+  SendIcon,
+  RefreshCwIcon,
+  CheckIcon,
 } from "lucide-react"
+import { sendWelcomeEmail } from "@/lib/email"
 
 const ROLES: { value: CMSUser["rol"]; label: string; desc: string }[] = [
   { value: "admin", label: "Administrador", desc: "Acceso completo a todo el panel" },
@@ -55,10 +69,26 @@ const ROLES: { value: CMSUser["rol"]; label: string; desc: string }[] = [
   { value: "viewer", label: "Solo lectura", desc: "Solo puede ver el contenido" },
 ]
 
+function formatInviteExpiration(expiresAt: number): string {
+  const diffMs = expiresAt - Date.now()
+  if (diffMs <= 0) return "Venció"
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  if (diffHours < 24) {
+    return diffHours <= 1 ? "Expira en 1 hora" : `Expira en ${diffHours} h`
+  }
+  const diffDays = Math.ceil(diffHours / 24)
+  return diffDays === 1 ? "Expira mañana" : `Expira en ${diffDays} días`
+}
+
 export function UsuariosSettings() {
   const [users, setUsers] = React.useState<CMSUser[]>([])
+  const [tokens, setTokens] = React.useState<PasswordResetRecord[]>([])
   const [currentUserId, setCurrentUserId] = React.useState<string | null>(null)
   const [searchTerm, setSearchTerm] = React.useState("")
+
+  // Async action states
+  const [resendingUserId, setResendingUserId] = React.useState<string | null>(null)
+  const [copiedUserId, setCopiedUserId] = React.useState<string | null>(null)
 
   // Modals
   const [isAddOpen, setIsAddOpen] = React.useState(false)
@@ -70,8 +100,12 @@ export function UsuariosSettings() {
   const [addNombre, setAddNombre] = React.useState("")
   const [addEmail, setAddEmail] = React.useState("")
   const [addRol, setAddRol] = React.useState<CMSUser["rol"]>("editor")
-  const [addPassword, setAddPassword] = React.useState("")
   const [addError, setAddError] = React.useState("")
+  const [sendWelcome, setSendWelcome] = React.useState(true)
+  const [isSubmittingAdd, setIsSubmittingAdd] = React.useState(false)
+
+  // Status feedback toast/banner
+  const [actionFeedback, setActionFeedback] = React.useState<{ ok: boolean; msg: string; link?: string } | null>(null)
 
   // Edit form
   const [editNombre, setEditNombre] = React.useState("")
@@ -88,13 +122,24 @@ export function UsuariosSettings() {
   const [pageIndex, setPageIndex] = React.useState(0)
   const pageSize = 10
 
-  React.useEffect(() => {
-    setUsers(getUsers())
-    const session = getSession()
-    if (session) setCurrentUserId(session.userId)
+  const refresh = React.useCallback(async () => {
+    try {
+      const [uData, tData] = await Promise.all([
+        fetchUsersFromDb().catch(() => getUsers()),
+        fetchResetTokensFromDb().catch(() => []),
+      ])
+      setUsers(uData)
+      setTokens(tData)
+    } catch {
+      setUsers(getUsers())
+    }
   }, [])
 
-  const refresh = () => setUsers(getUsers())
+  React.useEffect(() => {
+    refresh()
+    const session = getSession()
+    if (session) setCurrentUserId(session.userId)
+  }, [refresh])
 
   const filtered = React.useMemo(() =>
     users.filter(
@@ -110,21 +155,137 @@ export function UsuariosSettings() {
   const paginated = filtered.slice(currentPage * pageSize, (currentPage + 1) * pageSize)
 
   const handleOpenAdd = () => {
-    setAddNombre(""); setAddEmail(""); setAddRol("editor"); setAddPassword(""); setAddError("")
+    setAddNombre("")
+    setAddEmail("")
+    setAddRol("editor")
+    setAddError("")
+    setSendWelcome(true)
     setIsAddOpen(true)
   }
 
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault()
     setAddError("")
     if (!addNombre.trim() || !addEmail.trim()) return
-    if (addPassword.length < 6) { setAddError("La contraseña debe tener al menos 6 caracteres"); return }
-    const emailExists = users.some((u) => u.email.toLowerCase() === addEmail.toLowerCase())
-    if (emailExists) { setAddError("Ya existe un usuario con ese correo"); return }
 
-    addUser({ nombre: addNombre.trim(), email: addEmail.trim(), rol: addRol, status: "activo", password: addPassword })
-    refresh()
-    setIsAddOpen(false)
+    const emailExists = users.some((u) => u.email.toLowerCase() === addEmail.toLowerCase())
+    if (emailExists) {
+      setAddError("Ya existe un usuario con ese correo")
+      return
+    }
+
+    setIsSubmittingAdd(true)
+    try {
+      const nuevo = await addUserAsync({
+        nombre: addNombre.trim(),
+        email: addEmail.trim(),
+        rol: addRol,
+        status: "activo",
+      })
+
+      // Generar y persistir token de invitación seguro en Supabase
+      const inv = await createOrRenewInvitation(nuevo.id, addEmail.trim())
+      await refresh()
+
+      if (sendWelcome) {
+        const mailResult = await sendWelcomeEmail({
+          to: addEmail.trim(),
+          userName: addNombre.trim(),
+          userRole: addRol,
+          setupPasswordLink: inv.link,
+        })
+
+        if (mailResult.ok) {
+          setActionFeedback({
+            ok: true,
+            msg: `Usuario "${addNombre.trim()}" creado y correo de invitación enviado a ${addEmail.trim()} para definir su contraseña.`,
+            link: inv.link,
+          })
+        } else {
+          setActionFeedback({
+            ok: false,
+            msg: `Usuario creado, pero hubo un error al enviar el email (${mailResult.error || "Error de Resend"}). Podés compartirle el enlace directo:`,
+            link: inv.link,
+          })
+        }
+      } else {
+        setActionFeedback({
+          ok: true,
+          msg: `Usuario "${addNombre.trim()}" creado. Deberá configurar su contraseña al ingresar usando el siguiente enlace:`,
+          link: inv.link,
+        })
+      }
+
+      setIsAddOpen(false)
+    } catch (err: any) {
+      setAddError(err?.message || "Error al crear el usuario.")
+    } finally {
+      setIsSubmittingAdd(false)
+    }
+  }
+
+  const handleResendInvitation = async (user: CMSUser) => {
+    setResendingUserId(user.id)
+    setActionFeedback(null)
+    try {
+      // 1. Generar o renovar token de 7 días persistido en Supabase
+      const inv = await createOrRenewInvitation(user.id, user.email)
+      await refresh()
+
+      // 2. Enviar email usando la plantilla institucional base
+      const mailResult = await sendWelcomeEmail({
+        to: user.email,
+        userName: user.nombre,
+        userRole: user.rol,
+        setupPasswordLink: inv.link,
+      })
+
+      if (mailResult.ok) {
+        setActionFeedback({
+          ok: true,
+          msg: `Invitación reenviada con éxito a ${user.email}. El enlace nuevo es válido por 7 días.`,
+          link: inv.link,
+        })
+      } else {
+        setActionFeedback({
+          ok: false,
+          msg: `Se renovó el enlace de invitación para ${user.nombre}, pero falló el envío del correo (${mailResult.error || "Error de correo"}). Podés compartirle este enlace directo:`,
+          link: inv.link,
+        })
+      }
+    } catch (err: any) {
+      setActionFeedback({
+        ok: false,
+        msg: `Error al reenviar invitación: ${err?.message || "Error desconocido"}`,
+      })
+    } finally {
+      setResendingUserId(null)
+    }
+  }
+
+  const handleCopyInviteLink = async (user: CMSUser) => {
+    try {
+      const invite = getUserInviteStatus(user, tokens)
+      let linkToCopy = invite.link
+
+      // Si no tiene invitación o está vencida, renovar
+      if (!invite.hasInvite || invite.isExpired || !linkToCopy) {
+        const inv = await createOrRenewInvitation(user.id, user.email)
+        linkToCopy = inv.link
+        await refresh()
+      }
+
+      await navigator.clipboard.writeText(linkToCopy)
+      setCopiedUserId(user.id)
+      setTimeout(() => setCopiedUserId(null), 2500)
+      setActionFeedback({
+        ok: true,
+        msg: `Enlace copiado para ${user.nombre}. Podés enviárselo directamente por WhatsApp o chat.`,
+        link: linkToCopy,
+      })
+    } catch {
+      alert("No se pudo copiar el enlace al portapapeles.")
+    }
   }
 
   const handleOpenEdit = (user: CMSUser) => {
@@ -204,6 +365,56 @@ export function UsuariosSettings() {
 
       {/* Scrollable Body */}
       <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4 pb-28 md:pb-6">
+        {/* Action feedback banner */}
+        {actionFeedback && (
+          <div
+            className={`p-3.5 rounded-lg border text-xs space-y-2 animate-in fade-in ${
+              actionFeedback.ok
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300"
+                : "bg-destructive/10 border-destructive/20 text-destructive"
+            }`}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-start gap-2">
+                {actionFeedback.ok ? (
+                  <CheckCircle2Icon className="size-4 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
+                ) : (
+                  <AlertCircleIcon className="size-4 shrink-0 mt-0.5" />
+                )}
+                <span className="leading-relaxed">{actionFeedback.msg}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActionFeedback(null)}
+                className="text-xs opacity-60 hover:opacity-100 cursor-pointer ml-2 shrink-0"
+              >
+                ✕
+              </button>
+            </div>
+
+            {actionFeedback.link && (
+              <div className="pt-2 border-t border-current/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <span className="font-mono text-[11px] truncate max-w-full sm:max-w-md opacity-90 select-all">
+                  {actionFeedback.link}
+                </span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-[11px] gap-1 shrink-0 self-start sm:self-auto cursor-pointer"
+                  onClick={() => {
+                    navigator.clipboard.writeText(actionFeedback.link!)
+                    alert("Enlace copiado al portapapeles")
+                  }}
+                >
+                  <CopyIcon className="size-3" />
+                  Copiar enlace
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Toolbar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="relative w-full sm:w-80">
@@ -231,68 +442,168 @@ export function UsuariosSettings() {
                     <TableHeader>
                       <TableRow className="bg-muted/30 hover:bg-muted/30">
                         <TableHead className="px-4">Estado</TableHead>
-                        <TableHead className="px-4">Nombre</TableHead>
+                        <TableHead className="px-4">Usuario</TableHead>
                         <TableHead className="px-4 hidden sm:table-cell">Correo</TableHead>
                         <TableHead className="px-4">Rol</TableHead>
+                        <TableHead className="px-4">Invitación / Acceso</TableHead>
                         <TableHead className="px-4 text-right">Acciones</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {paginated.map((user) => (
-                        <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
-                          <TableCell className="px-4 py-3">
-                            {user.status === "activo" ? (
-                              <Badge variant="outline" className="gap-1.5 text-emerald-600 border-emerald-300">
-                                <span className="size-1.5 rounded-full bg-emerald-500" />
-                                Activo
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="gap-1.5 text-muted-foreground">
-                                <span className="size-1.5 rounded-full bg-muted-foreground/40" />
-                                Inactivo
-                              </Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="px-4 py-3 font-medium">
-                            {user.nombre}
-                            {user.id === currentUserId && (
-                              <span className="ml-2 text-[10px] text-muted-foreground bg-muted rounded px-1.5 py-0.5">Tú</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{user.email}</TableCell>
-                          <TableCell className="px-4 py-3">
-                            <Badge variant="secondary" className="text-xs font-normal">{rolLabel(user.rol)}</Badge>
-                          </TableCell>
-                          <TableCell className="px-4 py-3 text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger
-                                render={<Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />}
-                              >
-                                <EllipsisVerticalIcon className="size-4" />
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-44">
-                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(user)}>Editar datos</DropdownMenuItem>
-                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenPassword(user)}>
-                                  <KeyRoundIcon className="size-4 mr-2" />
-                                  Cambiar contraseña
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="cursor-pointer" onClick={() => handleToggleStatus(user)} disabled={user.id === currentUserId}>
-                                  {user.status === "activo" ? "Desactivar" : "Activar"}
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  variant="destructive"
-                                  className="cursor-pointer"
-                                  onClick={() => handleDelete(user)}
-                                  disabled={user.id === currentUserId}
+                      {paginated.map((user) => {
+                        const invite = getUserInviteStatus(user, tokens)
+                        const isResending = resendingUserId === user.id
+                        const isCopied = copiedUserId === user.id
+
+                        return (
+                          <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
+                            <TableCell className="px-4 py-3">
+                              {user.status === "activo" ? (
+                                <Badge variant="outline" className="gap-1.5 text-emerald-600 border-emerald-300 dark:border-emerald-800">
+                                  <span className="size-1.5 rounded-full bg-emerald-500" />
+                                  Activo
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="gap-1.5 text-muted-foreground">
+                                  <span className="size-1.5 rounded-full bg-muted-foreground/40" />
+                                  Inactivo
+                                </Badge>
+                              )}
+                            </TableCell>
+                            <TableCell className="px-4 py-3 font-medium">
+                              <div className="flex items-center gap-1.5">
+                                <span>{user.nombre}</span>
+                                {user.id === currentUserId && (
+                                  <span className="text-[10px] text-muted-foreground bg-muted rounded px-1.5 py-0.5 font-normal">Tú</span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="px-4 py-3 text-muted-foreground hidden sm:table-cell text-xs">{user.email}</TableCell>
+                            <TableCell className="px-4 py-3">
+                              <Badge variant="secondary" className="text-xs font-normal">{rolLabel(user.rol)}</Badge>
+                            </TableCell>
+
+                            {/* Columna Invitación / Acceso */}
+                            <TableCell className="px-4 py-3">
+                              {invite.isPending ? (
+                                <div className="flex flex-col gap-1 items-start">
+                                  <Badge variant="outline" className="gap-1 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800 bg-amber-500/10 text-[11px] font-medium">
+                                    <ClockIcon className="size-3 text-amber-600 dark:text-amber-400" />
+                                    Invitación pendiente
+                                  </Badge>
+                                  <div className="flex items-center gap-1.5 text-[11px]">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleResendInvitation(user)}
+                                      disabled={isResending}
+                                      className="text-primary hover:underline font-medium cursor-pointer inline-flex items-center gap-1 disabled:opacity-50"
+                                      title="Enviar un nuevo correo de invitación"
+                                    >
+                                      <RefreshCwIcon className={`size-3 ${isResending ? "animate-spin" : ""}`} />
+                                      <span>{isResending ? "Reenviando..." : "Reenviar"}</span>
+                                    </button>
+                                    <span className="text-muted-foreground/40">·</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleCopyInviteLink(user)}
+                                      className="text-muted-foreground hover:text-foreground hover:underline cursor-pointer"
+                                      title="Copiar enlace directo para definir contraseña"
+                                    >
+                                      {isCopied ? "¡Copiado!" : "Copiar enlace"}
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : invite.isExpired ? (
+                                <div className="flex flex-col gap-1 items-start">
+                                  <Badge variant="outline" className="gap-1 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800 bg-rose-500/10 text-[11px] font-medium">
+                                    <AlertCircleIcon className="size-3 text-rose-600 dark:text-rose-400" />
+                                    Invitación vencida
+                                  </Badge>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleResendInvitation(user)}
+                                    disabled={isResending}
+                                    className="text-[11px] text-primary hover:underline font-medium cursor-pointer inline-flex items-center gap-1 disabled:opacity-50"
+                                    title="Renovar y enviar nueva invitación"
+                                  >
+                                    <RefreshCwIcon className={`size-3 ${isResending ? "animate-spin" : ""}`} />
+                                    <span>{isResending ? "Reenviando..." : "Reenviar invitación"}</span>
+                                  </button>
+                                </div>
+                              ) : invite.isUsed ? (
+                                <Badge variant="outline" className="gap-1 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800 bg-emerald-500/10 text-[11px] font-medium">
+                                  <CheckCircle2Icon className="size-3 text-emerald-600 dark:text-emerald-400" />
+                                  Contraseña creada
+                                </Badge>
+                              ) : (
+                                <div className="flex flex-col gap-0.5 items-start">
+                                  <span className="text-xs text-muted-foreground">Acceso directo</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleResendInvitation(user)}
+                                    disabled={isResending}
+                                    className="text-[11px] text-primary hover:underline font-medium cursor-pointer inline-flex items-center gap-1 disabled:opacity-50"
+                                  >
+                                    <SendIcon className="size-3" />
+                                    <span>{isResending ? "Enviando..." : "Enviar invitación"}</span>
+                                  </button>
+                                </div>
+                              )}
+                            </TableCell>
+
+                            {/* Acciones */}
+                            <TableCell className="px-4 py-3 text-right">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger
+                                  render={<Button variant="ghost" size="icon" className="size-8 text-muted-foreground data-open:bg-muted cursor-pointer" />}
                                 >
-                                  Eliminar
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                                  <EllipsisVerticalIcon className="size-4" />
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(user)}>
+                                    Editar
+                                  </DropdownMenuItem>
+
+                                  <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={() => handleResendInvitation(user)}
+                                    disabled={isResending}
+                                  >
+                                    {isResending
+                                      ? "Reenviando..."
+                                      : invite.isPending || invite.isExpired
+                                      ? "Reenviar invitación"
+                                      : "Enviar invitación"}
+                                  </DropdownMenuItem>
+
+                                  <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={() => handleCopyInviteLink(user)}
+                                  >
+                                    Copiar enlace
+                                  </DropdownMenuItem>
+
+                                  <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenPassword(user)}>
+                                    Cambiar contraseña
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem className="cursor-pointer" onClick={() => handleToggleStatus(user)} disabled={user.id === currentUserId}>
+                                    {user.status === "activo" ? "Desactivar" : "Activar"}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    variant="destructive"
+                                    className="cursor-pointer"
+                                    onClick={() => handleDelete(user)}
+                                    disabled={user.id === currentUserId}
+                                  >
+                                    Eliminar
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
                     </TableBody>
                   </Table>
                 </div>
@@ -338,10 +649,6 @@ export function UsuariosSettings() {
                 <Input type="email" placeholder="correo@parroquia.org" value={addEmail} onChange={(e) => setAddEmail(e.target.value)} required />
               </div>
               <div className="grid gap-2">
-                <Label>Contraseña inicial</Label>
-                <Input type="password" placeholder="Mínimo 6 caracteres" value={addPassword} onChange={(e) => setAddPassword(e.target.value)} required />
-              </div>
-              <div className="grid gap-2">
                 <Label>Rol</Label>
                 <div className="grid gap-2">
                   {ROLES.map((r) => (
@@ -363,10 +670,41 @@ export function UsuariosSettings() {
                   ))}
                 </div>
               </div>
+
+              {/* Switch para envío de correo de bienvenida */}
+              <div className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/20">
+                <input
+                  id="send-welcome-switch"
+                  type="checkbox"
+                  checked={sendWelcome}
+                  onChange={(e) => setSendWelcome(e.target.checked)}
+                  className="size-4 mt-0.5 rounded border-input text-primary focus:ring-primary cursor-pointer"
+                />
+                <label htmlFor="send-welcome-switch" className="cursor-pointer select-none">
+                  <span className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                    <MailIcon className="size-3.5 text-primary" />
+                    Enviar correo de invitación para definir contraseña
+                  </span>
+                  <span className="text-[11px] text-muted-foreground block mt-0.5 leading-snug">
+                    El usuario recibirá un correo con un enlace seguro para crear su contraseña personal e ingresar al panel.
+                  </span>
+                </label>
+              </div>
             </div>
             <DialogFooter className="gap-2 sm:gap-0 mt-2">
-              <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>Cancelar</Button>
-              <Button type="submit">Crear Usuario</Button>
+              <Button type="button" variant="outline" disabled={isSubmittingAdd} onClick={() => setIsAddOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isSubmittingAdd} className="gap-2">
+                {isSubmittingAdd ? (
+                  <>
+                    <div className="size-3.5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                    <span>Creando y enviando...</span>
+                  </>
+                ) : (
+                  <span>Crear Usuario</span>
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

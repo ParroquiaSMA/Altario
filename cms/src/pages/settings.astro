@@ -5,7 +5,7 @@ import { SettingsView } from '@/components/views/settings-view';
 ---
 
 <RootLayout title="Configuración — Altario CMS">
-  <DashboardShell client:load title="Configuración" currentPath="/settings">
-    <SettingsView client:load />
+  <DashboardShell client:only="react" title="Configuración" currentPath="/settings">
+    <SettingsView client:only="react" />
   </DashboardShell>
 </RootLayout>

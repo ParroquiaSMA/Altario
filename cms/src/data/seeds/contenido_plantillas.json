@@ -1,0 +1,110 @@
+[
+  {
+    "id": "cp-001",
+    "slug": "aviso-horario",
+    "nombre": "Aviso / Cambio de horario",
+    "descripcion": "Placa para comunicar cambios de horario, suspensiones o avisos generales.",
+    "categoria": "redes",
+    "ancho_base": 1080,
+    "alto_base": 1350,
+    "html_template": "<div class=\"placa\" style=\"background-color: {{color_fondo}}; color: {{color_texto}}; width: 1080px; height: 1350px; font-family: 'Lora', Georgia, serif; display: flex; flex-direction: column; padding: 100px 100px 120px;\">\n  <style>\n    .placa * { box-sizing: border-box; margin: 0; }\n    .etiqueta { font-size: 28px; font-weight: 600; letter-spacing: 5px; color: {{color_acento}}; text-transform: uppercase; }\n    .calendario { display: flex; align-items: baseline; gap: 20px; margin-top: 40px; }\n    .dia-num { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 160px; font-weight: 600; line-height: 1; color: {{color_acento}}; }\n    .dia-info { display: flex; flex-direction: column; gap: 4px; }\n    .dia-info .mes { font-size: 36px; font-weight: 600; }\n    .dia-info .semana { font-size: 28px; opacity: 0.7; }\n    .titulo { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 72px; font-weight: 600; line-height: 1.15; margin-top: 50px; flex: 1; }\n    .pie { font-size: 26px; font-weight: 600; color: {{color_acento}}; letter-spacing: 2.5px; border-top: 2.5px solid {{color_acento}}; padding-top: 24px; margin-top: auto; }\n  </style>\n  <div class=\"etiqueta\">{{etiqueta}}</div>\n  <div class=\"calendario\">\n    <div class=\"dia-num\">{{dia}}</div>\n    <div class=\"dia-info\">\n      <span class=\"mes\">{{mes}}</span>\n      <span class=\"semana\">{{semana}}</span>\n    </div>\n  </div>\n  <div class=\"titulo\">{{titulo}}</div>\n  <div class=\"pie\">{{pie}}</div>\n</div>",
+    "variables": [
+      { "key": "etiqueta", "label": "Etiqueta superior", "tipo": "text", "default_val": "AVISO" },
+      { "key": "dia", "label": "Día (número)", "tipo": "text", "default_val": "20" },
+      { "key": "mes", "label": "Mes", "tipo": "text", "default_val": "Setiembre" },
+      { "key": "semana", "label": "Día de la semana", "tipo": "text", "default_val": "Domingo" },
+      { "key": "titulo", "label": "Título del aviso", "tipo": "textarea", "default_val": "No tendremos misa de 18:00 h" },
+      { "key": "pie", "label": "Pie de página", "tipo": "text", "default_val": "Parroquia Santa María de la Ayuda" },
+      { "key": "color_fondo", "label": "Color de fondo", "tipo": "color", "default_val": "#16244A" },
+      { "key": "color_texto", "label": "Color de texto", "tipo": "color", "default_val": "#FFFFFF" },
+      { "key": "color_acento", "label": "Color de acento", "tipo": "color", "default_val": "#C9A96A" }
+    ],
+    "activo": true,
+    "orden": 1
+  },
+  {
+    "id": "cp-002",
+    "slug": "frase-cita",
+    "nombre": "Frase o cita",
+    "descripcion": "Placa con una frase destacada y su autor, ideal para compartir reflexiones.",
+    "categoria": "redes",
+    "ancho_base": 1080,
+    "alto_base": 1350,
+    "html_template": "<div class=\"placa\" style=\"background-color: {{color_fondo}}; color: {{color_texto}}; width: 1080px; height: 1350px; font-family: 'Lora', Georgia, serif; display: flex; flex-direction: column; justify-content: center; padding: 100px 100px 120px;\">\n  <style>\n    .placa * { box-sizing: border-box; margin: 0; }\n    .frase { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 64px; font-weight: 600; font-style: italic; line-height: 1.25; text-align: center; }\n    .autor { font-size: 28px; text-align: center; margin-top: 40px; opacity: 0.7; }\n    .pie { font-size: 26px; font-weight: 600; color: {{color_acento}}; letter-spacing: 2.5px; border-top: 2.5px solid {{color_acento}}; padding-top: 24px; margin-top: auto; text-align: center; }\n  </style>\n  <div class=\"frase\">«{{titulo}}»</div>\n  <div class=\"autor\">{{autor}}</div>\n  <div class=\"pie\">{{pie}}</div>\n</div>",
+    "variables": [
+      { "key": "titulo", "label": "Texto de la frase", "tipo": "textarea", "default_val": "El que quiera ser grande entre ustedes, que sea el servidor de todos." },
+      { "key": "autor", "label": "Autor / cita", "tipo": "text", "default_val": "Evangelio según san Marcos 10, 43" },
+      { "key": "pie", "label": "Pie de página", "tipo": "text", "default_val": "santamariadelaayuda.org" },
+      { "key": "color_fondo", "label": "Color de fondo", "tipo": "color", "default_val": "#0E1730" },
+      { "key": "color_texto", "label": "Color de texto", "tipo": "color", "default_val": "#E3D2AE" },
+      { "key": "color_acento", "label": "Color de acento", "tipo": "color", "default_val": "#C9A96A" }
+    ],
+    "activo": true,
+    "orden": 2
+  },
+  {
+    "id": "cp-003",
+    "slug": "evento-foto",
+    "nombre": "Evento con foto",
+    "descripcion": "Placa para invitar a un evento con espacio para foto y detalles.",
+    "categoria": "redes",
+    "ancho_base": 1080,
+    "alto_base": 1350,
+    "html_template": "<div class=\"placa\" style=\"background-color: {{color_fondo}}; color: {{color_texto}}; width: 1080px; height: 1350px; font-family: 'Lora', Georgia, serif; display: flex; flex-direction: column; padding: 0;\">\n  <style>\n    .placa * { box-sizing: border-box; margin: 0; }\n    .foto-container { width: 100%; height: 540px; overflow: hidden; background: #DCD7CC; }\n    .foto-container img { width: 100%; height: 100%; object-fit: cover; }\n    .contenido { padding: 50px 100px 120px; flex: 1; display: flex; flex-direction: column; }\n    .etiqueta { font-size: 28px; font-weight: 600; letter-spacing: 5px; color: {{color_acento}}; text-transform: uppercase; }\n    .titulo { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 64px; font-weight: 600; line-height: 1.15; margin-top: 20px; }\n    .detalle { font-size: 32px; line-height: 1.6; margin-top: 24px; opacity: 0.8; white-space: pre-line; }\n    .pie { font-size: 26px; font-weight: 600; color: {{color_acento}}; letter-spacing: 2.5px; border-top: 2.5px solid {{color_acento}}; padding-top: 24px; margin-top: auto; }\n  </style>\n  <div class=\"foto-container\"><img src=\"{{foto}}\" alt=\"\" /></div>\n  <div class=\"contenido\">\n    <div class=\"etiqueta\">{{etiqueta}}</div>\n    <div class=\"titulo\">{{titulo}}</div>\n    <div class=\"detalle\">{{detalle}}</div>\n    <div class=\"pie\">{{pie}}</div>\n  </div>\n</div>",
+    "variables": [
+      { "key": "foto", "label": "Foto del evento", "tipo": "image", "default_val": "" },
+      { "key": "etiqueta", "label": "Etiqueta superior", "tipo": "text", "default_val": "Te esperamos" },
+      { "key": "titulo", "label": "Nombre del evento", "tipo": "text", "default_val": "Celebración del día del Párroco" },
+      { "key": "detalle", "label": "Detalles (fecha, hora, etc.)", "tipo": "textarea", "default_val": "Viernes 7 de agosto\n18:00 h Misa · 20:00 h Cena\nAnotate al 093 523 389" },
+      { "key": "pie", "label": "Pie de página", "tipo": "text", "default_val": "Parroquia Santa María de la Ayuda" },
+      { "key": "color_fondo", "label": "Color de fondo", "tipo": "color", "default_val": "#16244A" },
+      { "key": "color_texto", "label": "Color de texto", "tipo": "color", "default_val": "#FFFFFF" },
+      { "key": "color_acento", "label": "Color de acento", "tipo": "color", "default_val": "#C9A96A" }
+    ],
+    "activo": true,
+    "orden": 3
+  },
+  {
+    "id": "cp-004",
+    "slug": "horarios-semana",
+    "nombre": "Horarios de la semana",
+    "descripcion": "Placa con los horarios regulares de misas y actividades.",
+    "categoria": "redes",
+    "ancho_base": 1080,
+    "alto_base": 1350,
+    "html_template": "<div class=\"placa\" style=\"background-color: {{color_fondo}}; color: {{color_texto}}; width: 1080px; height: 1350px; font-family: 'Lora', Georgia, serif; display: flex; flex-direction: column; padding: 100px 100px 120px;\">\n  <style>\n    .placa * { box-sizing: border-box; margin: 0; }\n    .etiqueta { font-size: 28px; font-weight: 600; letter-spacing: 5px; color: {{color_acento}}; text-transform: uppercase; }\n    .titulo { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 72px; font-weight: 600; line-height: 1.15; margin-top: 30px; }\n    .lista { font-size: 34px; line-height: 2; margin-top: 50px; white-space: pre-line; flex: 1; }\n    .pie { font-size: 26px; font-weight: 600; color: {{color_acento}}; letter-spacing: 2.5px; border-top: 2.5px solid {{color_acento}}; padding-top: 24px; margin-top: auto; }\n  </style>\n  <div class=\"etiqueta\">{{etiqueta}}</div>\n  <div class=\"titulo\">{{titulo}}</div>\n  <div class=\"lista\">{{lista}}</div>\n  <div class=\"pie\">{{pie}}</div>\n</div>",
+    "variables": [
+      { "key": "etiqueta", "label": "Etiqueta superior", "tipo": "text", "default_val": "Todas las semanas" },
+      { "key": "titulo", "label": "Título", "tipo": "text", "default_val": "Horarios de misa" },
+      { "key": "lista", "label": "Horarios (uno por línea)", "tipo": "textarea", "default_val": "Martes a viernes | 18:00 h\nSábado | 18:00 h\nDomingo | 10:00 y 18:00 h\nConfesiones | media hora antes" },
+      { "key": "pie", "label": "Pie de página", "tipo": "text", "default_val": "Parroquia Santa María de la Ayuda" },
+      { "key": "color_fondo", "label": "Color de fondo", "tipo": "color", "default_val": "#16244A" },
+      { "key": "color_texto", "label": "Color de texto", "tipo": "color", "default_val": "#FFFFFF" },
+      { "key": "color_acento", "label": "Color de acento", "tipo": "color", "default_val": "#C9A96A" }
+    ],
+    "activo": true,
+    "orden": 4
+  },
+  {
+    "id": "cp-005",
+    "slug": "pedido-colaboracion",
+    "nombre": "Pedido de colaboración",
+    "descripcion": "Placa para solicitar donaciones de bienes o colaboraciones.",
+    "categoria": "redes",
+    "ancho_base": 1080,
+    "alto_base": 1350,
+    "html_template": "<div class=\"placa\" style=\"background-color: {{color_fondo}}; color: {{color_texto}}; width: 1080px; height: 1350px; font-family: 'Lora', Georgia, serif; display: flex; flex-direction: column; padding: 100px 100px 120px;\">\n  <style>\n    .placa * { box-sizing: border-box; margin: 0; }\n    .etiqueta { font-size: 28px; font-weight: 600; letter-spacing: 5px; color: {{color_acento}}; text-transform: uppercase; }\n    .titulo { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 72px; font-weight: 600; line-height: 1.15; margin-top: 30px; }\n    .lista { font-size: 34px; line-height: 2; margin-top: 50px; white-space: pre-line; }\n    .nota { font-size: 30px; margin-top: 30px; opacity: 0.8; font-style: italic; flex: 1; }\n    .pie { font-size: 26px; font-weight: 600; color: {{color_acento}}; letter-spacing: 2.5px; border-top: 2.5px solid {{color_acento}}; padding-top: 24px; margin-top: auto; }\n  </style>\n  <div class=\"etiqueta\">{{etiqueta}}</div>\n  <div class=\"titulo\">{{titulo}}</div>\n  <div class=\"lista\">{{lista}}</div>\n  <div class=\"nota\">{{nota}}</div>\n  <div class=\"pie\">{{pie}}</div>\n</div>",
+    "variables": [
+      { "key": "etiqueta", "label": "Etiqueta superior", "tipo": "text", "default_val": "Nos dan una mano" },
+      { "key": "titulo", "label": "Título", "tipo": "text", "default_val": "¿Qué hace falta?" },
+      { "key": "lista", "label": "Lista de necesidades", "tipo": "textarea", "default_val": "Arroz, fideos y aceite\nLeche en polvo\nAzúcar y yerba\nArtículos de limpieza" },
+      { "key": "nota", "label": "Nota adicional", "tipo": "textarea", "default_val": "Recibimos de martes a viernes de 16 a 18 h" },
+      { "key": "pie", "label": "Pie de página", "tipo": "text", "default_val": "Parroquia Santa María de la Ayuda" },
+      { "key": "color_fondo", "label": "Color de fondo", "tipo": "color", "default_val": "#F1E7D6" },
+      { "key": "color_texto", "label": "Color de texto", "tipo": "color", "default_val": "#16244A" },
+      { "key": "color_acento", "label": "Color de acento", "tipo": "color", "default_val": "#A8823D" }
+    ],
+    "activo": true,
+    "orden": 5
+  }
+]

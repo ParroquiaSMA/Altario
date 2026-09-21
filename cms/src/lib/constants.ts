@@ -17,3 +17,10 @@ export const SUPABASE_KEY =
   DEFAULT_SUPABASE_ANON_KEY;
 
 export const SUPABASE_ANON_KEY = SUPABASE_KEY;
+
+export const DEFAULT_RESEND_API_KEY = '';
+
+export const RESEND_API_KEY =
+  (typeof import.meta !== 'undefined' && import.meta.env?.PUBLIC_RESEND_API_KEY) ||
+  (typeof process !== 'undefined' && (process.env?.RESEND_API_KEY || process.env?.PUBLIC_RESEND_API_KEY)) ||
+  DEFAULT_RESEND_API_KEY;

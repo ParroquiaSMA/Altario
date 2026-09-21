@@ -4,7 +4,20 @@ import * as React from "react"
 import { CatalogosSettings } from "@/components/views/settings/catalogos-settings"
 import { UsuariosSettings } from "@/components/views/settings/usuarios-settings"
 import { DonacionesSettings } from "@/components/views/settings/donaciones-settings"
-import { CheckCircle2Icon, AlertCircleIcon, LockIcon } from "lucide-react"
+import {
+  CheckCircle2Icon,
+  AlertCircleIcon,
+  LockIcon,
+  MailIcon,
+  SendIcon,
+  EyeIcon,
+  EyeOffIcon,
+  KeyRoundIcon,
+} from "lucide-react"
+import { getLocalConfig, saveFullSiteConfig, fetchSiteConfigFromDb, saveEmailConfig, type SiteConfig } from "@/lib/config"
+import { DEFAULT_RESEND_API_KEY } from "@/lib/constants"
+import { sendTestEmail } from "@/lib/email"
+import { getSession } from "@/lib/auth"
 
 export type SettingsSection = "catalogos" | "usuarios" | "donaciones" | "seguridad"
 
@@ -23,6 +36,36 @@ const NAV_ITEMS: NavItem[] = [
 export function SettingsView() {
   const [activeSection, setActiveSection] = React.useState<SettingsSection>("catalogos")
 
+  // Sincronizar sección activa con los parámetros de la URL (?tab=... o hash)
+  React.useEffect(() => {
+    const syncFromUrl = () => {
+      try {
+        const params = new URLSearchParams(window.location.search)
+        const tab = (params.get("tab") || params.get("section") || window.location.hash.replace("#", "")) as SettingsSection
+        if (["catalogos", "usuarios", "donaciones", "seguridad"].includes(tab)) {
+          setActiveSection(tab)
+        }
+      } catch { }
+    }
+
+    syncFromUrl()
+    window.addEventListener("popstate", syncFromUrl)
+    window.addEventListener("hashchange", syncFromUrl)
+    return () => {
+      window.removeEventListener("popstate", syncFromUrl)
+      window.removeEventListener("hashchange", syncFromUrl)
+    }
+  }, [])
+
+  const handleSectionChange = (section: SettingsSection) => {
+    setActiveSection(section)
+    try {
+      const url = new URL(window.location.href)
+      url.searchParams.set("tab", section)
+      window.history.pushState({}, "", url.toString())
+    } catch { }
+  }
+
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden flex-1 min-h-0">
       {/* ── 2-Column Split Workspace ──────────────────────────── */}
@@ -32,7 +75,7 @@ export function SettingsView() {
           <label className="text-xs font-medium text-muted-foreground">Sección:</label>
           <select
             value={activeSection}
-            onChange={(e) => setActiveSection(e.target.value as SettingsSection)}
+            onChange={(e) => handleSectionChange(e.target.value as SettingsSection)}
             className="flex-1 max-w-[220px] h-8 px-2 rounded-md border bg-background text-xs font-medium text-foreground focus:outline-none"
           >
             {NAV_ITEMS.map((item) => (
@@ -54,12 +97,11 @@ export function SettingsView() {
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => setActiveSection(item.id)}
-                    className={`whitespace-nowrap text-left px-3 py-2 rounded-md text-xs sm:text-sm transition-colors cursor-pointer ${
-                      isActive
-                        ? "bg-accent text-accent-foreground font-medium shadow-2xs"
-                        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                    }`}
+                    onClick={() => handleSectionChange(item.id)}
+                    className={`whitespace-nowrap text-left px-3 py-2 rounded-md text-xs sm:text-sm transition-colors cursor-pointer ${isActive
+                      ? "bg-accent text-accent-foreground font-medium shadow-2xs"
+                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                      }`}
                   >
                     <span className="truncate">{item.title}</span>
                   </button>
@@ -137,11 +179,10 @@ function SeguridadSettings() {
       <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4 pb-28 md:pb-6">
         {feedback && (
           <div
-            className={`p-2.5 rounded-md text-xs flex items-center gap-2 border max-w-md ${
-              feedback.ok
-                ? "bg-muted text-foreground border-border"
-                : "bg-destructive/10 text-destructive border-destructive/20"
-            }`}
+            className={`p-2.5 rounded-md text-xs flex items-center gap-2 border max-w-md ${feedback.ok
+              ? "bg-muted text-foreground border-border"
+              : "bg-destructive/10 text-destructive border-destructive/20"
+              }`}
           >
             {feedback.ok ? (
               <CheckCircle2Icon className="size-4 text-foreground/80 shrink-0" />
@@ -205,6 +246,9 @@ function SeguridadSettings() {
           </div>
         </form>
 
+        {/* Servicio de Correo Electrónico (Resend) */}
+        <ResendEmailCard />
+
         {/* Notificaciones Web y PWA Card */}
         <NotificacionesCard />
       </div>
@@ -253,13 +297,12 @@ function NotificacionesCard() {
           <CheckCircle2Icon className="size-3.5 text-muted-foreground" />
           Notificaciones y Aplicación Web (PWA)
         </h3>
-        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${
-          permission === "granted"
-            ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-            : permission === "denied"
+        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${permission === "granted"
+          ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+          : permission === "denied"
             ? "bg-destructive/10 text-destructive border-destructive/20"
             : "bg-muted text-muted-foreground border-border"
-        }`}>
+          }`}>
           {permission === "granted" ? "Activas" : permission === "denied" ? "Bloqueadas" : "No configuradas"}
         </span>
       </div>
@@ -292,6 +335,267 @@ function NotificacionesCard() {
         <strong className="text-foreground font-medium block">Cómo instalar en tu celular:</strong>
         <p>• <strong>iPhone (Safari):</strong> Tocá Compartir <span className="font-mono">⎋</span> y seleccioná <em>"Agregar a pantalla de inicio"</em>.</p>
         <p>• <strong>Android (Chrome):</strong> Tocá el menú de tres puntos <span className="font-mono">⋮</span> y seleccioná <em>"Instalar aplicación"</em>.</p>
+      </div>
+    </div>
+  )
+}
+
+function ResendEmailCard() {
+  const [apiKey, setApiKey] = React.useState("")
+  const [fromEmail, setFromEmail] = React.useState("onboarding@resend.dev")
+  const [fromName, setFromName] = React.useState("Altario CMS")
+  const [showKey, setShowKey] = React.useState(false)
+  const [saving, setSaving] = React.useState(false)
+  const [saveFeedback, setSaveFeedback] = React.useState<{ ok: boolean; msg: string } | null>(null)
+
+  // Test Email States
+  const [testEmail, setTestEmail] = React.useState("")
+  const [isSendingTest, setIsSendingTest] = React.useState(false)
+  const [testFeedback, setTestFeedback] = React.useState<{ ok: boolean; msg: string } | null>(null)
+
+  React.useEffect(() => {
+    // Limpiar residuos de localStorage si existieran
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("altario:site_config:v2")
+      } catch {}
+    }
+
+    // Traer directamente desde Supabase
+    fetchSiteConfigFromDb().then((cfg) => {
+      if (cfg.email?.resend_api_key) {
+        setApiKey(cfg.email.resend_api_key)
+      } else {
+        setApiKey(DEFAULT_RESEND_API_KEY)
+      }
+      if (cfg.email?.remitente_email) setFromEmail(cfg.email.remitente_email)
+      if (cfg.email?.remitente_nombre) setFromName(cfg.email.remitente_nombre)
+    }).catch(() => {})
+
+    const session = getSession()
+    if (session?.email) {
+      setTestEmail(session.email)
+    }
+  }, [])
+
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    setSaving(true)
+    setSaveFeedback(null)
+
+    const cleanKey = apiKey.trim()
+    const cleanFromEmail = fromEmail.trim() || "onboarding@resend.dev"
+    const cleanFromName = fromName.trim() || "Altario CMS"
+
+    try {
+      await saveEmailConfig({
+        resend_api_key: cleanKey,
+        remitente_email: cleanFromEmail,
+        remitente_nombre: cleanFromName,
+      })
+      setApiKey(cleanKey)
+      setFromEmail(cleanFromEmail)
+      setFromName(cleanFromName)
+      setSaveFeedback({ ok: true, msg: "Credenciales guardadas en Supabase exitosamente." })
+      setTimeout(() => setSaveFeedback(null), 3500)
+    } catch (err: any) {
+      setSaveFeedback({ ok: false, msg: err?.message || "Error al guardar en Supabase." })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleSendTest = async () => {
+    if (!testEmail.trim()) {
+      setTestFeedback({ ok: false, msg: "Ingresá un correo destinatario para la prueba." })
+      return
+    }
+
+    setIsSendingTest(true)
+    setTestFeedback(null)
+
+    try {
+      const res = await sendTestEmail({
+        to: testEmail.trim(),
+        apiKey: apiKey.trim() || DEFAULT_RESEND_API_KEY,
+        fromEmail: fromEmail.trim(),
+        fromName: fromName.trim(),
+      })
+
+      if (res.ok) {
+        setTestFeedback({
+          ok: true,
+          msg: `¡Correo enviado con éxito! Revisá la bandeja de ${testEmail.trim()} (ID: ${res.id}).`,
+        })
+      } else {
+        setTestFeedback({
+          ok: false,
+          msg: res.error || "No se pudo entregar el correo de prueba.",
+        })
+      }
+    } catch (err: any) {
+      setTestFeedback({ ok: false, msg: err?.message || "Error al conectar con Resend." })
+    } finally {
+      setIsSendingTest(false)
+    }
+  }
+
+  const hasConfiguredKey = Boolean(apiKey.trim() || DEFAULT_RESEND_API_KEY)
+
+  return (
+    <div className="max-w-md rounded-lg border bg-card p-4 space-y-4 mt-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+          <MailIcon className="size-3.5 text-muted-foreground" />
+          Servicio de Correo (Resend)
+        </h3>
+        <span
+          className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${hasConfiguredKey
+            ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+            : "bg-muted text-muted-foreground border-border"
+            }`}
+        >
+          {hasConfiguredKey ? "Configurado" : "Sin credencial"}
+        </span>
+      </div>
+
+      <p className="text-xs text-muted-foreground leading-relaxed">
+        Gestioná la API Key de Resend para el envío automático de correos de recuperación de contraseña, avisos y notificaciones parroquiales.
+      </p>
+
+      {saveFeedback && (
+        <div
+          className={`p-2.5 rounded-md text-xs flex items-center gap-2 border ${saveFeedback.ok
+            ? "bg-muted text-foreground border-border"
+            : "bg-destructive/10 text-destructive border-destructive/20"
+            }`}
+        >
+          {saveFeedback.ok ? (
+            <CheckCircle2Icon className="size-4 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertCircleIcon className="size-4 shrink-0" />
+          )}
+          <span>{saveFeedback.msg}</span>
+        </div>
+      )}
+
+      <div className="space-y-3">
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <label className="text-xs text-muted-foreground font-medium">API Key de Resend</label>
+            <button
+              type="button"
+              onClick={() => setShowKey(!showKey)}
+              className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
+            >
+              {showKey ? <EyeOffIcon className="size-3" /> : <EyeIcon className="size-3" />}
+              {showKey ? "Ocultar" : "Mostrar"}
+            </button>
+          </div>
+          <input
+            type="text"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder="re_..."
+            autoComplete="off"
+            name="app_config_token"
+            id="app_config_token"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            data-form-type="other"
+            spellCheck={false}
+            style={{ WebkitTextSecurity: showKey ? "none" : "disc" } as React.CSSProperties}
+            className="w-full h-8 rounded-md border bg-background px-2.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-2" data-form-type="other">
+          <div className="space-y-1">
+            <label className="text-xs text-muted-foreground font-medium">Remitente (Email)</label>
+            <input
+              type="text"
+              value={fromEmail}
+              onChange={(e) => setFromEmail(e.target.value)}
+              placeholder="no-responder@tudominio.com"
+              autoComplete="off"
+              name="app_mail_sender_address"
+              id="app_mail_sender_address"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-form-type="other"
+              className="w-full h-8 rounded-md border bg-background px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs text-muted-foreground font-medium">Remitente (Nombre)</label>
+            <input
+              type="text"
+              value={fromName}
+              onChange={(e) => setFromName(e.target.value)}
+              placeholder="Altario CMS"
+              autoComplete="off"
+              name="app_mail_sender_name"
+              id="app_mail_sender_name"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-form-type="other"
+              className="w-full h-8 rounded-md border bg-background px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+            />
+          </div>
+        </div>
+
+        <div className="pt-1">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="inline-flex items-center justify-center gap-2 h-8 px-4 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors cursor-pointer disabled:opacity-50"
+          >
+            {saving ? "Guardando..." : "Guardar credenciales de Resend"}
+          </button>
+        </div>
+      </div>
+
+      {/* Caja de prueba en vivo */}
+      <div className="pt-3 border-t border-border/70 space-y-2.5">
+        <label className="text-xs font-medium text-foreground flex items-center gap-1.5">
+          <SendIcon className="size-3 text-muted-foreground" />
+          Probar envío de correo
+        </label>
+        <div className="flex items-center gap-2">
+          <input
+            type="email"
+            value={testEmail}
+            onChange={(e) => setTestEmail(e.target.value)}
+            placeholder="correo-destino@ejemplo.com"
+            className="flex-1 h-8 rounded-md border bg-background px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+          <button
+            type="button"
+            onClick={handleSendTest}
+            disabled={isSendingTest || !hasConfiguredKey}
+            className="h-8 px-3 rounded-md border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors shrink-0 cursor-pointer disabled:opacity-50"
+          >
+            {isSendingTest ? "Enviando..." : "Enviar prueba"}
+          </button>
+        </div>
+
+        {testFeedback && (
+          <div
+            className={`p-2.5 rounded-md text-xs flex items-start gap-2 border animate-in fade-in ${testFeedback.ok
+              ? "bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/20"
+              : "bg-destructive/10 text-destructive border-destructive/20"
+              }`}
+          >
+            {testFeedback.ok ? (
+              <CheckCircle2Icon className="size-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+            ) : (
+              <AlertCircleIcon className="size-4 shrink-0 mt-0.5" />
+            )}
+            <span className="leading-relaxed">{testFeedback.msg}</span>
+          </div>
+        )}
       </div>
     </div>
   )

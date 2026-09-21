@@ -14,6 +14,13 @@ export const SUPABASE_KEY =
 
 export const SUPABASE_ANON_KEY = SUPABASE_KEY;
 
+export const DEFAULT_RESEND_API_KEY = process.env.RESEND_API_KEY || '';
+
+export const RESEND_API_KEY =
+  process.env.RESEND_API_KEY ||
+  process.env.PUBLIC_RESEND_API_KEY ||
+  DEFAULT_RESEND_API_KEY;
+
 /**
  * Consulta la configuración de donaciones guardada en Supabase
  */

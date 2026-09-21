@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase"
+import seedConfiguracion from "@/data/seeds/configuracion.json"
 
 export interface ParroquiaConfig {
   nombre: string
@@ -103,6 +104,13 @@ export interface SeoConfig {
   palabras_clave?: string
 }
 
+export interface EmailConfig {
+  resend_api_key?: string
+  remitente_email?: string
+  remitente_nombre?: string
+  notificaciones_admin?: string
+}
+
 export interface SiteConfig {
   parroquia: ParroquiaConfig
   parroco: ParrocoConfig
@@ -113,86 +121,24 @@ export interface SiteConfig {
   seo: SeoConfig
   apariencia: AparienciaConfig
   dominio: DominioConfig
+  email?: EmailConfig
 }
 
 export const defaultSiteConfig: SiteConfig = {
-  parroquia: {
-    nombre: "",
-    diocesis: "",
-    lema: "",
-    descripcion: "",
-    logo_tipo: "monograma",
-    logo_iniciales: "",
-    logo_url: "",
-  },
-  parroco: {
-    nombre: "",
-    titulo: "",
-    email: "",
-    telefono: "",
-    biografia: "",
-    foto_url: "",
-  },
-  contacto: {
-    direccion: "",
-    telefono: "",
-    whatsapp: "",
-    email: "",
-    horario_secretaria: "",
-    como_llegar: "",
-  },
-  donaciones: {
-    mercadopago: {
-      public_key: "",
-      access_token: "",
-      activo: false,
-    },
-    titulo_seccion: "",
-    mensaje: "",
-    cuentas_bancarias: [],
-    medios_donacion: [],
-  },
-  redes: {
-    facebook: "",
-    instagram: "",
-    youtube: "",
-    whatsapp: "",
-    twitter: "",
-    spotify: "",
-  },
-  historia: {
-    titulo: "",
-    bajada: "",
-    contenido_markdown: "",
-  },
-  seo: {
-    meta_titulo: "",
-    meta_descripcion: "",
-    palabras_clave: "",
-    og_image_url: "",
-  },
-  apariencia: {
-    color_primario: "#16244A",
-    color_acento: "#C9A96A",
-    color_fondo_hero: "",
-    mostrar_banner_anuncio: false,
-  },
-  dominio: {
-    dominio_web: "",
-    subdominio_cms: "",
-    forzar_https: true,
-    proveedor_hosting: "vercel",
-    google_analytics_id: "",
-    google_search_console_id: "",
+  ...(seedConfiguracion as unknown as SiteConfig),
+  email: {
+    resend_api_key: (seedConfiguracion as any)?.email?.resend_api_key ?? "",
+    remitente_email: (seedConfiguracion as any)?.email?.remitente_email ?? "onboarding@resend.dev",
+    remitente_nombre: (seedConfiguracion as any)?.email?.remitente_nombre ?? "Altario CMS",
+    notificaciones_admin: (seedConfiguracion as any)?.email?.notificaciones_admin ?? "",
   },
 }
 
 let configMemory: SiteConfig | null = null
 
 export function getLocalConfig(): SiteConfig {
-  if (!configMemory) {
-    configMemory = { ...defaultSiteConfig }
-  }
+  if (configMemory) return configMemory
+  configMemory = { ...defaultSiteConfig }
   return configMemory
 }
 
@@ -200,13 +146,15 @@ export function saveLocalConfig(config: SiteConfig): void {
   configMemory = config
 }
 
+/**
+ * Obtiene la configuración directamente desde Supabase
+ */
 export async function fetchSiteConfigFromDb(): Promise<SiteConfig> {
-  const fallback = getLocalConfig()
-  if (!supabase) return fallback
+  if (!supabase) return configMemory || defaultSiteConfig
 
   try {
     const { data, error } = await supabase.from("configuracion").select("clave, valor")
-    if (error || !data || data.length === 0) return fallback
+    if (error || !data || data.length === 0) return configMemory || defaultSiteConfig
 
     const configMap: Record<string, any> = {}
     data.forEach((row: any) => {
@@ -223,12 +171,13 @@ export async function fetchSiteConfigFromDb(): Promise<SiteConfig> {
       seo: configMap["seo"] ? { ...configMap["seo"] } : { ...defaultSiteConfig.seo },
       apariencia: configMap["apariencia"] ? { ...configMap["apariencia"] } : { ...defaultSiteConfig.apariencia },
       dominio: configMap["dominio"] ? { ...configMap["dominio"] } : { ...defaultSiteConfig.dominio },
+      email: configMap["email"] ? { ...configMap["email"] } : { ...defaultSiteConfig.email },
     }
 
-    saveLocalConfig(merged)
+    configMemory = merged
     return merged
   } catch {
-    return fallback
+    return configMemory || defaultSiteConfig
   }
 }
 
@@ -236,17 +185,46 @@ export async function saveSiteConfigSection<K extends keyof SiteConfig>(
   section: K,
   value: SiteConfig[K]
 ): Promise<void> {
-  const current = getLocalConfig()
+  const current = configMemory || defaultSiteConfig
   const updated: SiteConfig = {
     ...current,
     [section]: value,
   }
+  configMemory = updated
 
-  await saveFullSiteConfig(updated)
+  if (supabase) {
+    const { error } = await supabase.from("configuracion").upsert([
+      {
+        clave: section,
+        valor: value,
+        updated_at: new Date().toISOString(),
+      },
+    ], { onConflict: "clave" })
+
+    if (error) {
+      console.error(`[Config] Error al guardar sección ${section} en Supabase:`, error)
+      throw new Error(`Error al guardar en Supabase: ${error.message || "Error desconocido"}`)
+    }
+  }
+
+  // Sincronizar archivo local dev
+  try {
+    if (typeof window !== "undefined") {
+      await fetch("/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updated),
+      })
+    }
+  } catch {}
+}
+
+export async function saveEmailConfig(emailConfig: EmailConfig): Promise<void> {
+  return saveSiteConfigSection("email", emailConfig)
 }
 
 export async function saveFullSiteConfig(config: SiteConfig): Promise<void> {
-  saveLocalConfig(config)
+  configMemory = config
 
   // 1. Sync to local files via API endpoint (allows web dev server to see changes immediately)
   try {
@@ -270,7 +248,7 @@ export async function saveFullSiteConfig(config: SiteConfig): Promise<void> {
     }
   } catch {}
 
-  // 3. Sync to Supabase if connected
+  // 3. Sync to Supabase
   if (supabase) {
     const sections: (keyof SiteConfig)[] = [
       "parroquia",
@@ -282,16 +260,17 @@ export async function saveFullSiteConfig(config: SiteConfig): Promise<void> {
       "seo",
       "apariencia",
       "dominio",
+      "email",
     ]
-    try {
-      const updates = sections.map((sec) => ({
-        clave: sec,
-        valor: config[sec],
-        updated_at: new Date().toISOString(),
-      }))
-      await supabase.from("configuracion").upsert(updates, { onConflict: "clave" })
-    } catch (err) {
-      console.warn("Error al sincronizar configuración con Supabase:", err)
+    const updates = sections.map((sec) => ({
+      clave: sec,
+      valor: config[sec],
+      updated_at: new Date().toISOString(),
+    }))
+    const { error } = await supabase.from("configuracion").upsert(updates, { onConflict: "clave" })
+    if (error) {
+      console.error("Error al sincronizar configuración con Supabase:", error)
+      throw new Error(`Error en Supabase: ${error.message || "Error desconocido"}`)
     }
   }
 }

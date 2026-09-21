@@ -212,3 +212,28 @@ create policy "Inserción pública de donaciones"
 
 create policy "Lectura de donaciones para CMS"
   on public.donaciones for select using (true);
+
+-- TABLA: PLANTILLAS DE CONTENIDO (Generador dinámico de piezas visuales)
+create table if not exists public.contenido_plantillas (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  slug text unique not null,
+  nombre text not null,
+  descripcion text,
+  categoria text not null default 'personalizado',
+  ancho_base integer not null default 1080,
+  alto_base integer not null default 1350,
+  html_template text not null,
+  variables jsonb not null default '[]'::jsonb,
+  activo boolean not null default true,
+  orden integer not null default 0
+);
+
+alter table public.contenido_plantillas enable row level security;
+
+create policy "Lectura pública de plantillas de contenido"
+  on public.contenido_plantillas for select using (true);
+
+create policy "Acceso total plantillas de contenido para CMS"
+  on public.contenido_plantillas for all using (true) with check (true);
