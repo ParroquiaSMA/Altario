@@ -85,7 +85,7 @@ export function setTheme(theme: "light" | "dark" | "system") {
 
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar()
-  const [currentTheme, setCurrentTheme] = React.useState<"light" | "dark" | "system">("dark")
+  const [currentTheme, setCurrentTheme] = React.useState<"light" | "dark" | "system">("light")
   const [webUrl, setWebUrl] = React.useState("https://santamariadelaayuda.org")
 
   React.useEffect(() => {
@@ -94,6 +94,9 @@ export function NavUser({ user }: { user: User }) {
       if (saved) {
         setCurrentTheme(saved)
         applyTheme(saved)
+      } else {
+        setCurrentTheme("light")
+        applyTheme("light")
       }
     } catch {}
     setWebUrl(getPublicWebUrl())

@@ -35,7 +35,7 @@ const { title = 'Altario CMS — Panel de Administración' } = Astro.props;
     <script is:inline>
       (function() {
         try {
-          const theme = localStorage.getItem('theme') || 'dark';
+          const theme = localStorage.getItem('theme') || 'light';
           const isDark =
             theme === 'dark' ||
             (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -45,7 +45,7 @@ const { title = 'Altario CMS — Panel de Administración' } = Astro.props;
             document.documentElement.classList.remove('dark');
           }
         } catch (e) {
-          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('dark');
         }
       })();
     </script>
