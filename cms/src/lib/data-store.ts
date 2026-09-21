@@ -138,7 +138,7 @@ const inMemoryStores: Record<string, any[]> = {
   galeria: supabase ? [] : seedFotos,
   mensajes: supabase ? [] : seedMensajes,
   donaciones: [],
-  contenido_plantillas: supabase ? [] : (seedContenidoPlantillas as any[]),
+  contenido_plantillas: (seedContenidoPlantillas as any[]),
 }
 
 // Limpiar residuos de seeds en localStorage si Supabase está activo
@@ -153,7 +153,9 @@ if (typeof window !== "undefined" && supabase) {
 
 function getStore<T>(key: string, seed: T[]): T[] {
   if (supabase) {
-    return (inMemoryStores[key] || []) as T[]
+    const mem = inMemoryStores[key]
+    if (mem && mem.length > 0) return mem as T[]
+    return seed as T[]
   }
   if (inMemoryStores[key] && inMemoryStores[key].length > 0) {
     return inMemoryStores[key] as T[]
@@ -785,50 +787,63 @@ export interface ContenidoPlantillaItem {
 
 export const getContenidoPlantillas = (): ContenidoPlantillaItem[] =>
   getStore<ContenidoPlantillaItem>("contenido_plantillas", seedContenidoPlantillas as any[])
-export const saveContenidoPlantillas = (items: ContenidoPlantillaItem[]) =>
+export const saveContenidoPlantillas = (items: ContenidoPlantillaItem[]) => {
   setStore("contenido_plantillas", items)
+  syncStoreToFiles("contenido_plantillas", items)
+}
 
 export async function fetchContenidoPlantillasFromDb(): Promise<ContenidoPlantillaItem[]> {
-  if (!supabase) return inMemoryStores["contenido_plantillas"] || (seedContenidoPlantillas as any[])
+  const fallback = seedContenidoPlantillas as any[] as ContenidoPlantillaItem[]
+  if (!supabase) {
+    const mem = inMemoryStores["contenido_plantillas"]
+    return mem && mem.length > 0 ? mem : fallback
+  }
   try {
     const { data, error } = await supabase
       .from("contenido_plantillas")
       .select("*")
       .order("orden", { ascending: true })
     if (error) {
-      console.error("[DB] Error al obtener plantillas de contenido:", error)
-      return inMemoryStores["contenido_plantillas"] || (seedContenidoPlantillas as any[])
+      console.warn("[DB] No se pudo leer contenido_plantillas desde Supabase (usando datos locales):", error.message)
+      const mem = inMemoryStores["contenido_plantillas"]
+      return mem && mem.length > 0 ? mem : fallback
     }
     const items = (data || []) as ContenidoPlantillaItem[]
     if (items.length === 0) {
-      return seedContenidoPlantillas as any[]
+      inMemoryStores["contenido_plantillas"] = fallback
+      return fallback
     }
     inMemoryStores["contenido_plantillas"] = items
     return items
   } catch (err) {
-    console.error("[DB] Exception contenido_plantillas:", err)
-    return inMemoryStores["contenido_plantillas"] || (seedContenidoPlantillas as any[])
+    console.warn("[DB] Exception contenido_plantillas (usando datos locales):", err)
+    const mem = inMemoryStores["contenido_plantillas"]
+    return mem && mem.length > 0 ? mem : fallback
   }
 }
 
 export async function addContenidoPlantilla(
   item: Omit<ContenidoPlantillaItem, "id">
 ): Promise<ContenidoPlantillaItem> {
-  if (!supabase) {
-    const nuevo = { ...item, id: `cp-${Date.now()}` } as ContenidoPlantillaItem
-    const items = getContenidoPlantillas()
-    const updated = [...items, nuevo]
-    saveContenidoPlantillas(updated)
-    return nuevo
+  const localId = `cp-${Date.now()}`
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from("contenido_plantillas").insert([item]).select()
+      if (!error && data?.[0]) {
+        const nuevo = data[0] as ContenidoPlantillaItem
+        const items = getContenidoPlantillas()
+        const updated = [...items.filter((i) => i.id !== nuevo.id), nuevo]
+        saveContenidoPlantillas(updated)
+        return nuevo
+      }
+      console.warn("[DB] Falló inserción en Supabase, guardando localmente:", error?.message)
+    } catch (err) {
+      console.warn("[DB] Excepción al insertar en Supabase:", err)
+    }
   }
-  const { data, error } = await supabase.from("contenido_plantillas").insert([item]).select()
-  if (error || !data?.[0]) {
-    console.error("[DB] Error al insertar plantilla de contenido:", error)
-    throw new Error(error?.message || "Error al insertar plantilla de contenido")
-  }
-  const nuevo = data[0] as ContenidoPlantillaItem
+  const nuevo = { ...item, id: localId } as ContenidoPlantillaItem
   const items = getContenidoPlantillas()
-  const updated = [...items.filter((i) => i.id !== nuevo.id), nuevo]
+  const updated = [...items, nuevo]
   saveContenidoPlantillas(updated)
   return nuevo
 }
@@ -837,16 +852,15 @@ export async function updateContenidoPlantilla(
   id: string,
   updates: Partial<ContenidoPlantillaItem>
 ): Promise<void> {
-  if (!supabase) {
-    const items = getContenidoPlantillas()
-    const updated = items.map((i) => (i.id === id ? { ...i, ...updates } : i))
-    saveContenidoPlantillas(updated)
-    return
-  }
-  const { error } = await supabase.from("contenido_plantillas").update(updates).eq("id", id)
-  if (error) {
-    console.error("[DB] Error al actualizar plantilla de contenido:", error)
-    throw new Error(error.message)
+  if (supabase) {
+    try {
+      const { error } = await supabase.from("contenido_plantillas").update(updates).eq("id", id)
+      if (error) {
+        console.warn("[DB] Falló actualización en Supabase, actualizando local:", error.message)
+      }
+    } catch (err) {
+      console.warn("[DB] Excepción al actualizar en Supabase:", err)
+    }
   }
   const items = getContenidoPlantillas()
   const updated = items.map((i) => (i.id === id ? { ...i, ...updates } : i))
@@ -855,10 +869,13 @@ export async function updateContenidoPlantilla(
 
 export async function deleteContenidoPlantilla(id: string): Promise<void> {
   if (supabase) {
-    const { error } = await supabase.from("contenido_plantillas").delete().eq("id", id)
-    if (error) {
-      console.error("[DB] Error al eliminar plantilla de contenido:", error)
-      throw new Error(error.message)
+    try {
+      const { error } = await supabase.from("contenido_plantillas").delete().eq("id", id)
+      if (error) {
+        console.warn("[DB] Falló eliminación en Supabase, eliminando local:", error.message)
+      }
+    } catch (err) {
+      console.warn("[DB] Excepción al eliminar en Supabase:", err)
     }
   }
   const updated = getContenidoPlantillas().filter((i) => i.id !== id)

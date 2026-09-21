@@ -13,11 +13,27 @@ interface SelectContextValue {
 
 const SelectContext = React.createContext<SelectContextValue | null>(null)
 
+function scanSelectItems(children: React.ReactNode, map = new Map<any, React.ReactNode>()): Map<any, React.ReactNode> {
+  React.Children.forEach(children, (child) => {
+    if (!React.isValidElement(child)) return
+    const p = child.props as any
+    if (p) {
+      if (p.value !== undefined && p.children !== undefined) {
+        map.set(p.value, p.children)
+      }
+      if (p.children) {
+        scanSelectItems(p.children, map)
+      }
+    }
+  })
+  return map
+}
+
 function Select({ children, ...props }: SelectPrimitive.Root.Props<any>) {
-  const [itemsMap, setItemsMap] = React.useState<Map<any, React.ReactNode>>(() => new Map())
+  const [mountedItemsMap, setMountedItemsMap] = React.useState<Map<any, React.ReactNode>>(() => new Map())
 
   const registerItem = React.useCallback((value: any, label: React.ReactNode) => {
-    setItemsMap((prev) => {
+    setMountedItemsMap((prev) => {
       if (prev.get(value) === label) return prev
       const next = new Map(prev)
       next.set(value, label)
@@ -25,8 +41,16 @@ function Select({ children, ...props }: SelectPrimitive.Root.Props<any>) {
     })
   }, [])
 
+  const scannedMap = React.useMemo(() => scanSelectItems(children), [children])
+
+  const itemMap = React.useMemo(() => {
+    const merged = new Map(scannedMap)
+    mountedItemsMap.forEach((v, k) => merged.set(k, v))
+    return merged
+  }, [scannedMap, mountedItemsMap])
+
   return (
-    <SelectContext.Provider value={{ itemMap: itemsMap, registerItem }}>
+    <SelectContext.Provider value={{ itemMap, registerItem }}>
       <SelectPrimitive.Root {...props}>{children}</SelectPrimitive.Root>
     </SelectContext.Provider>
   )
