@@ -176,7 +176,7 @@ export const defaultSiteConfig: SiteConfig = {
   apariencia: {
     color_primario: '#16244A',
     color_acento: '#C9A96A',
-    color_fondo_hero: '',
+    color_fondo_hero: '#16244A',
     mostrar_banner_anuncio: false,
   },
   dominio: {

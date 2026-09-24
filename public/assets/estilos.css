@@ -15,14 +15,14 @@
   --azul-claro: #6ABBE6;
   --tabaco: #746141;
 
-  --lapis: #111111;
-  /* Fondo oscuro elegante Sensilo */
-  --lapis-claro: #111111;
-  /* Primary negro */
-  --oro: #746141;
-  /* Bronce / Tabaco Sensilo */
-  --oro-texto: #746141;
-  /* Bronce Sensilo */
+  --lapis: #16244A;
+  /* Fondo azul oscuro de la parroquia */
+  --lapis-claro: #22366B;
+  /* Azul titulares */
+  --oro: #C9A96A;
+  /* Bronce / Oro sobre fondo oscuro */
+  --oro-texto: #7A5C24;
+  /* Bronce legible sobre fondo claro */
   --cal: #FAF9F7;
   /* Base clara Sensilo */
   --linea: #E6E3DC;
