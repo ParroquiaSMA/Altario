@@ -1,6 +1,6 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import FondoDecorativo from '../components/FondoDecorativo.astro';
+import Layout from "../layouts/Layout.astro";
+import FondoDecorativo from "../components/FondoDecorativo.astro";
 import {
   getSiteConfig,
   getGaleria,
@@ -8,7 +8,7 @@ import {
   getHorarios,
   getSacramentos,
   getGrupos,
-} from '../lib/supabase';
+} from "../lib/supabase";
 
 const siteConfig = await getSiteConfig();
 const { parroquia, contacto, historia, donaciones } = siteConfig;
@@ -25,23 +25,34 @@ const previewFotos = fotos.slice(0, 3);
 
 // Clasificación de horarios
 const misas = horarios.filter(
-  (h) => h.categoria === 'misa' || h.categoria === 'adoracion' || !h.categoria
+  (h) => h.categoria === "misa" || h.categoria === "adoracion" || !h.categoria,
 );
 const atencion = horarios.filter(
-  (h) => h.categoria === 'secretaria' || h.categoria === 'confesion'
+  (h) => h.categoria === "secretaria" || h.categoria === "confesion",
 );
 
-const DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-const DIAS_CORTOS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+const DIAS_SEMANA = [
+  "Domingo",
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+];
+const DIAS_CORTOS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
 const misasScriptData = misas.map((m) => ({
   dia: m.dia_semana,
   hora: m.hora_inicio.slice(0, 5),
-  nota: m.titulo || m.descripcion || 'Misa',
+  nota: m.titulo || m.descripcion || "Misa",
 }));
 ---
 
-<Layout title={`${parroquia.nombre} — Horarios de misa y sacramentos`} currentPage="inicio">
+<Layout
+  title={`${parroquia.nombre} — Horarios de misa y sacramentos`}
+  currentPage="inicio"
+>
   <!-- ===== HERO ===== -->
   <section class="hero">
     <FondoDecorativo variant="hero" />
@@ -49,13 +60,17 @@ const misasScriptData = misas.map((m) => ({
     <div class="contenedor">
       <div class="hero__grilla">
         <div>
-          <p class="antetitulo">Comunidad católica {parroquia.diocesis ? `· ${parroquia.diocesis}` : '· Desde 1948'}</p>
+          <p class="antetitulo">Parroquia</p>
           <h1>{parroquia.nombre}</h1>
           <p class="hero__lema">
-            {parroquia.lema || 'Las puertas están abiertas todos los días. Acá encontrás los horarios de misa, cómo preparar un sacramento y a quién escribirle.'}
+            {
+              parroquia.lema ||
+                "Las puertas están abiertas todos los días. Acá encontrás los horarios de misa, cómo preparar un sacramento y a quién escribirle."
+            }
           </p>
           <div class="hero__acciones">
-            <a class="boton boton--oro" href="#horarios">Ver horarios de misa</a>
+            <a class="boton boton--oro" href="#horarios">Ver horarios de misa</a
+            >
             <a class="boton boton--linea" href="/contacto">Cómo llegar</a>
           </div>
         </div>
@@ -92,69 +107,114 @@ const misasScriptData = misas.map((m) => ({
         <div class="ficha ficha--misas">
           <h3 class="ficha__titulo-seccion">Celebraciones y Misas</h3>
           <div class="misas-lista">
-            {misas.length > 0 ? (
-              misas.map((h) => {
-                const hora = `${h.hora_inicio.slice(0, 5)}${h.hora_fin ? ` a ${h.hora_fin.slice(0, 5)} hs` : ' hs'}`;
-                const dias = Array.isArray((h as any).dias_semana) && (h as any).dias_semana.length > 0
-                  ? (h as any).dias_semana
-                  : [h.dia_semana];
-                let dia = DIAS_SEMANA[dias[0]] || 'Día a coordinar';
-                if (dias.length === 7) dia = 'Todos los días';
-                else if (dias.length === 5 && [1, 2, 3, 4, 5].every((d: number) => dias.includes(d))) dia = 'Lunes a Viernes';
-                else if (dias.length === 2 && dias.includes(0) && dias.includes(6)) dia = 'Sábado y Domingo';
-                else if (dias.length > 1) dia = dias.sort().map((d: number) => DIAS_CORTOS[d]).join(', ');
+            {
+              misas.length > 0 ? (
+                misas.map((h) => {
+                  const hora = `${h.hora_inicio.slice(0, 5)}${h.hora_fin ? ` a ${h.hora_fin.slice(0, 5)} hs` : " hs"}`;
+                  const dias =
+                    Array.isArray((h as any).dias_semana) &&
+                    (h as any).dias_semana.length > 0
+                      ? (h as any).dias_semana
+                      : [h.dia_semana];
+                  let dia = DIAS_SEMANA[dias[0]] || "Día a coordinar";
+                  if (dias.length === 7) dia = "Todos los días";
+                  else if (
+                    dias.length === 5 &&
+                    [1, 2, 3, 4, 5].every((d: number) => dias.includes(d))
+                  )
+                    dia = "Lunes a Viernes";
+                  else if (
+                    dias.length === 2 &&
+                    dias.includes(0) &&
+                    dias.includes(6)
+                  )
+                    dia = "Sábado y Domingo";
+                  else if (dias.length > 1)
+                    dia = dias
+                      .sort()
+                      .map((d: number) => DIAS_CORTOS[d])
+                      .join(", ");
 
-                let subtitulo = h.titulo ? h.titulo.replace(/^Misa(\s+(de\s+|y\s+|dominical\s+))?/i, '').trim() : '';
-                subtitulo = subtitulo.replace(/^\((.+)\)$/, '$1');
-                return (
-                  <div class="misa-item">
-                    <div class="misa-item__cabecera">
-                      <strong class="misa-item__dia">
-                        {dia}
-                        {subtitulo && subtitulo.toLowerCase() !== dia.toLowerCase() ? (
-                          <span class="misa-item__subtitulo">({subtitulo})</span>
-                        ) : null}
-                      </strong>
-                      <span class="misa-item__hora">{hora}</span>
+                  let subtitulo = h.titulo
+                    ? h.titulo
+                        .replace(/^Misa(\s+(de\s+|y\s+|dominical\s+))?/i, "")
+                        .trim()
+                    : "";
+                  subtitulo = subtitulo.replace(/^\((.+)\)$/, "$1");
+                  return (
+                    <div class="misa-item">
+                      <div class="misa-item__cabecera">
+                        <strong class="misa-item__dia">
+                          {dia}
+                          {subtitulo &&
+                          subtitulo.toLowerCase() !== dia.toLowerCase() ? (
+                            <span class="misa-item__subtitulo">
+                              ({subtitulo})
+                            </span>
+                          ) : null}
+                        </strong>
+                        <span class="misa-item__hora">{hora}</span>
+                      </div>
+                      {h.descripcion && (
+                        <p class="misa-item__nota">{h.descripcion}</p>
+                      )}
                     </div>
-                    {h.descripcion && <p class="misa-item__nota">{h.descripcion}</p>}
+                  );
+                })
+              ) : (
+                <div class="misa-item">
+                  <div class="misa-item__cabecera">
+                    <strong class="misa-item__dia">Domingo</strong>
+                    <span class="misa-item__hora">10:00 a 10:45 hs</span>
                   </div>
-                );
-              })
-            ) : (
-              <div class="misa-item">
-                <div class="misa-item__cabecera">
-                  <strong class="misa-item__dia">Domingo</strong>
-                  <span class="misa-item__hora">10:00 a 10:45 hs</span>
+                  <p class="misa-item__nota">Misa comunitaria</p>
                 </div>
-                <p class="misa-item__nota">Misa comunitaria</p>
-              </div>
-            )}
+              )
+            }
           </div>
         </div>
 
         <div>
           <div class="ficha">
             <h3>Confesiones y atención sacerdotal</h3>
-            <p>Sábados de 17:00 a 18:30 hs y antes de cada celebración, o coordinando con el sacerdote en secretaría.</p>
+            <p>
+              Sábados de 17:00 a 18:30 hs y antes de cada celebración, o
+              coordinando con el sacerdote en secretaría.
+            </p>
           </div>
           <div class="ficha">
             <h3>Secretaría y templo abierto</h3>
-            {atencion.length > 0 ? (
-              <dl>
-                {atencion.map((a) => (
-                  <>
-                    <dt>{DIAS_CORTOS[a.dia_semana] || DIAS_SEMANA[a.dia_semana]}</dt>
-                    <dd>{a.hora_inicio.slice(0, 5)}{a.hora_fin ? ` – ${a.hora_fin.slice(0, 5)}` : ''}</dd>
-                  </>
-                ))}
-              </dl>
-            ) : (
-              <p>{contacto.horario_secretaria || 'Consultar en secretaría.'}</p>
-            )}
-            {contacto.horario_secretaria && atencion.length > 0 && (
-              <p class="nota" style="margin-top:.75rem;font-size:.875rem;color:var(--gris);">{contacto.horario_secretaria}</p>
-            )}
+            {
+              atencion.length > 0 ? (
+                <dl>
+                  {atencion.map((a) => (
+                    <>
+                      <dt>
+                        {DIAS_CORTOS[a.dia_semana] || DIAS_SEMANA[a.dia_semana]}
+                      </dt>
+                      <dd>
+                        {a.hora_inicio.slice(0, 5)}
+                        {a.hora_fin ? ` – ${a.hora_fin.slice(0, 5)}` : ""}
+                      </dd>
+                    </>
+                  ))}
+                </dl>
+              ) : (
+                <p>
+                  {contacto.horario_secretaria || "Consultar en secretaría."}
+                </p>
+              )
+            }
+            {
+              contacto.horario_secretaria && atencion.length > 0 && (
+                <p
+                  class="nota"
+                  style="margin-top:.75rem;font-size:.875rem;color:var(--gris);"
+                >
+                  {contacto.horario_secretaria}
+                </p>
+              )
+            }
           </div>
         </div>
       </div>
@@ -171,26 +231,44 @@ const misasScriptData = misas.map((m) => ({
       <div class="rejilla">
         <a class="tarjeta tarjeta-enlace" href="/sacramentos">
           <h3>Sacramentos</h3>
-          <p>Bautismo, primera comunión, confirmación, matrimonio, unción de enfermos y exequias: fechas, requisitos y qué papeles traer.</p>
-          <span class="flecha" aria-hidden="true">Ver los {sacramentos.length || ''} sacramentos →</span>
+          <p>
+            Bautismo, primera comunión, confirmación, matrimonio, unción de
+            enfermos y exequias: fechas, requisitos y qué papeles traer.
+          </p>
+          <span class="flecha" aria-hidden="true"
+            >Ver los {sacramentos.length || ""} sacramentos →</span
+          >
         </a>
         <a class="tarjeta tarjeta-enlace" href="/comunidad">
           <h3>Comunidad</h3>
           <p>
-            {grupos.length > 0
-              ? grupos.map((g) => g.nombre).slice(0, 5).join(', ') + '.'
-              : 'Legión de María, Divina Misericordia, Pastoral Social, Liturgia, Catequesis y Espiritualidad Ignaciana.'}
+            {
+              grupos.length > 0
+                ? grupos
+                    .map((g) => g.nombre)
+                    .slice(0, 5)
+                    .join(", ") + "."
+                : "Legión de María, Divina Misericordia, Pastoral Social, Liturgia, Catequesis y Espiritualidad Ignaciana."
+            }
           </p>
           <span class="flecha" aria-hidden="true">Ver los grupos →</span>
         </a>
         <a class="tarjeta tarjeta-enlace" href="/historia">
           <h3>Historia</h3>
-          <p>{historia?.bajada || 'Desde la capilla de chapas en el siglo XIX hasta el templo actual y la llegada de la Virgen desde Busto Arsizio.'}</p>
+          <p>
+            {
+              historia?.bajada ||
+                "Desde la capilla de chapas en el siglo XIX hasta el templo actual y la llegada de la Virgen desde Busto Arsizio."
+            }
+          </p>
           <span class="flecha" aria-hidden="true">Leer la historia →</span>
         </a>
         <a class="tarjeta tarjeta-enlace" href="/galeria">
           <h3>Galería</h3>
-          <p>El templo, los vitrales, las fiestas patronales y la vida de todos los días en fotos.</p>
+          <p>
+            El templo, los vitrales, las fiestas patronales y la vida de todos
+            los días en fotos.
+          </p>
           <span class="flecha" aria-hidden="true">Ver las fotos →</span>
         </a>
       </div>
@@ -198,72 +276,101 @@ const misasScriptData = misas.map((m) => ({
   </section>
 
   <!-- ===== AVISOS ===== -->
-  {avisos.length > 0 && (
-    <section class="seccion seccion--papel" id="avisos">
-      <div class="contenedor">
-        <p class="antetitulo">Próximas fechas</p>
-        <h2>Avisos de la comunidad</h2>
-        <p class="divisor"><i aria-hidden="true"></i></p>
+  {
+    avisos.length > 0 && (
+      <section class="seccion seccion--papel" id="avisos">
+        <div class="contenedor">
+          <p class="antetitulo">Próximas fechas</p>
+          <h2>Avisos de la comunidad</h2>
+          <p class="divisor">
+            <i aria-hidden="true" />
+          </p>
 
-        <ol class="avisos">
-          {avisos.map((aviso) => {
-            let fechaTexto = aviso.fecha;
-            try {
-              const parts = aviso.fecha.split('-');
-              if (parts.length === 3) {
-                const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-                fechaTexto = d.toLocaleDateString('es-UY', { day: 'numeric', month: 'long' });
-              }
-            } catch (e) {}
-            return (
-              <li>
-                <time datetime={aviso.fecha}>{fechaTexto}</time>
-                <div>
-                  <h3>{aviso.titulo}</h3>
-                  <p>{aviso.descripcion}</p>
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
-    </section>
-  )}
+          <ol class="avisos">
+            {avisos.map((aviso) => {
+              let fechaTexto = aviso.fecha;
+              try {
+                const parts = aviso.fecha.split("-");
+                if (parts.length === 3) {
+                  const d = new Date(
+                    parseInt(parts[0]),
+                    parseInt(parts[1]) - 1,
+                    parseInt(parts[2]),
+                  );
+                  fechaTexto = d.toLocaleDateString("es-UY", {
+                    day: "numeric",
+                    month: "long",
+                  });
+                }
+              } catch (e) {}
+              return (
+                <li>
+                  <time datetime={aviso.fecha}>{fechaTexto}</time>
+                  <div>
+                    <h3>{aviso.titulo}</h3>
+                    <p>{aviso.descripcion}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </section>
+    )
+  }
 
   <!-- ===== GALERÍA: ADELANTO ===== -->
-  {previewFotos.length > 0 && (
-    <section class="seccion">
-      <div class="contenedor">
-        <p class="antetitulo">Galería</p>
-        <h2>La parroquia por dentro</h2>
-        <p class="divisor"><i aria-hidden="true"></i></p>
+  {
+    previewFotos.length > 0 && (
+      <section class="seccion">
+        <div class="contenedor">
+          <p class="antetitulo">Galería</p>
+          <h2>La parroquia por dentro</h2>
+          <p class="divisor">
+            <i aria-hidden="true" />
+          </p>
 
-        <div class="rejilla-fotos">
-          {previewFotos.map((foto) => (
-            <a href="/galeria" style="display:block; overflow:hidden; border-radius:var(--radio, 8px);">
-              <img
-                src={foto.imagen_url}
-                alt={foto.descripcion || foto.titulo}
-                width="900"
-                height="600"
-                loading="lazy"
-                style="width:100%; height:100%; object-fit:cover; aspect-ratio:3/2; transition: transform 0.3s ease;"
-              />
+          <div class="rejilla-fotos">
+            {previewFotos.map((foto) => (
+              <a
+                href="/galeria"
+                style="display:block; overflow:hidden; border-radius:var(--radio, 8px);"
+              >
+                <img
+                  src={foto.imagen_url}
+                  alt={foto.descripcion || foto.titulo}
+                  width="900"
+                  height="600"
+                  loading="lazy"
+                  style="width:100%; height:100%; object-fit:cover; aspect-ratio:3/2; transition: transform 0.3s ease;"
+                />
+              </a>
+            ))}
+          </div>
+
+          <p style="margin-top:1.75rem">
+            <a class="boton boton--azul" href="/galeria">
+              Ver la galería completa
             </a>
-          ))}
+          </p>
         </div>
-
-        <p style="margin-top:1.75rem"><a class="boton boton--azul" href="/galeria">Ver la galería completa</a></p>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
   <!-- ===== FRANJA: COLABORAR ===== -->
   <section class="franja">
     <div class="contenedor franja__fila">
       <div>
-        <h2>{donaciones?.titulo_seccion || 'La parroquia se sostiene entre todos'}</h2>
-        <p>{donaciones?.mensaje || 'La colecta del domingo y el aporte de los socios pagan la luz, los materiales de catequesis y la ayuda a las familias del barrio.'}</p>
+        <h2>
+          {donaciones?.titulo_seccion || "La parroquia se sostiene entre todos"}
+        </h2>
+        <p>
+          {
+            donaciones?.mensaje ||
+              "La colecta del domingo y el aporte de los socios pagan la luz, los materiales de catequesis y la ayuda a las familias del barrio."
+          }
+        </p>
       </div>
       <a class="boton boton--azul" href="/donaciones">Quiero colaborar</a>
     </div>

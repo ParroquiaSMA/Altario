@@ -4,7 +4,7 @@ import FondoDecorativo from '../components/FondoDecorativo.astro';
 import { getSiteConfig } from '../lib/supabase';
 
 const siteConfig = await getSiteConfig();
-const { parroquia } = siteConfig;
+const { parroquia, contacto } = siteConfig;
 
 const titulo = 'Historia de la Parroquia Santuario Santa María de la Ayuda';
 const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bahía: el quinto templo más antiguo de la Arquidiócesis de Montevideo y más de 160 años de fe, comunidad e identidad en la Villa del Cerro.';
@@ -693,9 +693,21 @@ const bajada = 'De una modesta capilla en 1857 al santuario que hoy mira la bah�
     <div class="contenedor franja__fila">
       <div>
         <h2>Vení a conocer el templo</h2>
-        <p><strong>Ubicación:</strong> Esquina de Bogotá 3585 y Prusia, Villa del Cerro, Montevideo.</p>
-        <p><strong>Contacto:</strong> Tel. 2311 1150 · Cel. 093 523 389</p>
-        <p><strong>Horarios:</strong> Martes a viernes de 16:00 a 18:00 hs, sábados de 17:00 a 18:30 hs y domingos de 10:00 a 10:45 hs y de 17:00 a 18:30 hs.</p>
+        {contacto?.direccion && (
+          <p><strong>Ubicación:</strong> {contacto.direccion}</p>
+        )}
+        {(contacto?.telefono || contacto?.whatsapp) && (
+          <p>
+            <strong>Contacto:</strong>{' '}
+            {contacto?.telefono && (
+              <>Tel. <a href={`tel:${contacto.telefono.replace(/[^0-9+]/g, '')}`}>{contacto.telefono}</a></>
+            )}
+            {contacto?.telefono && contacto?.whatsapp && ' · '}
+            {contacto?.whatsapp && (
+              <>Cel. <a href={contacto.whatsapp.startsWith('http') ? contacto.whatsapp : `https://wa.me/${contacto.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer">{contacto.whatsapp}</a></>
+            )}
+          </p>
+        )}
       </div>
       <a class="boton boton--azul" href="/contacto">Cómo llegar</a>
     </div>
