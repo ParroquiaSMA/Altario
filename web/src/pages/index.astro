@@ -8,20 +8,35 @@ import {
   getHorarios,
   getSacramentos,
   getGrupos,
+  getBlogPosts,
 } from "../lib/supabase";
 
 const siteConfig = await getSiteConfig();
 const { parroquia, contacto, historia, donaciones } = siteConfig;
 
-const [avisos, horarios, fotos, sacramentos, grupos] = await Promise.all([
+const [avisos, horarios, fotos, sacramentos, grupos, blogPosts] = await Promise.all([
   getAvisos(),
   getHorarios(),
   getGaleria(),
   getSacramentos(),
   getGrupos(),
+  getBlogPosts(),
 ]);
 
 const previewFotos = fotos.slice(0, 3);
+const previewBlog = blogPosts.slice(0, 3);
+
+function formatFechaBlog(fecha?: string | null): string {
+  if (!fecha) return '';
+  try {
+    const parts = fecha.split('-');
+    if (parts.length === 3) {
+      const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      return d.toLocaleDateString('es-UY', { day: 'numeric', month: 'long' });
+    }
+  } catch {}
+  return fecha;
+}
 
 // Clasificación de horarios
 const misas = horarios.filter(
@@ -314,6 +329,51 @@ const misasScriptData = misas.map((m) => ({
               );
             })}
           </ol>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ===== BLOG: ÚLTIMAS NOTAS ===== -->
+  {
+    previewBlog.length > 0 && (
+      <section class="seccion">
+        <div class="contenedor">
+          <p class="antetitulo">Blog</p>
+          <h2>Últimas novedades</h2>
+          <p class="divisor"><i aria-hidden="true"></i></p>
+
+          <div class="blog-grid-home">
+            {previewBlog.map((post) => (
+              <a href={`/blog/${post.slug}`} class="blog-card-home">
+                {post.imagen_url && (
+                  <div class="blog-card-home__img">
+                    <img
+                      src={post.imagen_url}
+                      alt={post.titulo}
+                      width="600"
+                      height="340"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+                <div class="blog-card-home__body">
+                  {post.fecha_publicacion && (
+                    <time datetime={post.fecha_publicacion} class="blog-card-home__fecha">
+                      {formatFechaBlog(post.fecha_publicacion)}
+                    </time>
+                  )}
+                  <h3 class="blog-card-home__titulo">{post.titulo}</h3>
+                  <p class="blog-card-home__ext">{post.extracto}</p>
+                  <span class="blog-card-home__leer">Leer más →</span>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          <p style="margin-top:1.75rem">
+            <a class="boton boton--azul" href="/blog">Ver todas las notas</a>
+          </p>
         </div>
       </section>
     )

@@ -25,6 +25,7 @@ import {
   UsersIcon,
   HeartHandshakeIcon,
   PaletteIcon,
+  NewspaperIcon,
 } from "lucide-react"
 
 const NAV_MAIN = [
@@ -33,6 +34,7 @@ const NAV_MAIN = [
 ]
 
 const NAV_SITIO_WEB = [
+  { name: "Blog", url: "/blog", icon: <NewspaperIcon /> },
   { name: "Horarios", url: "/horarios", icon: <ClockIcon /> },
   { name: "Avisos", url: "/avisos", icon: <MegaphoneIcon /> },
   { name: "Galería", url: "/galeria", icon: <ImagesIcon /> },

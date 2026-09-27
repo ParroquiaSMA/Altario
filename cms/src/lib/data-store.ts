@@ -73,6 +73,22 @@ export interface MensajeItem {
   created_at: string
 }
 
+export interface BlogItem {
+  id: string
+  slug: string
+  titulo: string
+  extracto: string
+  contenido: string
+  imagen_url?: string | null
+  autor: string
+  categoria: string
+  publicado: boolean
+  fecha_publicacion?: string | null
+  orden?: number
+  created_at?: string
+  updated_at?: string
+}
+
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 function getItemSignature(key: string, item: any): string {
@@ -97,6 +113,9 @@ function getItemSignature(key: string, item: any): string {
   }
   if (key === "mensajes") {
     return item.id ? String(item.id) : `${item.correo || ""}_${item.created_at || ""}`
+  }
+  if (key === "blog" && (item.slug || item.titulo)) {
+    return String(item.slug || item.titulo).trim().toLowerCase()
   }
   return String(item.id || item.slug || "")
 }
@@ -139,12 +158,13 @@ const inMemoryStores: Record<string, any[]> = {
   mensajes: supabase ? [] : seedMensajes,
   donaciones: [],
   contenido_plantillas: (seedContenidoPlantillas as any[]),
+  blog: [],
 }
 
 // Limpiar residuos de seeds en localStorage si Supabase está activo
 if (typeof window !== "undefined" && supabase) {
   try {
-    const keysToClean = ["horarios", "avisos", "sacramentos", "grupos", "galeria", "fotos", "mensajes", "donaciones"]
+    const keysToClean = ["horarios", "avisos", "sacramentos", "grupos", "galeria", "fotos", "mensajes", "donaciones", "blog"]
     for (const k of keysToClean) {
       localStorage.removeItem(`altario_store_${k}`)
     }
@@ -880,5 +900,89 @@ export async function deleteContenidoPlantilla(id: string): Promise<void> {
   }
   const updated = getContenidoPlantillas().filter((i) => i.id !== id)
   saveContenidoPlantillas(updated)
+}
+
+// ──────────────────────────────────────────────
+// BLOG / NOVEDADES (100% SUPABASE DATABASE)
+// ──────────────────────────────────────────────
+export const getBlog = (): BlogItem[] => []
+export const saveBlog = (_items: BlogItem[]) => {}
+
+export async function fetchBlogFromDb(): Promise<BlogItem[]> {
+  if (!supabase) return []
+  try {
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("[DB] Error al consultar blog_posts en Supabase:", error.message)
+      throw new Error(`Error al leer blog: ${error.message}`)
+    }
+
+    return (data || []) as BlogItem[]
+  } catch (err: any) {
+    console.error("[DB] Excepción al consultar blog_posts:", err)
+    return []
+  }
+}
+
+export async function addBlogPost(item: Omit<BlogItem, "id">): Promise<BlogItem> {
+  if (!supabase) {
+    throw new Error("Supabase no está configurado.")
+  }
+
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .insert([
+      {
+        ...item,
+        updated_at: new Date().toISOString(),
+      },
+    ])
+    .select()
+
+  if (error || !data?.[0]) {
+    console.error("[DB] Error al insertar en blog_posts:", error)
+    throw new Error(error?.message || "No se pudo crear el artículo en Supabase.")
+  }
+
+  return data[0] as BlogItem
+}
+
+export async function updateBlogPost(id: string, updates: Partial<BlogItem>): Promise<void> {
+  if (!supabase) {
+    throw new Error("Supabase no está configurado.")
+  }
+
+  const { error } = await supabase
+    .from("blog_posts")
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+
+  if (error) {
+    console.error("[DB] Error al actualizar en blog_posts:", error)
+    throw new Error(error?.message || "No se pudo actualizar el artículo en Supabase.")
+  }
+}
+
+export async function deleteBlogPost(id: string): Promise<void> {
+  if (!supabase) {
+    throw new Error("Supabase no está configurado.")
+  }
+
+  const { error } = await supabase
+    .from("blog_posts")
+    .delete()
+    .eq("id", id)
+
+  if (error) {
+    console.error("[DB] Error al eliminar en blog_posts:", error)
+    throw new Error(error?.message || "No se pudo eliminar el artículo en Supabase.")
+  }
 }
 

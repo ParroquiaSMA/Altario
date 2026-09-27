@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Horario, Aviso, FotoGaleria, Sacramento, Grupo, MensajeContacto } from '../types/database';
+import type { Horario, Aviso, FotoGaleria, Sacramento, Grupo, MensajeContacto, BlogPost } from '../types/database';
 import seedHorarios from '../data/seeds/horarios.json';
 import seedAvisos from '../data/seeds/avisos.json';
 import seedFotos from '../data/seeds/galeria.json';
@@ -281,6 +281,37 @@ export async function getGrupos(): Promise<Grupo[]> {
     return data as Grupo[];
   } catch {
     return GRUPOS_SEED;
+  }
+}
+
+export async function getBlogPosts(): Promise<BlogPost[]> {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('publicado', true)
+      .order('fecha_publicacion', { ascending: false });
+    if (error || !data) return [];
+    return data as BlogPost[];
+  } catch {
+    return [];
+  }
+}
+
+export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('slug', slug)
+      .eq('publicado', true)
+      .single();
+    if (error || !data) return null;
+    return data as BlogPost;
+  } catch {
+    return null;
   }
 }
 

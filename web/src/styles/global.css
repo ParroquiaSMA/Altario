@@ -1669,6 +1669,86 @@ legend {
   clip: rect(0 0 0 0)
 }
 
+/* ---------- Blog cards (Home preview) ---------- */
+.blog-grid-home {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 2rem
+}
+
+.blog-card-home {
+  display: flex;
+  flex-direction: column;
+  background: var(--papel);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow .25s ease, transform .25s ease
+}
+.blog-card-home:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,.09);
+  transform: translateY(-3px)
+}
+
+.blog-card-home__img {
+  aspect-ratio: 16/9;
+  overflow: hidden
+}
+.blog-card-home__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .35s ease
+}
+.blog-card-home:hover .blog-card-home__img img {
+  transform: scale(1.04)
+}
+
+.blog-card-home__body {
+  padding: 1.35rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1
+}
+
+.blog-card-home__fecha {
+  font-size: .8125rem;
+  color: var(--gris);
+  margin-bottom: .4rem
+}
+
+.blog-card-home__titulo {
+  font-family: var(--display);
+  font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+  line-height: 1.3;
+  margin: 0 0 .45rem;
+  color: var(--tinta)
+}
+
+.blog-card-home__ext {
+  color: var(--gris-cuerpo);
+  font-size: .9375rem;
+  line-height: 1.6;
+  margin: 0 0 1rem;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden
+}
+
+.blog-card-home__leer {
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--lapis-claro);
+  transition: color .2s ease
+}
+.blog-card-home:hover .blog-card-home__leer {
+  color: var(--oro-texto)
+}
+
 /* ---------- Franja de llamado ---------- */
 .franja {
   background: var(--papel);

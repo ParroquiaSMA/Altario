@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 import fs from 'node:fs';
 import { normalizePayerEmail, guardarRegistroDonacion } from './src/lib/mercadopago-utils';
@@ -203,6 +204,8 @@ function devMercadoPagoApiPlugin() {
 }
 
 export default defineConfig({
+  output: 'server',
+  adapter: vercel(),
   vite: {
     plugins: [tailwindcss(), devMercadoPagoApiPlugin()],
   },

@@ -1,0 +1,11 @@
+---
+import RootLayout from '../layouts/RootLayout.astro';
+import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { BlogView } from '@/components/views/blog-view';
+---
+
+<RootLayout title="Blog — Altario CMS">
+  <DashboardShell client:load title="Blog" currentPath="/blog">
+    <BlogView client:load />
+  </DashboardShell>
+</RootLayout>

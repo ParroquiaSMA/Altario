@@ -67,3 +67,19 @@ export interface MensajeContacto {
   respondido?: boolean;
   created_at?: string;
 }
+
+export interface BlogPost {
+  id: string;
+  slug: string;
+  titulo: string;
+  extracto: string;
+  contenido: string;
+  imagen_url?: string | null;
+  autor: string;
+  categoria: string;
+  publicado: boolean;
+  fecha_publicacion?: string | null;
+  orden: number;
+  created_at?: string;
+  updated_at?: string;
+}
