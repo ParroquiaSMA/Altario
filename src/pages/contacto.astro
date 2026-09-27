@@ -76,7 +76,6 @@ const mpPublicKey = donaciones?.mercadopago?.public_key || import.meta.env.PUBLI
           <div class="ficha" style="margin-top:2rem">
             <h3>Cómo llegar</h3>
             <p>{contacto.como_llegar || 'Líneas de transporte público sobre la avenida principal.'}</p>
-            <p style="margin-bottom:0"><strong>Accesibilidad:</strong> rampa por la puerta lateral, baño accesible en el salón y lugares reservados para sillas de ruedas en la nave central.</p>
           </div>
 
           {donaciones && ((donaciones.cuentas_bancarias && donaciones.cuentas_bancarias.length > 0) || (donaciones.medios_donacion && donaciones.medios_donacion.length > 0)) && (
